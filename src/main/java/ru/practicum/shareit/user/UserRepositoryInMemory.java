@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Repository
-public class UserRepositoryInMemory implements UserRepository{
+public class UserRepositoryInMemory implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
     private final Set<String> emails = new HashSet<>();
     private Long idMax = 1L;
@@ -69,7 +69,7 @@ public class UserRepositoryInMemory implements UserRepository{
         return true;
     }
 
-    private void emailIsAvailable(User user){
+    private void emailIsAvailable(User user) {
         if (emails.contains(user.getEmail())) {
             throw new ConflictException("Такой email уже используется.");
         }

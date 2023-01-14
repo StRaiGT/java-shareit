@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class ItemRepositoryInMemory implements ItemRepository{
+public class ItemRepositoryInMemory implements ItemRepository {
     public final UserService userService;
     private final Map<Long, Item> items = new HashMap<>();
     private Long idMax = 1L;
