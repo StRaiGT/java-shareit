@@ -16,7 +16,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Builder
-public class ItemRequest {
+public class ItemRequestDto {
     Long id;
     String description;
     Long requestUserId;

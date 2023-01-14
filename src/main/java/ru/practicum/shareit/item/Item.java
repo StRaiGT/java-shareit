@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.item;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -6,19 +6,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
-
-/**
- * TODO Sprint add-item-requests.
- */
-
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
 @Builder
-public class ItemRequest {
+public class Item {
     Long id;
+    String name;
     String description;
-    Long requestUserId;
-    Date created;
+    Boolean available;
+    Long ownerId;
+    Long request;
 }
