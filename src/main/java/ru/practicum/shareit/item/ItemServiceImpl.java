@@ -13,26 +13,27 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
+    private final ItemMapper itemMapper;
 
     @Override
     public List<ItemDto> getItemsByOwner(Long userId) {
         log.info("Вывод всех вещей пользователя с id {}.", userId);
         return itemRepository.getItemsByOwner(userId).stream()
-                .map(ItemMapper::toItemDto)
+                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public ItemDto getItemById(Long id) {
         log.info("Вывод вещи с id {}.", id);
-        return ItemMapper.toItemDto(itemRepository.getItemById(id));
+        return itemMapper.toItemDto(itemRepository.getItemById(id));
     }
 
     @Override
     public ItemDto createItem(Long userId, ItemDto itemDto) {
         log.info("Создание вещи {} пользователем с id {}.", itemDto, userId);
         itemDto.setOwnerId(userId);
-        return ItemMapper.toItemDto(itemRepository.createItem(ItemMapper.toItem(itemDto)));
+        return itemMapper.toItemDto(itemRepository.createItem(itemMapper.toItem(itemDto)));
     }
 
     @Override
@@ -40,7 +41,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Обновление вещи {} с id {} пользователем с id {}.", itemDto, id, userId);
         itemDto.setOwnerId(userId);
         itemDto.setId(id);
-        return ItemMapper.toItemDto(itemRepository.patchItem(ItemMapper.toItem(itemDto)));
+        return itemMapper.toItemDto(itemRepository.patchItem(itemMapper.toItem(itemDto)));
     }
 
     @Override
@@ -58,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
         text = text.toLowerCase();
         return itemRepository.search(text)
                 .stream()
-                .map(ItemMapper::toItemDto)
+                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 }

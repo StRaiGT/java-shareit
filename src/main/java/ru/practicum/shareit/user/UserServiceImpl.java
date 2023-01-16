@@ -12,32 +12,33 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public List<UserDto> getAllUsers() {
         log.info("Вывод всех пользователей.");
         return userRepository.getAllUsers().stream()
-                .map(UserMapper::toUserDto)
+                .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDto getUserById(Long id) {
         log.info("Вывод пользователя с id {}.", id);
-        return UserMapper.toUserDto(userRepository.getUserById(id));
+        return userMapper.toUserDto(userRepository.getUserById(id));
     }
 
     @Override
     public UserDto createUser(UserDto userDto) {
         log.info("Добавление пользователя {}", userDto);
-        return UserMapper.toUserDto(userRepository.createUser(UserMapper.toUser(userDto)));
+        return userMapper.toUserDto(userRepository.createUser(userMapper.toUser(userDto)));
     }
 
     @Override
     public UserDto patchUser(Long id, UserDto userDto) {
         log.info("Обновление пользователя {} с id {}.", userDto, id);
         userDto.setId(id);
-        return UserMapper.toUserDto(userRepository.patchUser(UserMapper.toUser(userDto)));
+        return userMapper.toUserDto(userRepository.patchUser(userMapper.toUser(userDto)));
     }
 
     @Override
