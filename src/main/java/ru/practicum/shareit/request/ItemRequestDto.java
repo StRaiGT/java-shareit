@@ -8,10 +8,6 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
 
-/**
- * TODO Sprint add-item-requests.
- */
-
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter

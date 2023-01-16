@@ -8,10 +8,6 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
 
-/**
- * TODO Sprint add-bookings.
- */
-
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
