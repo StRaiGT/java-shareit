@@ -24,7 +24,7 @@ public class UserControllerTest {
     private final UserController userController;
 
     @Nested
-    class createUser {
+    class CreateUser {
         @Test
         public void shouldCreate() {
             UserDto userDto = UserDto.builder()
@@ -73,7 +73,7 @@ public class UserControllerTest {
     }
 
     @Nested
-    class getAllUsers {
+    class GetAllUsers {
         @Test
         public void shouldGet() {
             UserDto userDto1 = UserDto.builder()
@@ -115,7 +115,7 @@ public class UserControllerTest {
     }
 
     @Nested
-    class getUserById {
+    class GetUserById {
         @Test
         public void shouldGet() {
             UserDto userDto1 = UserDto.builder()
@@ -141,7 +141,7 @@ public class UserControllerTest {
     }
 
     @Nested
-    class patchUser {
+    class PatchUser {
         @Test
         public void shouldPatch() {
             UserDto userDto1 = UserDto.builder()
@@ -213,7 +213,7 @@ public class UserControllerTest {
     }
 
     @Nested
-    class deleteUser {
+    class DeleteUser {
         @Test
         public void shouldDelete() {
             UserDto userDto1 = UserDto.builder()

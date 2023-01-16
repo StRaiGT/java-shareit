@@ -26,7 +26,7 @@ public class ItemControllerTest {
     private final ItemController itemController;
 
     @Nested
-    class createItem {
+    class CreateItem {
         @Test
         public void shouldCreate() {
             UserDto userDto = UserDto.builder()
@@ -76,7 +76,7 @@ public class ItemControllerTest {
     }
 
     @Nested
-    class getItemsByOwner {
+    class GetItemsByOwner {
         @Test
         public void shouldGet() {
             UserDto userDto1 = UserDto.builder()
@@ -174,7 +174,7 @@ public class ItemControllerTest {
     }
 
     @Nested
-    class getItemById {
+    class GetItemById {
         @Test
         public void shouldGet() {
             UserDto userDto = UserDto.builder()
@@ -212,7 +212,7 @@ public class ItemControllerTest {
     }
 
     @Nested
-    class patchItem {
+    class PatchItem {
         @Test
         public void shouldPatch() {
             UserDto userDto = UserDto.builder()
@@ -343,7 +343,7 @@ public class ItemControllerTest {
     }
 
     @Nested
-    class deleteItem {
+    class DeleteItem {
         @Test
         public void shouldDelete() {
             UserDto userDto = UserDto.builder()
@@ -378,7 +378,7 @@ public class ItemControllerTest {
     }
 
     @Nested
-    class search {
+    class Search {
         @Test
         public void shouldSearch() {
             UserDto userDto1 = UserDto.builder()
