@@ -12,7 +12,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Builder
-public class Booking {
+public class BookingDto {
     Long id;
     Date start;
     Date end;

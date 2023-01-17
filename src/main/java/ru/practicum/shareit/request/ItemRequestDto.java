@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.request;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -12,11 +12,9 @@ import java.util.Date;
 @Getter
 @Setter
 @Builder
-public class Booking {
+public class ItemRequestDto {
     Long id;
-    Date start;
-    Date end;
-    Long itemId;
-    Long bookerId;
-    Status status;
+    String description;
+    Long requestUserId;
+    Date created;
 }
