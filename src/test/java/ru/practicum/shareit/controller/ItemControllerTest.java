@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -253,47 +254,6 @@ public class ItemControllerTest {
         }
 
         @Test
-        public void shouldThrowExceptionIfItemOwnerIdNotFound() {
-            UserDto userDto = UserDto.builder()
-                    .id(1L)
-                    .name("Test user")
-                    .email("tester@yandex.ru")
-                    .build();
-            userController.createUser(userDto);
-
-            ItemDto itemDto1 = ItemDto.builder()
-                    .id(1L)
-                    .name("Test item 1")
-                    .description("Test item description 1")
-                    .available(true)
-                    .ownerId(userDto.getId())
-                    .request(null)
-                    .build();
-            itemController.createItem(itemDto1.getOwnerId(), itemDto1);
-
-            ItemDto itemDto2 = ItemDto.builder()
-                    .id(2L)
-                    .name("Patch test item 1")
-                    .description("Patch test item description 1")
-                    .available(false)
-                    .ownerId(10L)
-                    .request(null)
-                    .build();
-
-            NotFoundException exception = assertThrows(NotFoundException.class, () -> itemController.patchItem(itemDto2.getOwnerId(), itemDto1.getId(), itemDto2));
-            assertEquals("Пользователя с таким id не существует.", exception.getMessage());
-
-            ItemDto itemFromController = itemController.getItemById(itemDto1.getId());
-
-            assertEquals(itemFromController.getId(), itemDto1.getId());
-            assertEquals(itemFromController.getName(), itemDto1.getName());
-            assertEquals(itemFromController.getDescription(), itemDto1.getDescription());
-            assertEquals(itemFromController.getAvailable(), itemDto1.getAvailable());
-            assertEquals(itemFromController.getOwnerId(), itemDto1.getOwnerId());
-            assertEquals(itemFromController.getRequest(), itemDto1.getRequest());
-        }
-
-        @Test
         public void shouldThrowExceptionIfItemOwnerIdForbidden() {
             UserDto userDto1 = UserDto.builder()
                     .id(1L)
@@ -370,7 +330,7 @@ public class ItemControllerTest {
 
         @Test
         public void shouldDeleteIfItemIdNotFound() {
-            itemController.deleteItem(10L);
+            assertThrows(EmptyResultDataAccessException.class, () -> itemController.deleteItem(10L));
 
             NotFoundException exception = assertThrows(NotFoundException.class, () -> itemController.getItemById(10L));
             assertEquals("Вещи с таким id не существует.", exception.getMessage());

@@ -48,8 +48,8 @@ public class ItemController {
     }
 
     @DeleteMapping("/{id}")
-    public Boolean deleteItem(@PathVariable Long id) {
-        return itemService.deleteItem(id);
+    public void deleteItem(@PathVariable Long id) {
+        itemService.deleteItem(id);
     }
 
     @GetMapping("/search")

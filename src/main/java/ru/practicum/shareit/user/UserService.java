@@ -11,5 +11,5 @@ public interface UserService {
 
     UserDto patchUser(Long id, UserDto userDto);
 
-    Boolean deleteUser(Long id);
+    void deleteUser(Long id);
 }

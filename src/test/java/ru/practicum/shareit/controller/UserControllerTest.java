@@ -5,8 +5,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.UserController;
 import ru.practicum.shareit.user.UserDto;
@@ -60,8 +61,7 @@ public class UserControllerTest {
                     .email("tester@yandex.ru")
                     .build();
 
-            ConflictException exception = assertThrows(ConflictException.class, () -> userController.createUser(userDto2));
-            assertEquals("Такой email уже используется.", exception.getMessage());
+            assertThrows(DataIntegrityViolationException.class, () -> userController.createUser(userDto2));
             assertEquals(userController.getAllUsers().size(), 1);
 
             UserDto userDtoFromController = userController.getAllUsers().get(0);
@@ -191,9 +191,7 @@ public class UserControllerTest {
                     .email("tester2@yandex.ru")
                     .build();
 
-            ConflictException exception = assertThrows(ConflictException.class,
-                    () -> userController.patchUser(userDto1.getId(), userDto3));
-            assertEquals("Такой email уже используется.", exception.getMessage());
+            assertThrows(DataIntegrityViolationException.class, () -> userController.patchUser(userDto1.getId(), userDto3));
 
             List<UserDto> usersFromController = userController.getAllUsers();
 
@@ -240,7 +238,7 @@ public class UserControllerTest {
 
         @Test
         public void shouldDeleteIfUserIdNotFound() {
-            userController.deleteUser(10L);
+            assertThrows(EmptyResultDataAccessException.class, () -> userController.deleteUser(10L));
 
             assertEquals(userController.getAllUsers().size(), 0);
         }
