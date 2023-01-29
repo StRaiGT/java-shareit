@@ -11,13 +11,14 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     @Override
-    public List<UserDto> getAllUsers() {
+    public List<UserDto> getAll() {
         log.info("Вывод всех пользователей.");
         return userRepository.findAll().stream()
                 .map(userMapper::toUserDto)
@@ -25,21 +26,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUserById(Long id) {
+    public UserDto getById(Long id) {
         log.info("Вывод пользователя с id {}.", id);
         return userMapper.toUserDto(userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует.")));
     }
 
     @Override
-    public UserDto createUser(UserDto userDto) {
+    @Transactional
+    public UserDto create(UserDto userDto) {
         log.info("Добавление пользователя {}", userDto);
         return userMapper.toUserDto(userRepository.save(userMapper.toUser(userDto)));
     }
 
     @Override
     @Transactional
-    public UserDto patchUser(Long id, UserDto userDto) {
+    public UserDto patch(Long id, UserDto userDto) {
         log.info("Обновление пользователя {} с id {}.", userDto, id);
 
         User repoUser = userRepository.findById(id)
@@ -59,7 +61,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long id) {
+    @Transactional
+    public void delete(Long id) {
         log.info("Удаление пользователя с id {}", id);
         userRepository.deleteById(id);
     }

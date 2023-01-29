@@ -25,31 +25,32 @@ public class ItemController {
     private final String headerUserId = "X-Sharer-User-Id";
 
     @GetMapping
-    public List<ItemDto> getItemsByOwner(@RequestHeader(headerUserId) Long userId) {
-        return itemService.getItemsByOwner(userId);
+    public List<ItemExtendedDto> getByOwnerId(@RequestHeader(headerUserId) Long userId) {
+        return itemService.getByOwnerId(userId);
     }
 
     @GetMapping("/{id}")
-    public ItemDto getItemById(@PathVariable Long id) {
-        return itemService.getItemById(id);
+    public ItemExtendedDto getById(@RequestHeader(headerUserId) Long userId,
+                                   @PathVariable Long id) {
+        return itemService.getById(userId, id);
     }
 
     @PostMapping
-    public ItemDto createItem(@RequestHeader(headerUserId) Long userId,
-                              @Validated(Create.class) @RequestBody ItemDto itemDto) {
-        return itemService.createItem(userId, itemDto);
+    public ItemDto create(@RequestHeader(headerUserId) Long userId,
+                          @Validated(Create.class) @RequestBody ItemDto itemDto) {
+        return itemService.create(userId, itemDto);
     }
 
     @PatchMapping("/{id}")
-    public ItemDto patchItem(@RequestHeader(headerUserId) Long userId,
-                             @PathVariable Long id,
-                             @Validated(Update.class) @RequestBody ItemDto itemDto) {
-        return itemService.patchItem(userId, id, itemDto);
+    public ItemDto patch(@RequestHeader(headerUserId) Long userId,
+                         @PathVariable Long id,
+                         @Validated(Update.class) @RequestBody ItemDto itemDto) {
+        return itemService.patch(userId, id, itemDto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteItem(@PathVariable Long id) {
-        itemService.deleteItem(id);
+    public void delete(@PathVariable Long id) {
+        itemService.delete(id);
     }
 
     @GetMapping("/search")

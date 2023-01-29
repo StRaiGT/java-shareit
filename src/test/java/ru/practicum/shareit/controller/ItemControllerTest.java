@@ -11,6 +11,7 @@ import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemController;
 import ru.practicum.shareit.item.ItemDto;
+import ru.practicum.shareit.item.ItemExtendedDto;
 import ru.practicum.shareit.user.UserController;
 import ru.practicum.shareit.user.UserDto;
 
@@ -35,7 +36,7 @@ public class ItemControllerTest {
                     .name("Test user")
                     .email("tester@yandex.ru")
                     .build();
-            userController.createUser(userDto);
+            userController.create(userDto);
 
             ItemDto itemDto = ItemDto.builder()
                     .id(1L)
@@ -45,13 +46,13 @@ public class ItemControllerTest {
                     .ownerId(userDto.getId())
                     .request(null)
                     .build();
-            itemController.createItem(itemDto.getOwnerId(), itemDto);
+            itemController.create(itemDto.getOwnerId(), itemDto);
 
-            List<ItemDto> itemsFromController = itemController.getItemsByOwner(userDto.getId());
+            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(userDto.getId());
 
             assertEquals(itemsFromController.size(), 1);
 
-            ItemDto itemDtoFromController = itemsFromController.get(0);
+            ItemExtendedDto itemDtoFromController = itemsFromController.get(0);
 
             assertEquals(itemDtoFromController.getId(), itemDto.getId());
             assertEquals(itemDtoFromController.getName(), itemDto.getName());
@@ -71,7 +72,7 @@ public class ItemControllerTest {
                     .ownerId(10L)
                     .request(null)
                     .build();
-            NotFoundException exception = assertThrows(NotFoundException.class, () -> itemController.createItem(10L, itemDto));
+            NotFoundException exception = assertThrows(NotFoundException.class, () -> itemController.create(10L, itemDto));
             assertEquals("Пользователя с таким id не существует.", exception.getMessage());
         }
     }
@@ -85,14 +86,14 @@ public class ItemControllerTest {
                     .name("Test user 1")
                     .email("tester1@yandex.ru")
                     .build();
-            userController.createUser(userDto1);
+            userController.create(userDto1);
 
             UserDto userDto2 = UserDto.builder()
                     .id(2L)
                     .name("Test user 2")
                     .email("tester2@yandex.ru")
                     .build();
-            userController.createUser(userDto2);
+            userController.create(userDto2);
 
             ItemDto itemDto1 = ItemDto.builder()
                     .id(1L)
@@ -102,7 +103,7 @@ public class ItemControllerTest {
                     .ownerId(userDto1.getId())
                     .request(null)
                     .build();
-            itemController.createItem(itemDto1.getOwnerId(), itemDto1);
+            itemController.create(itemDto1.getOwnerId(), itemDto1);
 
             ItemDto itemDto2 = ItemDto.builder()
                     .id(2L)
@@ -112,7 +113,7 @@ public class ItemControllerTest {
                     .ownerId(userDto2.getId())
                     .request(null)
                     .build();
-            itemController.createItem(itemDto2.getOwnerId(), itemDto2);
+            itemController.create(itemDto2.getOwnerId(), itemDto2);
 
             ItemDto itemDto3 = ItemDto.builder()
                     .id(3L)
@@ -122,14 +123,14 @@ public class ItemControllerTest {
                     .ownerId(userDto1.getId())
                     .request(null)
                     .build();
-            itemController.createItem(itemDto3.getOwnerId(), itemDto3);
+            itemController.create(itemDto3.getOwnerId(), itemDto3);
 
-            List<ItemDto> itemsFromController1 = itemController.getItemsByOwner(userDto1.getId());
+            List<ItemExtendedDto> itemsFromController1 = itemController.getByOwnerId(userDto1.getId());
 
             assertEquals(itemsFromController1.size(), 2);
 
-            ItemDto itemDtoFromController1 = itemsFromController1.get(0);
-            ItemDto itemDtoFromController3 = itemsFromController1.get(1);
+            ItemExtendedDto itemDtoFromController1 = itemsFromController1.get(0);
+            ItemExtendedDto itemDtoFromController3 = itemsFromController1.get(1);
 
             assertEquals(itemDtoFromController1.getId(), itemDto1.getId());
             assertEquals(itemDtoFromController1.getName(), itemDto1.getName());
@@ -145,11 +146,11 @@ public class ItemControllerTest {
             assertEquals(itemDtoFromController3.getOwnerId(), itemDto3.getOwnerId());
             assertEquals(itemDtoFromController3.getRequest(), itemDto3.getRequest());
 
-            List<ItemDto> itemsFromController2 = itemController.getItemsByOwner(userDto2.getId());
+            List<ItemExtendedDto> itemsFromController2 = itemController.getByOwnerId(userDto2.getId());
 
             assertEquals(itemsFromController2.size(), 1);
 
-            ItemDto itemDtoFromController2 = itemsFromController2.get(0);
+            ItemExtendedDto itemDtoFromController2 = itemsFromController2.get(0);
 
             assertEquals(itemDtoFromController2.getId(), itemDto2.getId());
             assertEquals(itemDtoFromController2.getName(), itemDto2.getName());
@@ -166,9 +167,9 @@ public class ItemControllerTest {
                     .name("Test user")
                     .email("tester@yandex.ru")
                     .build();
-            userController.createUser(userDto);
+            userController.create(userDto);
 
-            List<ItemDto> itemsFromController = itemController.getItemsByOwner(userDto.getId());
+            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(userDto.getId());
 
             assertEquals(itemsFromController.size(), 0);
         }
@@ -183,7 +184,7 @@ public class ItemControllerTest {
                     .name("Test user")
                     .email("tester@yandex.ru")
                     .build();
-            userController.createUser(userDto);
+            userController.create(userDto);
 
             ItemDto itemDto = ItemDto.builder()
                     .id(1L)
@@ -193,9 +194,9 @@ public class ItemControllerTest {
                     .ownerId(userDto.getId())
                     .request(null)
                     .build();
-            itemController.createItem(itemDto.getOwnerId(), itemDto);
+            itemController.create(itemDto.getOwnerId(), itemDto);
 
-            ItemDto itemFromController = itemController.getItemById(itemDto.getId());
+            ItemExtendedDto itemFromController = itemController.getById(userDto.getId(), itemDto.getId());
 
             assertEquals(itemFromController.getId(), itemDto.getId());
             assertEquals(itemFromController.getName(), itemDto.getName());
@@ -207,7 +208,14 @@ public class ItemControllerTest {
 
         @Test
         public void shouldThrowExceptionIfItemIdNotFound() {
-            NotFoundException exception = assertThrows(NotFoundException.class, () -> itemController.getItemById(10L));
+            UserDto userDto = UserDto.builder()
+                    .id(1L)
+                    .name("Test user")
+                    .email("tester@yandex.ru")
+                    .build();
+            userController.create(userDto);
+
+            NotFoundException exception = assertThrows(NotFoundException.class, () -> itemController.getById(userDto.getId(), 10L));
             assertEquals("Вещи с таким id не существует.", exception.getMessage());
         }
     }
@@ -221,7 +229,7 @@ public class ItemControllerTest {
                     .name("Test user")
                     .email("tester@yandex.ru")
                     .build();
-            userController.createUser(userDto);
+            userController.create(userDto);
 
             ItemDto itemDto1 = ItemDto.builder()
                     .id(1L)
@@ -231,7 +239,7 @@ public class ItemControllerTest {
                     .ownerId(userDto.getId())
                     .request(null)
                     .build();
-            itemController.createItem(itemDto1.getOwnerId(), itemDto1);
+            itemController.create(itemDto1.getOwnerId(), itemDto1);
 
             ItemDto itemDto2 = ItemDto.builder()
                     .id(2L)
@@ -241,9 +249,9 @@ public class ItemControllerTest {
                     .ownerId(userDto.getId())
                     .request(null)
                     .build();
-            itemController.patchItem(itemDto2.getOwnerId(), itemDto1.getId(), itemDto2);
+            itemController.patch(itemDto2.getOwnerId(), itemDto1.getId(), itemDto2);
 
-            ItemDto itemFromController = itemController.getItemById(itemDto1.getId());
+            ItemExtendedDto itemFromController = itemController.getById(userDto.getId(), itemDto1.getId());
 
             assertEquals(itemFromController.getId(), itemDto1.getId());
             assertEquals(itemFromController.getName(), itemDto2.getName());
@@ -260,14 +268,14 @@ public class ItemControllerTest {
                     .name("Test user 1")
                     .email("tester1@yandex.ru")
                     .build();
-            userController.createUser(userDto1);
+            userController.create(userDto1);
 
             UserDto userDto2 = UserDto.builder()
                     .id(2L)
                     .name("Test user 2")
                     .email("tester2@yandex.ru")
                     .build();
-            userController.createUser(userDto2);
+            userController.create(userDto2);
 
             ItemDto itemDto1 = ItemDto.builder()
                     .id(1L)
@@ -277,7 +285,7 @@ public class ItemControllerTest {
                     .ownerId(userDto1.getId())
                     .request(null)
                     .build();
-            itemController.createItem(itemDto1.getOwnerId(), itemDto1);
+            itemController.create(itemDto1.getOwnerId(), itemDto1);
 
             ItemDto itemDto2 = ItemDto.builder()
                     .id(2L)
@@ -288,10 +296,10 @@ public class ItemControllerTest {
                     .request(null)
                     .build();
 
-            ForbiddenException exception = assertThrows(ForbiddenException.class, () -> itemController.patchItem(itemDto2.getOwnerId(), itemDto1.getId(), itemDto2));
+            ForbiddenException exception = assertThrows(ForbiddenException.class, () -> itemController.patch(itemDto2.getOwnerId(), itemDto1.getId(), itemDto2));
             assertEquals("Изменение вещи доступно только владельцу.", exception.getMessage());
 
-            ItemDto itemFromController = itemController.getItemById(itemDto1.getId());
+            ItemExtendedDto itemFromController = itemController.getById(userDto1.getId(), itemDto1.getId());
 
             assertEquals(itemFromController.getId(), itemDto1.getId());
             assertEquals(itemFromController.getName(), itemDto1.getName());
@@ -311,7 +319,7 @@ public class ItemControllerTest {
                     .name("Test user")
                     .email("tester@yandex.ru")
                     .build();
-            userController.createUser(userDto);
+            userController.create(userDto);
 
             ItemDto itemDto = ItemDto.builder()
                     .id(1L)
@@ -321,18 +329,25 @@ public class ItemControllerTest {
                     .ownerId(userDto.getId())
                     .request(null)
                     .build();
-            itemController.createItem(userDto.getId(), itemDto);
+            itemController.create(userDto.getId(), itemDto);
 
-            itemController.deleteItem(itemDto.getId());
+            itemController.delete(itemDto.getId());
 
-            assertEquals(itemController.getItemsByOwner(userDto.getId()).size(), 0);
+            assertEquals(itemController.getByOwnerId(userDto.getId()).size(), 0);
         }
 
         @Test
         public void shouldDeleteIfItemIdNotFound() {
-            assertThrows(EmptyResultDataAccessException.class, () -> itemController.deleteItem(10L));
+            UserDto userDto = UserDto.builder()
+                    .id(1L)
+                    .name("Test user")
+                    .email("tester@yandex.ru")
+                    .build();
+            userController.create(userDto);
 
-            NotFoundException exception = assertThrows(NotFoundException.class, () -> itemController.getItemById(10L));
+            assertThrows(EmptyResultDataAccessException.class, () -> itemController.delete(10L));
+
+            NotFoundException exception = assertThrows(NotFoundException.class, () -> itemController.getById(userDto.getId(), 10L));
             assertEquals("Вещи с таким id не существует.", exception.getMessage());
         }
     }
@@ -346,14 +361,14 @@ public class ItemControllerTest {
                     .name("Test user 1")
                     .email("tester1@yandex.ru")
                     .build();
-            userController.createUser(userDto1);
+            userController.create(userDto1);
 
             UserDto userDto2 = UserDto.builder()
                     .id(2L)
                     .name("Test user 2")
                     .email("tester2@yandex.ru")
                     .build();
-            userController.createUser(userDto2);
+            userController.create(userDto2);
 
             ItemDto itemDto1 = ItemDto.builder()
                     .id(1L)
@@ -363,7 +378,7 @@ public class ItemControllerTest {
                     .ownerId(userDto1.getId())
                     .request(null)
                     .build();
-            itemController.createItem(itemDto1.getOwnerId(), itemDto1);
+            itemController.create(itemDto1.getOwnerId(), itemDto1);
 
             ItemDto itemDto2 = ItemDto.builder()
                     .id(2L)
@@ -373,7 +388,7 @@ public class ItemControllerTest {
                     .ownerId(userDto1.getId())
                     .request(null)
                     .build();
-            itemController.createItem(itemDto2.getOwnerId(), itemDto2);
+            itemController.create(itemDto2.getOwnerId(), itemDto2);
 
             ItemDto itemDto3 = ItemDto.builder()
                     .id(3L)
@@ -383,7 +398,7 @@ public class ItemControllerTest {
                     .ownerId(userDto2.getId())
                     .request(null)
                     .build();
-            itemController.createItem(itemDto3.getOwnerId(), itemDto3);
+            itemController.create(itemDto3.getOwnerId(), itemDto3);
 
             ItemDto itemDto4 = ItemDto.builder()
                     .id(4L)
@@ -393,7 +408,7 @@ public class ItemControllerTest {
                     .ownerId(userDto2.getId())
                     .request(null)
                     .build();
-            itemController.createItem(itemDto4.getOwnerId(), itemDto4);
+            itemController.create(itemDto4.getOwnerId(), itemDto4);
 
             List<ItemDto> itemsFromController = itemController.search("sEcrEt");
 
@@ -424,7 +439,7 @@ public class ItemControllerTest {
                     .name("Test user")
                     .email("tester@yandex.ru")
                     .build();
-            userController.createUser(userDto);
+            userController.create(userDto);
 
             ItemDto itemDto = ItemDto.builder()
                     .id(1L)
@@ -434,7 +449,7 @@ public class ItemControllerTest {
                     .ownerId(userDto.getId())
                     .request(null)
                     .build();
-            itemController.createItem(itemDto.getOwnerId(), itemDto);
+            itemController.create(itemDto.getOwnerId(), itemDto);
 
             List<ItemDto> itemsFromController = itemController.search(" ");
 

@@ -33,9 +33,9 @@ public class UserControllerTest {
                     .name("Test user")
                     .email("tester@yandex.ru")
                     .build();
-            userController.createUser(userDto);
+            userController.create(userDto);
 
-            List<UserDto> usersFromController = new ArrayList<>(userController.getAllUsers());
+            List<UserDto> usersFromController = new ArrayList<>(userController.getAll());
 
             assertEquals(usersFromController.size(), 1);
 
@@ -53,7 +53,7 @@ public class UserControllerTest {
                     .name("Test user 1")
                     .email("tester@yandex.ru")
                     .build();
-            userController.createUser(userDto1);
+            userController.create(userDto1);
 
             UserDto userDto2 = UserDto.builder()
                     .id(2L)
@@ -61,10 +61,10 @@ public class UserControllerTest {
                     .email("tester@yandex.ru")
                     .build();
 
-            assertThrows(DataIntegrityViolationException.class, () -> userController.createUser(userDto2));
-            assertEquals(userController.getAllUsers().size(), 1);
+            assertThrows(DataIntegrityViolationException.class, () -> userController.create(userDto2));
+            assertEquals(userController.getAll().size(), 1);
 
-            UserDto userDtoFromController = userController.getAllUsers().get(0);
+            UserDto userDtoFromController = userController.getAll().get(0);
 
             assertEquals(userDtoFromController.getId(), userDto1.getId());
             assertEquals(userDtoFromController.getName(), userDto1.getName());
@@ -81,16 +81,16 @@ public class UserControllerTest {
                     .name("Test user 1")
                     .email("tester1@yandex.ru")
                     .build();
-            userController.createUser(userDto1);
+            userController.create(userDto1);
 
             UserDto userDto2 = UserDto.builder()
                     .id(2L)
                     .name("Test user 2")
                     .email("tester2@yandex.ru")
                     .build();
-            userController.createUser(userDto2);
+            userController.create(userDto2);
 
-            List<UserDto> usersFromController = userController.getAllUsers();
+            List<UserDto> usersFromController = userController.getAll();
 
             assertEquals(usersFromController.size(), 2);
 
@@ -108,7 +108,7 @@ public class UserControllerTest {
 
         @Test
         public void shouldGetIfEmpty() {
-            List<UserDto> usersFromController = userController.getAllUsers();
+            List<UserDto> usersFromController = userController.getAll();
 
             assertEquals(usersFromController.size(), 0);
         }
@@ -123,9 +123,9 @@ public class UserControllerTest {
                     .name("Test user 1")
                     .email("tester1@yandex.ru")
                     .build();
-            userController.createUser(userDto1);
+            userController.create(userDto1);
 
-            UserDto usersFromController = userController.getUserById(1L);
+            UserDto usersFromController = userController.getById(1L);
 
             assertEquals(usersFromController.getId(), userDto1.getId());
             assertEquals(usersFromController.getName(), userDto1.getName());
@@ -134,9 +134,9 @@ public class UserControllerTest {
 
         @Test
         public void shouldThrowExceptionIfUserIdNotFound() {
-            NotFoundException exception = assertThrows(NotFoundException.class, () -> userController.getUserById(10L));
+            NotFoundException exception = assertThrows(NotFoundException.class, () -> userController.getById(10L));
             assertEquals("Пользователя с таким id не существует.", exception.getMessage());
-            assertEquals(userController.getAllUsers().size(), 0);
+            assertEquals(userController.getAll().size(), 0);
         }
     }
 
@@ -149,16 +149,16 @@ public class UserControllerTest {
                     .name("Test user 1")
                     .email("tester1@yandex.ru")
                     .build();
-            userController.createUser(userDto1);
+            userController.create(userDto1);
 
             UserDto userDto2 = UserDto.builder()
                     .id(2L)
                     .name("Patch test user 1")
                     .email("tester2@yandex.ru")
                     .build();
-            userController.patchUser(userDto1.getId(), userDto2);
+            userController.patch(userDto1.getId(), userDto2);
 
-            List<UserDto> usersFromController = userController.getAllUsers();
+            List<UserDto> usersFromController = userController.getAll();
 
             assertEquals(usersFromController.size(), 1);
 
@@ -176,14 +176,14 @@ public class UserControllerTest {
                     .name("Test user 1")
                     .email("tester1@yandex.ru")
                     .build();
-            userController.createUser(userDto1);
+            userController.create(userDto1);
 
             UserDto userDto2 = UserDto.builder()
                     .id(2L)
                     .name("Test user 2")
                     .email("tester2@yandex.ru")
                     .build();
-            userController.createUser(userDto2);
+            userController.create(userDto2);
 
             UserDto userDto3 = UserDto.builder()
                     .id(3L)
@@ -191,9 +191,9 @@ public class UserControllerTest {
                     .email("tester2@yandex.ru")
                     .build();
 
-            assertThrows(DataIntegrityViolationException.class, () -> userController.patchUser(userDto1.getId(), userDto3));
+            assertThrows(DataIntegrityViolationException.class, () -> userController.patch(userDto1.getId(), userDto3));
 
-            List<UserDto> usersFromController = userController.getAllUsers();
+            List<UserDto> usersFromController = userController.getAll();
 
             assertEquals(usersFromController.size(), 2);
 
@@ -219,9 +219,9 @@ public class UserControllerTest {
                     .name("Test user 1")
                     .email("tester1@yandex.ru")
                     .build();
-            userController.createUser(userDto1);
+            userController.create(userDto1);
 
-            List<UserDto> usersFromController = userController.getAllUsers();
+            List<UserDto> usersFromController = userController.getAll();
 
             assertEquals(usersFromController.size(), 1);
 
@@ -231,16 +231,16 @@ public class UserControllerTest {
             assertEquals(userFromController.getName(), userDto1.getName());
             assertEquals(userFromController.getEmail(), userDto1.getEmail());
 
-            userController.deleteUser(userDto1.getId());
+            userController.delete(userDto1.getId());
 
-            assertEquals(userController.getAllUsers().size(), 0);
+            assertEquals(userController.getAll().size(), 0);
         }
 
         @Test
         public void shouldDeleteIfUserIdNotFound() {
-            assertThrows(EmptyResultDataAccessException.class, () -> userController.deleteUser(10L));
+            assertThrows(EmptyResultDataAccessException.class, () -> userController.delete(10L));
 
-            assertEquals(userController.getAllUsers().size(), 0);
+            assertEquals(userController.getAll().size(), 0);
         }
     }
 }

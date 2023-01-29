@@ -1,22 +1,69 @@
 package ru.practicum.shareit.booking;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.user.User;
 
-import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "BOOKINGS", schema = "public")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Booking {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    Date start;
-    Date end;
-    Long itemId;
-    Long bookerId;
+
+    @Column(name = "START_DATE")
+    LocalDateTime start;
+
+    @Column(name = "END_DATE")
+    LocalDateTime end;
+
+    @OneToOne
+    @JoinColumn(name = "ITEM_ID", referencedColumnName = "ID")
+    Item item;
+
+    @OneToOne
+    @JoinColumn(name = "BOOKER_ID", referencedColumnName = "ID")
+    User booker;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS")
     Status status;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Booking)) return false;
+        return id != null && id.equals(((Booking) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
