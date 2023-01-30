@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,10 +34,12 @@ public class User {
     Long id;
 
     @NotNull
+    @Column
     String name;
 
     @Email
     @NotNull
+    @Column
     String email;
 
     @Override

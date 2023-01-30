@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.markers.Create;
 import ru.practicum.shareit.markers.Update;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -56,5 +57,12 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> search(@RequestParam String text) {
         return itemService.search(text);
+    }
+
+    @PostMapping("{id}/comment")
+    public CommentDto addComment(@RequestHeader(headerUserId) long userId,
+                                                 @PathVariable long id,
+                                                 @Valid @RequestBody CommentRequestDto commentRequestDto) {
+        return itemService.addComment(userId, id, commentRequestDto);
     }
 }

@@ -7,6 +7,8 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.BookingItemDto;
 
+import java.util.List;
+
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
@@ -20,4 +22,5 @@ public class ItemExtendedDto {
     Long request;
     BookingItemDto lastBooking;
     BookingItemDto nextBooking;
+    List<CommentDto> comments;
 }

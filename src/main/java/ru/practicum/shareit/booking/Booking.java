@@ -23,6 +23,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
@@ -45,16 +46,19 @@ public class Booking {
     @Column(name = "END_DATE")
     LocalDateTime end;
 
+    @NotNull
     @OneToOne
     @JoinColumn(name = "ITEM_ID", referencedColumnName = "ID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     Item item;
 
+    @NotNull
     @OneToOne
     @JoinColumn(name = "BOOKER_ID", referencedColumnName = "ID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     User booker;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
     Status status;

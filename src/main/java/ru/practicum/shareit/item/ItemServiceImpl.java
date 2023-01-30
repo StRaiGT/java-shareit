@@ -4,10 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.Status;
+import ru.practicum.shareit.exception.BookingException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.UserService;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +24,8 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final ItemRepository itemRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
     private final ItemMapper itemMapper;
 
     @Override
@@ -100,5 +106,21 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public CommentDto addComment(Long userId, Long id, CommentRequestDto commentRequestDto) {
+        commentRequestDto.setAuthorId(userId);
+        commentRequestDto.setItemId(id);
+        commentRequestDto.setCreatedDate(LocalDateTime.now());
+        Comment comment = itemMapper.commentRequestDtoToComment(commentRequestDto);
+
+        if (bookingRepository.findByItemIdAndBookerIdAndEndIsBeforeAndStatusEquals(
+                id, userId, LocalDateTime.now(), Status.APPROVED).isEmpty()) {
+            throw new BookingException("Пользователь не брал данную вещь в аренду.");
+        }
+
+        return itemMapper.commentToCommentDto(commentRepository.save(comment));
     }
 }

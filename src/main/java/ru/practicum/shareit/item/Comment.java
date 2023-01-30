@@ -21,9 +21,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ITEMS", schema = "public")
+@Table(name = "COMMENTS", schema = "public")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
@@ -31,40 +32,26 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Item {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @NotNull
     @Column
-    String name;
+    String text;
 
-    @Column
-    String description;
-
-    @NotNull
-    @Column
-    Boolean available;
+    @Column(name = "CREATED_DATE")
+    LocalDateTime createdDate;
 
     @NotNull
     @OneToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "OWNER_ID", referencedColumnName = "ID")
-    User owner;
+    @JoinColumn(name = "AUTHOR_ID", referencedColumnName = "ID")
+    User author;
 
-    @Column(name = "REQUEST_ID")
-    Long requestId;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Item)) return false;
-        return id != null && id.equals(((Item) o).getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
+    @NotNull
+    @OneToOne
+    @JoinColumn(name = "ITEM_ID", referencedColumnName = "ID")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    Item item;
 }
