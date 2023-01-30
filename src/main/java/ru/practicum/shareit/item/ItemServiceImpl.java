@@ -62,7 +62,7 @@ public class ItemServiceImpl implements ItemService {
 
         Item repoItem = itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещи с таким id не существует."));
-        if (!Objects.equals(userId, repoItem.getOwnerId())) {
+        if (!Objects.equals(userId, repoItem.getOwner().getId())) {
             throw new ForbiddenException("Изменение вещи доступно только владельцу.");
         }
 

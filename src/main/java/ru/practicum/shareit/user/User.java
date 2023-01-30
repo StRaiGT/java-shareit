@@ -14,9 +14,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "USERS", schema = "public")
+@Table(name = "USERS", schema = "public", uniqueConstraints = @UniqueConstraint(columnNames = {"email"}))
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
@@ -29,7 +32,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @NotNull
     String name;
+
+    @Email
+    @NotNull
     String email;
 
     @Override

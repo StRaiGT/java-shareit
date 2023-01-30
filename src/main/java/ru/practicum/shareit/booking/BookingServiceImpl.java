@@ -28,7 +28,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Бронирование с таким id не существует."));
 
-        if (!userId.equals(booking.getBooker().getId()) && !userId.equals(booking.getItem().getOwnerId())) {
+        if (!userId.equals(booking.getBooker().getId()) && !userId.equals(booking.getItem().getOwner().getId())) {
             throw new NotFoundException("Просмотр бронирования доступно только автору или владельцу.");
         }
 
@@ -130,7 +130,7 @@ public class BookingServiceImpl implements BookingService {
         if (!booking.getItem().getAvailable()) {
             throw new BookingException("Предмет недоступен для бронирования.");
         }
-        if (userId.equals(booking.getItem().getOwnerId())) {
+        if (userId.equals(booking.getItem().getOwner().getId())) {
             throw new NotFoundException("Владелец не может бронировать собственную вещь.");
         }
         if (booking.getEnd().isBefore(booking.getStart())) {
@@ -147,7 +147,7 @@ public class BookingServiceImpl implements BookingService {
         Booking repoBooking = bookingMapper.responseDtoToBooking(getById(userId, id));
         Item item = repoBooking.getItem();
 
-        if (!userId.equals(item.getOwnerId())) {
+        if (!userId.equals(item.getOwner().getId())) {
             throw new NotFoundException("Изменение статуса бронирования доступно только владельцу.");
         }
         if (!repoBooking.getStatus().equals(Status.WAITING)) {

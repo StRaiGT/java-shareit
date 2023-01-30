@@ -9,14 +9,14 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.user.UserDto;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserRepository;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class, ItemMapper.class})
 public abstract class BookingMapper {
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
     @Autowired
     private ItemRepository itemRepository;
 
@@ -29,8 +29,10 @@ public abstract class BookingMapper {
     public abstract BookingResponseDto bookingToBookingResponseDto(Booking booking);
 
     @Named("mapUserDtoFromId")
-    UserDto mapUserDtoFromId(Long bookerId) {
-        return userService.getById(bookerId);
+    @Transactional(readOnly = true)
+    User mapUserDtoFromId(Long bookerId) {
+        return userRepository.findById(bookerId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует."));
     }
 
     @Named("mapItemDtoFromId")
@@ -38,16 +40,6 @@ public abstract class BookingMapper {
     Item mapItemDtoFromId(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещи с таким id не существует."));
-
-    }
-
-    public static BookingItemDto bookingToBookingItemDto(Booking booking) {
-        return BookingItemDto.builder()
-                .id(booking.getId())
-                .bookerId(booking.getBooker().getId())
-                .start(booking.getStart())
-                .end(booking.getEnd())
-                .build();
     }
 }
 

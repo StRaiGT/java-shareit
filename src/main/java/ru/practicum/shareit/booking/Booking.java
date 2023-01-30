@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
@@ -45,10 +47,12 @@ public class Booking {
 
     @OneToOne
     @JoinColumn(name = "ITEM_ID", referencedColumnName = "ID")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     Item item;
 
     @OneToOne
     @JoinColumn(name = "BOOKER_ID", referencedColumnName = "ID")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     User booker;
 
     @Enumerated(EnumType.STRING)
