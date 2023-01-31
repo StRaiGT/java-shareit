@@ -25,6 +25,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponseDto getById(Long userId, Long id) {
         log.info("Вывод бронирования с id {}.", id);
+
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Бронирование с таким id не существует."));
 
@@ -38,6 +39,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponseDto> getAllByBookerId(Long userId, String state) {
         log.info("Вывод всех бронирований пользователя {} и статусом {}.", userId, state);
+
         State stateEnum = getState(state);
         userService.getById(userId);
 
@@ -80,6 +82,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponseDto> getAllByOwnerId(Long userId, String state) {
         log.info("Вывод всех вещей пользователя {} и статусом {}.", userId, state);
+
         State stateEnum = getState(state);
         userService.getById(userId);
 
@@ -123,6 +126,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingResponseDto create(Long userId, BookingRequestDto bookingRequestDto) {
         log.info("Создание бронирования {} пользователем с id {}.", bookingRequestDto, userId);
+
         bookingRequestDto.setBookerId(userId);
         bookingRequestDto.setStatus(Status.WAITING);
         Booking booking = bookingMapper.requestDtoToBooking(bookingRequestDto);
@@ -144,6 +148,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingResponseDto patch(Long userId, Long id, Boolean approved) {
         log.info("Обновление статуса бронирования {}.", id);
+
         Booking repoBooking = bookingMapper.responseDtoToBooking(getById(userId, id));
         Item item = repoBooking.getItem();
 

@@ -40,6 +40,7 @@ public class Item {
     @Column
     String name;
 
+    @NotNull
     @Column
     String description;
 

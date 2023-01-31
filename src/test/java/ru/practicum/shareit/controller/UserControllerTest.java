@@ -25,7 +25,7 @@ public class UserControllerTest {
     private final UserController userController;
 
     @Nested
-    class CreateUser {
+    class Create {
         @Test
         public void shouldCreate() {
             UserDto userDto = UserDto.builder()
@@ -39,11 +39,11 @@ public class UserControllerTest {
 
             assertEquals(usersFromController.size(), 1);
 
-            UserDto userDtoFromController = usersFromController.get(0);
+            UserDto userFromController = usersFromController.get(0);
 
-            assertEquals(userDtoFromController.getId(), userDto.getId());
-            assertEquals(userDtoFromController.getName(), userDto.getName());
-            assertEquals(userDtoFromController.getEmail(), userDto.getEmail());
+            assertEquals(userFromController.getId(), userDto.getId());
+            assertEquals(userFromController.getName(), userDto.getName());
+            assertEquals(userFromController.getEmail(), userDto.getEmail());
         }
 
         @Test
@@ -64,16 +64,16 @@ public class UserControllerTest {
             assertThrows(DataIntegrityViolationException.class, () -> userController.create(userDto2));
             assertEquals(userController.getAll().size(), 1);
 
-            UserDto userDtoFromController = userController.getAll().get(0);
+            UserDto userFromController = userController.getAll().get(0);
 
-            assertEquals(userDtoFromController.getId(), userDto1.getId());
-            assertEquals(userDtoFromController.getName(), userDto1.getName());
-            assertEquals(userDtoFromController.getEmail(), userDto1.getEmail());
+            assertEquals(userFromController.getId(), userDto1.getId());
+            assertEquals(userFromController.getName(), userDto1.getName());
+            assertEquals(userFromController.getEmail(), userDto1.getEmail());
         }
     }
 
     @Nested
-    class GetAllUsers {
+    class GetAll {
         @Test
         public void shouldGet() {
             UserDto userDto1 = UserDto.builder()
@@ -115,7 +115,7 @@ public class UserControllerTest {
     }
 
     @Nested
-    class GetUserById {
+    class GetById {
         @Test
         public void shouldGet() {
             UserDto userDto1 = UserDto.builder()
@@ -141,7 +141,7 @@ public class UserControllerTest {
     }
 
     @Nested
-    class PatchUser {
+    class Patch {
         @Test
         public void shouldPatch() {
             UserDto userDto1 = UserDto.builder()
@@ -211,7 +211,7 @@ public class UserControllerTest {
     }
 
     @Nested
-    class DeleteUser {
+    class Delete {
         @Test
         public void shouldDelete() {
             UserDto userDto1 = UserDto.builder()

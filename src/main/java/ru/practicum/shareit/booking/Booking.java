@@ -40,9 +40,11 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @NotNull
     @Column(name = "START_DATE")
     LocalDateTime start;
 
+    @NotNull
     @Column(name = "END_DATE")
     LocalDateTime end;
 

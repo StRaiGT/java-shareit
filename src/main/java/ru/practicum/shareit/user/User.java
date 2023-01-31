@@ -33,12 +33,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @NotNull
     @Column
     String name;
 
-    @Email
     @NotNull
+    @Email
     @Column
     String email;
 

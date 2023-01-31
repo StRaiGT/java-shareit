@@ -31,6 +31,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemExtendedDto> getByOwnerId(Long userId) {
         log.info("Вывод всех вещей пользователя с id {}.", userId);
+
         return itemRepository.getAllByOwnerIdOrderByIdAsc(userId).stream()
                 .map(itemMapper::toItemExtendedDto)
                 .collect(Collectors.toList());
@@ -39,6 +40,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemExtendedDto getById(Long userId, Long id) {
         log.info("Вывод вещи с id {}.", id);
+
         ItemExtendedDto itemExtendedDto = itemMapper.toItemExtendedDto(itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещи с таким id не существует.")));
 
@@ -99,9 +101,11 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> search(String text) {
         log.info("Поиск вещей с подстрокой \"{}\".", text);
+
         if (text.isBlank() || text.isEmpty()) {
             return new ArrayList<>();
         }
+
         return itemRepository.search(text)
                 .stream()
                 .map(itemMapper::toItemDto)
@@ -111,6 +115,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(Long userId, Long id, CommentRequestDto commentRequestDto) {
+        log.info("Добавление комментария пользователем с id {} вещи с id {}.", userId, id);
+
         commentRequestDto.setAuthorId(userId);
         commentRequestDto.setItemId(id);
         commentRequestDto.setCreatedDate(LocalDateTime.now());
