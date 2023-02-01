@@ -44,8 +44,8 @@ public class ItemServiceImpl implements ItemService {
         log.info("Вывод всех вещей пользователя с id {}.", userId);
 
         return itemRepository.getAllByOwnerIdOrderByIdAsc(userId).stream()
-                .map((item) -> itemMapper.toItemExtendedDto(item, addLastBooking(item),
-                        addNextBooking(item), addComment(item)))
+                .map((item) -> itemMapper.toItemExtendedDto(item, getLastBooking(item),
+                        getNextBooking(item), getComments(item)))
                 .collect(Collectors.toList());
     }
 
@@ -55,10 +55,10 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = getItemById(id);
         if (!Objects.equals(userId, item.getOwner().getId())) {
-            return itemMapper.toItemExtendedDto(item, null, null, addComment(item));
+            return itemMapper.toItemExtendedDto(item, null, null, getComments(item));
         } else {
-            return itemMapper.toItemExtendedDto(item, addLastBooking(item),
-                    addNextBooking(item), addComment(item));
+            return itemMapper.toItemExtendedDto(item, getLastBooking(item),
+                    getNextBooking(item), getComments(item));
         }
     }
 
@@ -142,7 +142,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Вещи с таким id не существует."));
     }
 
-    private BookingItemDto addLastBooking(Item item) {
+    private BookingItemDto getLastBooking(Item item) {
         List<Booking> bookings = bookingRepository.findByItemIdAndStartBeforeAndStatusEqualsOrderByStartDesc(
                 item.getId(), LocalDateTime.now(), Status.APPROVED);
 
@@ -154,7 +154,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private BookingItemDto addNextBooking(Item item) {
+    private BookingItemDto getNextBooking(Item item) {
         List<Booking> bookings = bookingRepository.findByItemIdAndStartAfterAndStatusEqualsOrderByStartAsc(
                 item.getId(), LocalDateTime.now(), Status.APPROVED);
 
@@ -166,7 +166,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private List<CommentDto> addComment(Item item) {
+    private List<CommentDto> getComments(Item item) {
         return commentRepository.findByItemId(item.getId()).stream()
                 .map(itemMapper::commentToCommentDto)
                 .collect(Collectors.toList());
