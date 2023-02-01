@@ -9,8 +9,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.UserController;
-import ru.practicum.shareit.user.UserDto;
+import ru.practicum.shareit.user.controller.UserController;
+import ru.practicum.shareit.user.model.UserDto;
 
 import java.util.ArrayList;
 import java.util.List;

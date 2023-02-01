@@ -7,19 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.practicum.shareit.booking.BookingController;
-import ru.practicum.shareit.booking.BookingRequestDto;
-import ru.practicum.shareit.booking.BookingResponseDto;
+import ru.practicum.shareit.booking.controller.BookingController;
+import ru.practicum.shareit.booking.model.BookingRequestDto;
+import ru.practicum.shareit.booking.model.BookingResponseDto;
 import ru.practicum.shareit.exception.BookingException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.CommentDto;
-import ru.practicum.shareit.item.CommentRequestDto;
-import ru.practicum.shareit.item.ItemController;
-import ru.practicum.shareit.item.ItemDto;
-import ru.practicum.shareit.item.ItemExtendedDto;
-import ru.practicum.shareit.user.UserController;
-import ru.practicum.shareit.user.UserDto;
+import ru.practicum.shareit.item.comment.model.CommentDto;
+import ru.practicum.shareit.item.comment.model.CommentRequestDto;
+import ru.practicum.shareit.item.controller.ItemController;
+import ru.practicum.shareit.item.model.ItemDto;
+import ru.practicum.shareit.item.model.ItemExtendedDto;
+import ru.practicum.shareit.user.controller.UserController;
+import ru.practicum.shareit.user.model.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -235,9 +235,7 @@ public class ItemControllerTest {
             BookingResponseDto bookingResponseDto2 = bookingController.create(userDto2.getId(), bookingRequestDto2);
             bookingController.patch(userDto1.getId(), bookingResponseDto2.getId(), true);
 
-            CommentRequestDto commentRequestDto = CommentRequestDto.builder()
-                    .text("comment")
-                    .build();
+            CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
             itemController.addComment(userDto2.getId(),itemDto1.getId(), commentRequestDto);
 
             List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(userDto1.getId());
@@ -371,9 +369,7 @@ public class ItemControllerTest {
             BookingResponseDto bookingResponseDto2 = bookingController.create(userDto2.getId(), bookingRequestDto2);
             bookingController.patch(userDto1.getId(), bookingResponseDto2.getId(), true);
 
-            CommentRequestDto commentRequestDto = CommentRequestDto.builder()
-                    .text("comment")
-                    .build();
+            CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
             itemController.addComment(userDto2.getId(),itemDto1.getId(), commentRequestDto);
 
             ItemExtendedDto itemFromController1 = itemController.getById(userDto1.getId(), itemDto1.getId());
@@ -459,9 +455,7 @@ public class ItemControllerTest {
             BookingResponseDto bookingResponseDto2 = bookingController.create(userDto2.getId(), bookingRequestDto2);
             bookingController.patch(userDto1.getId(), bookingResponseDto2.getId(), true);
 
-            CommentRequestDto commentRequestDto = CommentRequestDto.builder()
-                    .text("comment")
-                    .build();
+            CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
             itemController.addComment(userDto2.getId(),itemDto1.getId(), commentRequestDto);
 
             ItemExtendedDto itemFromController1 = itemController.getById(userDto2.getId(), itemDto1.getId());
@@ -763,9 +757,7 @@ public class ItemControllerTest {
             BookingResponseDto bookingResponseDto = bookingController.create(userDto2.getId(), bookingRequestDto);
             bookingController.patch(userDto1.getId(), bookingResponseDto.getId(), true);
 
-            CommentRequestDto commentRequestDto = CommentRequestDto.builder()
-                    .text("comment")
-                    .build();
+            CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
             itemController.addComment(userDto2.getId(),itemDto.getId(), commentRequestDto);
 
             ItemExtendedDto item = itemController.getById(userDto1.getId(), itemDto.getId());
@@ -805,9 +797,7 @@ public class ItemControllerTest {
                     .build();
             userController.create(userDto2);
 
-            CommentRequestDto commentRequestDto = CommentRequestDto.builder()
-                    .text("comment")
-                    .build();
+            CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
 
             BookingException exception = assertThrows(BookingException.class,
                     () -> itemController.addComment(userDto2.getId(),itemDto.getId(), commentRequestDto));
@@ -848,9 +838,7 @@ public class ItemControllerTest {
             BookingResponseDto bookingResponseDto = bookingController.create(userDto2.getId(), bookingRequestDto);
             bookingController.patch(userDto1.getId(), bookingResponseDto.getId(), true);
 
-            CommentRequestDto commentRequestDto = CommentRequestDto.builder()
-                    .text("comment")
-                    .build();
+            CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
 
             BookingException exception = assertThrows(BookingException.class,
                     () -> itemController.addComment(userDto2.getId(),itemDto.getId(), commentRequestDto));
@@ -890,9 +878,7 @@ public class ItemControllerTest {
                     .build();
             bookingController.create(userDto2.getId(), bookingRequestDto);
 
-            CommentRequestDto commentRequestDto = CommentRequestDto.builder()
-                    .text("comment")
-                    .build();
+            CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
 
             BookingException exception = assertThrows(BookingException.class,
                     () -> itemController.addComment(userDto2.getId(),itemDto.getId(), commentRequestDto));

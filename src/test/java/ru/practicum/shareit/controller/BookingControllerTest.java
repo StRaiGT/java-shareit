@@ -6,18 +6,17 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.practicum.shareit.booking.BookingController;
-import ru.practicum.shareit.booking.BookingRequestDto;
-import ru.practicum.shareit.booking.BookingResponseDto;
-import ru.practicum.shareit.booking.Status;
+import ru.practicum.shareit.booking.controller.BookingController;
+import ru.practicum.shareit.booking.enums.Status;
+import ru.practicum.shareit.booking.model.BookingRequestDto;
+import ru.practicum.shareit.booking.model.BookingResponseDto;
 import ru.practicum.shareit.exception.BookingException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.ItemController;
-import ru.practicum.shareit.item.ItemDto;
-import ru.practicum.shareit.user.UserController;
-import ru.practicum.shareit.user.UserDto;
+import ru.practicum.shareit.item.controller.ItemController;
+import ru.practicum.shareit.item.model.ItemDto;
+import ru.practicum.shareit.user.controller.UserController;
+import ru.practicum.shareit.user.model.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -107,9 +106,9 @@ public class BookingControllerTest {
                     .itemId(itemDto.getId())
                     .build();
 
-            NotFoundException exception = assertThrows(NotFoundException.class,
+            BookingException exception = assertThrows(BookingException.class,
                     () -> bookingController.create(100L, bookingRequestDto));
-            assertEquals("Пользователя с таким id не существует.", exception.getMessage());
+            assertEquals("Предмет недоступен для бронирования.", exception.getMessage());
         }
 
         @Test
@@ -339,10 +338,11 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            bookingController.create(userDto2.getId(), bookingRequestDto);
+            BookingResponseDto bookingResponseDto = bookingController.create(userDto2.getId(), bookingRequestDto);
 
-            assertThrows(InvalidDataAccessApiUsageException.class,
-                    () -> bookingController.patch(100L, bookingRequestDto.getId(), true));
+            NotFoundException exception = assertThrows(NotFoundException.class,
+                    () -> bookingController.patch(100L, bookingResponseDto.getId(), true));
+            assertEquals("Изменение статуса бронирования доступно только владельцу.", exception.getMessage());
         }
 
         @Test
@@ -705,7 +705,7 @@ public class BookingControllerTest {
 
         @Test
         public void shouldThrowExceptionWithUnknownState() {
-            BookingException exception = assertThrows(BookingException.class,
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                     () -> bookingController.getAllByBookerId(2L, "UNKNOWN"));
             assertEquals("Unknown state: UNKNOWN", exception.getMessage());
         }
@@ -862,7 +862,7 @@ public class BookingControllerTest {
 
         @Test
         public void shouldThrowExceptionWithUnknownState() {
-            BookingException exception = assertThrows(BookingException.class,
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                     () -> bookingController.getAllByOwnerId(1L, "UNKNOWN"));
             assertEquals("Unknown state: UNKNOWN", exception.getMessage());
         }
