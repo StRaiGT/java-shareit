@@ -20,7 +20,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "ITEMS", schema = "public")
@@ -36,22 +35,18 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @NotNull
-    @Column
+    @Column(nullable = false)
     String name;
 
-    @NotNull
-    @Column
+    @Column(nullable = false)
     String description;
 
-    @NotNull
-    @Column
+    @Column(nullable = false)
     Boolean available;
 
-    @NotNull
     @OneToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "OWNER_ID", referencedColumnName = "ID")
+    @JoinColumn(name = "OWNER_ID", referencedColumnName = "ID", nullable = false)
     User owner;
 
     @Column(name = "REQUEST_ID")

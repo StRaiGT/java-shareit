@@ -23,7 +23,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
@@ -40,29 +39,24 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @NotNull
-    @Column(name = "START_DATE")
+    @Column(name = "START_DATE", nullable = false)
     LocalDateTime start;
 
-    @NotNull
-    @Column(name = "END_DATE")
+    @Column(name = "END_DATE", nullable = false)
     LocalDateTime end;
 
-    @NotNull
     @OneToOne
-    @JoinColumn(name = "ITEM_ID", referencedColumnName = "ID")
+    @JoinColumn(name = "ITEM_ID", referencedColumnName = "ID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     Item item;
 
-    @NotNull
     @OneToOne
-    @JoinColumn(name = "BOOKER_ID", referencedColumnName = "ID")
+    @JoinColumn(name = "BOOKER_ID", referencedColumnName = "ID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     User booker;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "STATUS")
+    @Column(name = "STATUS", nullable = false)
     Status status;
 
     @Override

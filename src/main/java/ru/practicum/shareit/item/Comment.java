@@ -20,7 +20,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
@@ -37,23 +36,19 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @NotNull
-    @Column
+    @Column(nullable = false)
     String text;
 
-    @NotNull
-    @Column(name = "CREATED_DATE")
+    @Column(name = "CREATED_DATE", nullable = false)
     LocalDateTime createdDate;
 
-    @NotNull
     @OneToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "AUTHOR_ID", referencedColumnName = "ID")
+    @JoinColumn(name = "AUTHOR_ID", referencedColumnName = "ID", nullable = false)
     User author;
 
-    @NotNull
     @OneToOne
-    @JoinColumn(name = "ITEM_ID", referencedColumnName = "ID")
+    @JoinColumn(name = "ITEM_ID", referencedColumnName = "ID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     Item item;
 }
