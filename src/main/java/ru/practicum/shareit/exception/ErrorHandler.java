@@ -16,17 +16,24 @@ public class ErrorHandler {
         return new ErrorResponse(exception.getMessage());
     }
 
-    @ExceptionHandler({ConflictException.class})
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConflict(final RuntimeException exception) {
-        log.error(exception.toString());
-        return new ErrorResponse(exception.getMessage());
-    }
-
     @ExceptionHandler({ForbiddenException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleForbidden(final RuntimeException exception) {
         log.error(exception.toString());
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler({BookingException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBadRequest(final RuntimeException exception) {
+        log.error(exception.toString());
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleException(final RuntimeException exception) {
+        log.error("400 {}", exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
     }
 }
