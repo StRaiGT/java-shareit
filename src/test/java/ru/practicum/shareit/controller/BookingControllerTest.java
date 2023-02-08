@@ -56,7 +56,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -96,7 +96,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(false)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -160,7 +160,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(false)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -190,7 +190,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -227,7 +227,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -267,7 +267,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -277,7 +277,7 @@ public class BookingControllerTest {
                     .description("Test item description 2")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto2.getOwnerId(), itemDto2);
 
@@ -329,7 +329,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -367,7 +367,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -405,7 +405,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -443,7 +443,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -486,7 +486,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -566,7 +566,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -608,7 +608,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -735,7 +735,7 @@ public class BookingControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDtoPast.getOwnerId(), itemDtoPast);
 
@@ -753,7 +753,7 @@ public class BookingControllerTest {
                     .description("Test item description 2")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDtoCurrent.getOwnerId(), itemDtoCurrent);
 
@@ -771,7 +771,7 @@ public class BookingControllerTest {
                     .description("Test item description 3")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDtoFuture.getOwnerId(), itemDtoFuture);
 
@@ -788,7 +788,7 @@ public class BookingControllerTest {
                     .description("Test item description 4")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDtoRejected.getOwnerId(), itemDtoRejected);
 

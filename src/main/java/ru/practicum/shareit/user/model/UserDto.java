@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.markers.Create;
-import ru.practicum.shareit.markers.Update;
+import ru.practicum.shareit.common.markers.Create;
+import ru.practicum.shareit.common.markers.Update;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;

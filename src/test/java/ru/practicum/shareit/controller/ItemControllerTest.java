@@ -53,7 +53,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -68,7 +68,7 @@ public class ItemControllerTest {
             assertEquals(itemFromController.getDescription(), itemDto.getDescription());
             assertEquals(itemFromController.getAvailable(), itemDto.getAvailable());
             assertEquals(itemFromController.getOwnerId(), itemDto.getOwnerId());
-            assertEquals(itemFromController.getRequest(), itemDto.getRequest());
+            assertEquals(itemFromController.getRequestId(), itemDto.getRequestId());
         }
 
         @Test
@@ -79,7 +79,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(10L)
-                    .request(null)
+                    .requestId(null)
                     .build();
             NotFoundException exception = assertThrows(NotFoundException.class, () -> itemController.create(10L, itemDto));
             assertEquals("Пользователя с таким id не существует.", exception.getMessage());
@@ -110,7 +110,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -120,7 +120,7 @@ public class ItemControllerTest {
                     .description("Test item description 2")
                     .available(true)
                     .ownerId(userDto2.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto2.getOwnerId(), itemDto2);
 
@@ -130,7 +130,7 @@ public class ItemControllerTest {
                     .description("Test item description 3")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto3.getOwnerId(), itemDto3);
 
@@ -146,14 +146,14 @@ public class ItemControllerTest {
             assertEquals(itemFromController1.getDescription(), itemDto1.getDescription());
             assertEquals(itemFromController1.getAvailable(), itemDto1.getAvailable());
             assertEquals(itemFromController1.getOwnerId(), itemDto1.getOwnerId());
-            assertEquals(itemFromController1.getRequest(), itemDto1.getRequest());
+            assertEquals(itemFromController1.getRequestId(), itemDto1.getRequestId());
 
             assertEquals(itemFromController3.getId(), itemDto3.getId());
             assertEquals(itemFromController3.getName(), itemDto3.getName());
             assertEquals(itemFromController3.getDescription(), itemDto3.getDescription());
             assertEquals(itemFromController3.getAvailable(), itemDto3.getAvailable());
             assertEquals(itemFromController3.getOwnerId(), itemDto3.getOwnerId());
-            assertEquals(itemFromController3.getRequest(), itemDto3.getRequest());
+            assertEquals(itemFromController3.getRequestId(), itemDto3.getRequestId());
 
             List<ItemExtendedDto> itemsFromController2 = itemController.getByOwnerId(userDto2.getId());
 
@@ -166,7 +166,7 @@ public class ItemControllerTest {
             assertEquals(itemFromController2.getDescription(), itemDto2.getDescription());
             assertEquals(itemFromController2.getAvailable(), itemDto2.getAvailable());
             assertEquals(itemFromController2.getOwnerId(), itemDto2.getOwnerId());
-            assertEquals(itemFromController2.getRequest(), itemDto2.getRequest());
+            assertEquals(itemFromController2.getRequestId(), itemDto2.getRequestId());
         }
 
         @Test
@@ -205,7 +205,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -215,7 +215,7 @@ public class ItemControllerTest {
                     .description("Test item description 2")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto2.getOwnerId(), itemDto2);
 
@@ -290,7 +290,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -301,7 +301,7 @@ public class ItemControllerTest {
             assertEquals(itemFromController.getDescription(), itemDto.getDescription());
             assertEquals(itemFromController.getAvailable(), itemDto.getAvailable());
             assertEquals(itemFromController.getOwnerId(), itemDto.getOwnerId());
-            assertEquals(itemFromController.getRequest(), itemDto.getRequest());
+            assertEquals(itemFromController.getRequestId(), itemDto.getRequestId());
         }
 
         @Test
@@ -339,7 +339,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -349,7 +349,7 @@ public class ItemControllerTest {
                     .description("Test item description 2")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto2.getOwnerId(), itemDto2);
 
@@ -425,7 +425,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -435,7 +435,7 @@ public class ItemControllerTest {
                     .description("Test item description 2")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto2.getOwnerId(), itemDto2);
 
@@ -501,7 +501,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -511,7 +511,7 @@ public class ItemControllerTest {
                     .description("Patch test item description 1")
                     .available(false)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.patch(itemDto2.getOwnerId(), itemDto1.getId(), itemDto2);
 
@@ -522,7 +522,7 @@ public class ItemControllerTest {
             assertEquals(itemFromController.getDescription(), itemDto2.getDescription());
             assertEquals(itemFromController.getAvailable(), itemDto2.getAvailable());
             assertEquals(itemFromController.getOwnerId(), itemDto2.getOwnerId());
-            assertEquals(itemFromController.getRequest(), itemDto2.getRequest());
+            assertEquals(itemFromController.getRequestId(), itemDto2.getRequestId());
         }
 
         @Test
@@ -547,7 +547,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -557,7 +557,7 @@ public class ItemControllerTest {
                     .description("Patch test item description 1")
                     .available(false)
                     .ownerId(userDto2.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
 
             ForbiddenException exception = assertThrows(ForbiddenException.class, () -> itemController.patch(itemDto2.getOwnerId(), itemDto1.getId(), itemDto2));
@@ -570,7 +570,7 @@ public class ItemControllerTest {
             assertEquals(itemFromController.getDescription(), itemDto1.getDescription());
             assertEquals(itemFromController.getAvailable(), itemDto1.getAvailable());
             assertEquals(itemFromController.getOwnerId(), itemDto1.getOwnerId());
-            assertEquals(itemFromController.getRequest(), itemDto1.getRequest());
+            assertEquals(itemFromController.getRequestId(), itemDto1.getRequestId());
         }
     }
 
@@ -591,7 +591,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(userDto.getId(), itemDto);
 
@@ -640,7 +640,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -650,7 +650,7 @@ public class ItemControllerTest {
                     .description("Test item description 2 SeCREt")
                     .available(false)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto2.getOwnerId(), itemDto2);
 
@@ -660,7 +660,7 @@ public class ItemControllerTest {
                     .description("Test item description 3 SeCREt")
                     .available(true)
                     .ownerId(userDto2.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto3.getOwnerId(), itemDto3);
 
@@ -670,7 +670,7 @@ public class ItemControllerTest {
                     .description("Test item description 4")
                     .available(true)
                     .ownerId(userDto2.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto4.getOwnerId(), itemDto4);
 
@@ -686,14 +686,14 @@ public class ItemControllerTest {
             assertEquals(itemFromController1.getDescription(), itemDto1.getDescription());
             assertEquals(itemFromController1.getAvailable(), itemDto1.getAvailable());
             assertEquals(itemFromController1.getOwnerId(), itemDto1.getOwnerId());
-            assertEquals(itemFromController1.getRequest(), itemDto1.getRequest());
+            assertEquals(itemFromController1.getRequestId(), itemDto1.getRequestId());
 
             assertEquals(itemFromController2.getId(), itemDto3.getId());
             assertEquals(itemFromController2.getName(), itemDto3.getName());
             assertEquals(itemFromController2.getDescription(), itemDto3.getDescription());
             assertEquals(itemFromController2.getAvailable(), itemDto3.getAvailable());
             assertEquals(itemFromController2.getOwnerId(), itemDto3.getOwnerId());
-            assertEquals(itemFromController2.getRequest(), itemDto3.getRequest());
+            assertEquals(itemFromController2.getRequestId(), itemDto3.getRequestId());
         }
 
         @Test
@@ -711,7 +711,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -738,7 +738,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -786,7 +786,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -819,7 +819,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -860,7 +860,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
