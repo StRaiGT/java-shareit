@@ -10,16 +10,16 @@ import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -44,15 +44,13 @@ public class Comment {
     @Column(name = "CREATED_DATE", nullable = false)
     LocalDateTime createdDate;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "AUTHOR_ID", referencedColumnName = "ID", nullable = false)
     User author;
 
-    @OneToOne
-    @JoinColumn(name = "ITEM_ID", referencedColumnName = "ID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    Item item;
+    @Column(name = "ITEM_ID")
+    Long itemId;
 
     @Override
     public boolean equals(Object o) {
@@ -63,6 +61,6 @@ public class Comment {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, text, createdDate, author, item);
+        return Objects.hash(id, text, createdDate, author, itemId);
     }
 }

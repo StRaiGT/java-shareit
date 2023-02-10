@@ -44,8 +44,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Вывод всех вещей пользователя с id {}.", userId);
 
         return itemRepository.getAllByOwnerIdOrderByIdAsc(userId).stream()
-                .map((item) -> itemMapper.toItemExtendedDto(item, getLastBooking(item),
-                        getNextBooking(item), getComments(item)))
+                .map((item) -> itemMapper.toItemExtendedDto(item, getLastBooking(item), getNextBooking(item)))
                 .collect(Collectors.toList());
     }
 
@@ -55,10 +54,9 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = getItemById(id);
         if (!Objects.equals(userId, item.getOwner().getId())) {
-            return itemMapper.toItemExtendedDto(item, null, null, getComments(item));
+            return itemMapper.toItemExtendedDto(item, null, null);
         } else {
-            return itemMapper.toItemExtendedDto(item, getLastBooking(item),
-                    getNextBooking(item), getComments(item));
+            return itemMapper.toItemExtendedDto(item, getLastBooking(item), getNextBooking(item));
         }
     }
 
@@ -126,7 +124,7 @@ public class ItemServiceImpl implements ItemService {
         Comment comment = itemMapper.commentRequestDtoToComment(commentRequestDto,
                 LocalDateTime.now(),
                 userService.getUserById(userId),
-                getItemById(id));
+                id);
 
         if (bookingRepository.findByItemIdAndBookerIdAndEndIsBeforeAndStatusEquals(
                 id, userId, LocalDateTime.now(), Status.APPROVED).isEmpty()) {
@@ -164,11 +162,5 @@ public class ItemServiceImpl implements ItemService {
             Booking nextBooking = bookings.get(0);
             return itemMapper.bookingToBookingItemDto(nextBooking);
         }
-    }
-
-    private List<CommentDto> getComments(Item item) {
-        return commentRepository.findByItemId(item.getId()).stream()
-                .map(itemMapper::commentToCommentDto)
-                .collect(Collectors.toList());
     }
 }

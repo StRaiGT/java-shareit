@@ -14,34 +14,40 @@ import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
-public interface ItemMapper {
+public abstract class ItemMapper {
     @Mapping(target = "ownerId", expression = "java(item.getOwner().getId())")
-    ItemDto toItemDto(Item item);
+    public abstract ItemDto toItemDto(Item item);
 
     @Mapping(target = "id", expression = "java(itemDto.getId())")
     @Mapping(target = "name", expression = "java(itemDto.getName())")
     @Mapping(target = "owner", expression = "java(user)")
-    Item toItem(ItemDto itemDto, User user);
+    public abstract Item toItem(ItemDto itemDto, User user);
 
     @Mapping(target = "id", expression = "java(item.getId())")
     @Mapping(target = "ownerId", expression = "java(item.getOwner().getId())")
     @Mapping(target = "lastBooking", expression = "java(lastBooking)")
     @Mapping(target = "nextBooking", expression = "java(nextBooking)")
-    @Mapping(target = "comments", expression = "java(comments)")
-    ItemExtendedDto toItemExtendedDto(Item item, BookingItemDto lastBooking, BookingItemDto nextBooking,
-                                      List<CommentDto> comments);
+    @Mapping(target = "comments", expression = "java(commentToCommentDto(item.getComments()))")
+    public abstract ItemExtendedDto toItemExtendedDto(Item item, BookingItemDto lastBooking, BookingItemDto nextBooking);
 
     @Mapping(target = "bookerId", expression = "java(booking.getBooker().getId())")
-    BookingItemDto bookingToBookingItemDto(Booking booking);
+    public abstract BookingItemDto bookingToBookingItemDto(Booking booking);
 
     @Mapping(target = "id", expression = "java(null)")
     @Mapping(target = "createdDate", expression = "java(dateTime)")
     @Mapping(target = "author", expression = "java(user)")
-    @Mapping(target = "item", expression = "java(item)")
-    Comment commentRequestDtoToComment(CommentRequestDto commentRequestDto, LocalDateTime dateTime, User user, Item item);
+    public abstract Comment commentRequestDtoToComment(CommentRequestDto commentRequestDto, LocalDateTime dateTime,
+                                                       User user, Long itemId);
 
     @Mapping(target = "authorName", expression = "java(comment.getAuthor().getName())")
-    CommentDto commentToCommentDto(Comment comment);
+    public abstract CommentDto commentToCommentDto(Comment comment);
+
+    protected List<CommentDto> commentToCommentDto(List<Comment> comments) {
+        return comments.stream()
+                .map(this::commentToCommentDto)
+                .collect(Collectors.toList());
+    }
 }
