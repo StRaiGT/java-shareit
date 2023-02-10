@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,8 +49,8 @@ public class ItemRequestController {
     @GetMapping("/all")
     public List<ItemRequestExtendedDto> getAll(
             @RequestHeader(Constrains.headerUserId) Long userId,
-            @RequestParam(defaultValue = Constrains.PAGE_START_FROM) @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = Constrains.PAGE_SIZE) @Positive Integer size) {
-        return itemRequestService.getAll(userId, from, size);
+            @RequestParam(defaultValue = Constrains.PAGE_DEFAULT_FROM, required = false) @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = Constrains.PAGE_DEFAULT_SIZE, required = false) @Positive Integer size) {
+        return itemRequestService.getAll(userId, PageRequest.of(from / size, size));
     }
 }

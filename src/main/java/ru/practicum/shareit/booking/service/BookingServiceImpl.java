@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.enums.State;
@@ -46,37 +48,37 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getAllByBookerId(Long userId, State state) {
+    public List<BookingResponseDto> getAllByBookerId(Long userId, State state, Pageable pageable) {
         log.info("Вывод всех бронирований пользователя {} и статусом {}.", userId, state);
 
         userService.getUserById(userId);
 
-        List<Booking> bookings = null;
+        Page<Booking> bookings = null;
         LocalDateTime dateTime = LocalDateTime.now();
 
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId);
+                bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId, pageable);
                 break;
             case CURRENT:
                 bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
-                        userId, dateTime, dateTime);
+                        userId, dateTime, dateTime, pageable);
                 break;
             case PAST:
                 bookings = bookingRepository.findByBookerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(
-                        userId, dateTime, Status.APPROVED);
+                        userId, dateTime, Status.APPROVED, pageable);
                 break;
             case FUTURE:
                 bookings = bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(
-                        userId, dateTime);
+                        userId, dateTime, pageable);
                 break;
             case WAITING:
                 bookings = bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDesc(
-                        userId, Status.WAITING);
+                        userId, Status.WAITING, pageable);
                 break;
             case REJECTED:
                 bookings = bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDesc(
-                        userId, Status.REJECTED);
+                        userId, Status.REJECTED, pageable);
         }
 
         return bookings.stream()
@@ -85,37 +87,37 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getAllByOwnerId(Long userId, State state) {
+    public List<BookingResponseDto> getAllByOwnerId(Long userId, State state, Pageable pageable) {
         log.info("Вывод всех вещей пользователя {} и статусом {}.", userId, state);
 
         userService.getUserById(userId);
 
-        List<Booking> bookings = null;
+        Page<Booking> bookings = null;
         LocalDateTime dateTime = LocalDateTime.now();
 
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId);
+                bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId, pageable);
                 break;
             case CURRENT:
                 bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
-                        userId, dateTime, dateTime);
+                        userId, dateTime, dateTime, pageable);
                 break;
             case PAST:
                 bookings = bookingRepository.findByItemOwnerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(
-                        userId, dateTime, Status.APPROVED);
+                        userId, dateTime, Status.APPROVED, pageable);
                 break;
             case FUTURE:
                 bookings = bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(
-                        userId, dateTime);
+                        userId, dateTime, pageable);
                 break;
             case WAITING:
                 bookings = bookingRepository.findByItemOwnerIdAndStatusEqualsOrderByStartDesc(
-                        userId, Status.WAITING);
+                        userId, Status.WAITING, pageable);
                 break;
             case REJECTED:
                 bookings = bookingRepository.findByItemOwnerIdAndStatusEqualsOrderByStartDesc(
-                        userId, Status.REJECTED);
+                        userId, Status.REJECTED, pageable);
         }
 
         return bookings.stream()

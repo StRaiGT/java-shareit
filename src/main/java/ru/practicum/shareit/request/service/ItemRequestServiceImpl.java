@@ -3,7 +3,6 @@ package ru.practicum.shareit.request.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +63,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.info("Вывод всех запросов вещей пользователем с id {}.", userId);
 
         userService.getUserById(userId);
-        List<ItemRequest> itemRequests = itemRequestRepository.getAllByRequesterId_IdOrderByCreatedAsc(userId);
+        List<ItemRequest> itemRequests = itemRequestRepository.findByRequesterId_IdOrderByCreatedAsc(userId);
 
         return itemRequests.stream()
                 .map((itemRequest) -> itemRequestMapper.toItemRequestExtendedDto(
@@ -78,12 +77,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestExtendedDto> getAll(Long userId, int from, int size) {
-        log.info("Вывод всех запросов вещей постранично from {} size {}.", from, size);
+    public List<ItemRequestExtendedDto> getAll(Long userId, Pageable pageable) {
+        log.info("Вывод всех запросов вещей постранично {}.", pageable);
 
         userService.getUserById(userId);
-        Pageable pageable = PageRequest.of(from / size, size);
-        Page<ItemRequest> itemRequests = itemRequestRepository.getAllByRequesterId_IdNot(userId, pageable);
+        Page<ItemRequest> itemRequests = itemRequestRepository.findByRequesterId_IdNot(userId, pageable);
 
         return itemRequests.stream()
                 .map((itemRequest) -> itemRequestMapper.toItemRequestExtendedDto(

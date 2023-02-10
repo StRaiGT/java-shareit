@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.enums.Status;
@@ -40,10 +41,10 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
 
     @Override
-    public List<ItemExtendedDto> getByOwnerId(Long userId) {
+    public List<ItemExtendedDto> getByOwnerId(Long userId, Pageable pageable) {
         log.info("Вывод всех вещей пользователя с id {}.", userId);
 
-        return itemRepository.getAllByOwnerIdOrderByIdAsc(userId).stream()
+        return itemRepository.findByOwnerIdOrderByIdAsc(userId, pageable).stream()
                 .map((item) -> itemMapper.toItemExtendedDto(item, getLastBooking(item), getNextBooking(item)))
                 .collect(Collectors.toList());
     }
@@ -103,14 +104,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(String text) {
+    public List<ItemDto> search(String text, Pageable pageable) {
         log.info("Поиск вещей с подстрокой \"{}\".", text);
 
         if (text.isBlank() || text.isEmpty()) {
             return new ArrayList<>();
         }
 
-        return itemRepository.search(text)
+        return itemRepository.search(text, pageable)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());

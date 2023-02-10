@@ -10,6 +10,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.model.BookingRequestDto;
 import ru.practicum.shareit.booking.model.BookingResponseDto;
+import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.common.Constrains;
 import ru.practicum.shareit.exception.BookingException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -35,6 +37,7 @@ public class ItemControllerTest {
     private final UserController userController;
     private final ItemController itemController;
     private final BookingController bookingController;
+    private final BookingService bookingService;
 
     @Nested
     class Create {
@@ -57,7 +60,10 @@ public class ItemControllerTest {
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
-            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(userDto.getId());
+            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(
+                    userDto.getId(),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 1);
 
@@ -134,7 +140,10 @@ public class ItemControllerTest {
                     .build();
             itemController.create(itemDto3.getOwnerId(), itemDto3);
 
-            List<ItemExtendedDto> itemsFromController1 = itemController.getByOwnerId(userDto1.getId());
+            List<ItemExtendedDto> itemsFromController1 = itemController.getByOwnerId(
+                    userDto1.getId(),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController1.size(), 2);
 
@@ -155,7 +164,10 @@ public class ItemControllerTest {
             assertEquals(itemFromController3.getOwnerId(), itemDto3.getOwnerId());
             assertEquals(itemFromController3.getRequestId(), itemDto3.getRequestId());
 
-            List<ItemExtendedDto> itemsFromController2 = itemController.getByOwnerId(userDto2.getId());
+            List<ItemExtendedDto> itemsFromController2 = itemController.getByOwnerId(
+                    userDto2.getId(),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController2.size(), 1);
 
@@ -178,7 +190,10 @@ public class ItemControllerTest {
                     .build();
             userController.create(userDto);
 
-            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(userDto.getId());
+            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(
+                    userDto.getId(),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 0);
         }
@@ -224,7 +239,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto1 = bookingController.create(userDto2.getId(), bookingRequestDto1);
+            BookingResponseDto bookingResponseDto1 = bookingService.create(userDto2.getId(), bookingRequestDto1);
             bookingController.patch(userDto1.getId(), bookingResponseDto1.getId(), true);
 
             BookingRequestDto bookingRequestDto2 = BookingRequestDto.builder()
@@ -232,13 +247,16 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 4, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto2 = bookingController.create(userDto2.getId(), bookingRequestDto2);
+            BookingResponseDto bookingResponseDto2 = bookingService.create(userDto2.getId(), bookingRequestDto2);
             bookingController.patch(userDto1.getId(), bookingResponseDto2.getId(), true);
 
             CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
             itemController.addComment(userDto2.getId(),itemDto1.getId(), commentRequestDto);
 
-            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(userDto1.getId());
+            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(
+                    userDto1.getId(),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 2);
 
@@ -358,7 +376,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto1 = bookingController.create(userDto2.getId(), bookingRequestDto1);
+            BookingResponseDto bookingResponseDto1 = bookingService.create(userDto2.getId(), bookingRequestDto1);
             bookingController.patch(userDto1.getId(), bookingResponseDto1.getId(), true);
 
             BookingRequestDto bookingRequestDto2 = BookingRequestDto.builder()
@@ -366,7 +384,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 4, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto2 = bookingController.create(userDto2.getId(), bookingRequestDto2);
+            BookingResponseDto bookingResponseDto2 = bookingService.create(userDto2.getId(), bookingRequestDto2);
             bookingController.patch(userDto1.getId(), bookingResponseDto2.getId(), true);
 
             CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
@@ -444,7 +462,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto1 = bookingController.create(userDto2.getId(), bookingRequestDto1);
+            BookingResponseDto bookingResponseDto1 = bookingService.create(userDto2.getId(), bookingRequestDto1);
             bookingController.patch(userDto1.getId(), bookingResponseDto1.getId(), true);
 
             BookingRequestDto bookingRequestDto2 = BookingRequestDto.builder()
@@ -452,7 +470,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 4, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto2 = bookingController.create(userDto2.getId(), bookingRequestDto2);
+            BookingResponseDto bookingResponseDto2 = bookingService.create(userDto2.getId(), bookingRequestDto2);
             bookingController.patch(userDto1.getId(), bookingResponseDto2.getId(), true);
 
             CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
@@ -597,7 +615,10 @@ public class ItemControllerTest {
 
             itemController.delete(itemDto.getId());
 
-            assertEquals(itemController.getByOwnerId(userDto.getId()).size(), 0);
+            assertEquals(itemController.getByOwnerId(userDto.getId(),
+                            Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                            Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE)).size(),
+                    0);
         }
 
         @Test
@@ -674,7 +695,10 @@ public class ItemControllerTest {
                     .build();
             itemController.create(itemDto4.getOwnerId(), itemDto4);
 
-            List<ItemDto> itemsFromController = itemController.search("sEcrEt");
+            List<ItemDto> itemsFromController = itemController.search(
+                    "sEcrEt",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 2);
 
@@ -715,7 +739,10 @@ public class ItemControllerTest {
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
-            List<ItemDto> itemsFromController = itemController.search(" ");
+            List<ItemDto> itemsFromController = itemController.search(
+                    " ",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 0);
         }
@@ -754,7 +781,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            BookingResponseDto bookingResponseDto = bookingController.create(userDto2.getId(), bookingRequestDto);
+            BookingResponseDto bookingResponseDto = bookingService.create(userDto2.getId(), bookingRequestDto);
             bookingController.patch(userDto1.getId(), bookingResponseDto.getId(), true);
 
             CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
@@ -832,10 +859,10 @@ public class ItemControllerTest {
 
             BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
                     .start(LocalDateTime.of(2023, 1, 30, 10, 0, 0))
-                    .end(LocalDateTime.of(2023, 3, 30, 11, 0, 0))
+                    .end(LocalDateTime.of(2050, 3, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            BookingResponseDto bookingResponseDto = bookingController.create(userDto2.getId(), bookingRequestDto);
+            BookingResponseDto bookingResponseDto = bookingService.create(userDto2.getId(), bookingRequestDto);
             bookingController.patch(userDto1.getId(), bookingResponseDto.getId(), true);
 
             CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
@@ -876,7 +903,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            bookingController.create(userDto2.getId(), bookingRequestDto);
+            bookingService.create(userDto2.getId(), bookingRequestDto);
 
             CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
 

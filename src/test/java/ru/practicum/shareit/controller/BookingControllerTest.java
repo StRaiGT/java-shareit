@@ -11,6 +11,8 @@ import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.model.BookingRequestDto;
 import ru.practicum.shareit.booking.model.BookingResponseDto;
+import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.common.Constrains;
 import ru.practicum.shareit.exception.BookingException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.controller.ItemController;
@@ -31,6 +33,7 @@ public class BookingControllerTest {
     private final UserController userController;
     private final ItemController itemController;
     private final BookingController bookingController;
+    private final BookingService bookingService;
 
     @Nested
     class Create {
@@ -65,7 +68,7 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            BookingResponseDto bookingResponseDto = bookingController.create(userDto2.getId(), bookingRequestDto);
+            BookingResponseDto bookingResponseDto = bookingService.create(userDto2.getId(), bookingRequestDto);
 
             assertEquals(bookingResponseDto.getId(), 1L);
             assertEquals(bookingResponseDto.getStatus(), Status.WAITING);
@@ -107,7 +110,7 @@ public class BookingControllerTest {
                     .build();
 
             BookingException exception = assertThrows(BookingException.class,
-                    () -> bookingController.create(100L, bookingRequestDto));
+                    () -> bookingService.create(100L, bookingRequestDto));
             assertEquals("Предмет недоступен для бронирования.", exception.getMessage());
         }
 
@@ -134,7 +137,7 @@ public class BookingControllerTest {
                     .build();
 
             NotFoundException exception = assertThrows(NotFoundException.class,
-                    () -> bookingController.create(userDto2.getId(), bookingRequestDto));
+                    () -> bookingService.create(userDto2.getId(), bookingRequestDto));
             assertEquals("Вещи с таким id не существует.", exception.getMessage());
         }
 
@@ -171,7 +174,7 @@ public class BookingControllerTest {
                     .build();
 
             BookingException exception = assertThrows(BookingException.class,
-                    () -> bookingController.create(userDto2.getId(), bookingRequestDto));
+                    () -> bookingService.create(userDto2.getId(), bookingRequestDto));
             assertEquals("Предмет недоступен для бронирования.", exception.getMessage());
         }
 
@@ -201,7 +204,7 @@ public class BookingControllerTest {
                     .build();
 
             NotFoundException exception = assertThrows(NotFoundException.class,
-                    () -> bookingController.create(userDto.getId(), bookingRequestDto));
+                    () -> bookingService.create(userDto.getId(), bookingRequestDto));
             assertEquals("Владелец не может бронировать собственную вещь.", exception.getMessage());
         }
 
@@ -238,7 +241,7 @@ public class BookingControllerTest {
                     .build();
 
             BookingException exception = assertThrows(BookingException.class,
-                    () -> bookingController.create(userDto2.getId(), bookingRequestDto));
+                    () -> bookingService.create(userDto2.getId(), bookingRequestDto));
             assertEquals("Недопустимое время брони.", exception.getMessage());
         }
     }
@@ -286,14 +289,14 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto1 = bookingController.create(userDto2.getId(), bookingRequestDto1);
+            BookingResponseDto bookingResponseDto1 = bookingService.create(userDto2.getId(), bookingRequestDto1);
 
             BookingRequestDto bookingRequestDto2 = BookingRequestDto.builder()
                     .start(LocalDateTime.of(2023, 1, 30, 10, 0, 0))
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto2.getId())
                     .build();
-            BookingResponseDto bookingResponseDto2 = bookingController.create(userDto2.getId(), bookingRequestDto2);
+            BookingResponseDto bookingResponseDto2 = bookingService.create(userDto2.getId(), bookingRequestDto2);
 
             bookingController.patch(userDto1.getId(), bookingResponseDto1.getId(), true);
             bookingController.patch(userDto1.getId(), bookingResponseDto2.getId(), false);
@@ -338,7 +341,7 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            BookingResponseDto bookingResponseDto = bookingController.create(userDto2.getId(), bookingRequestDto);
+            BookingResponseDto bookingResponseDto = bookingService.create(userDto2.getId(), bookingRequestDto);
 
             NotFoundException exception = assertThrows(NotFoundException.class,
                     () -> bookingController.patch(100L, bookingResponseDto.getId(), true));
@@ -376,7 +379,7 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            bookingController.create(userDto2.getId(), bookingRequestDto);
+            bookingService.create(userDto2.getId(), bookingRequestDto);
 
             NotFoundException exception = assertThrows(NotFoundException.class,
                     () -> bookingController.patch(userDto1.getId(), 100L, true));
@@ -414,7 +417,7 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            bookingController.create(userDto2.getId(), bookingRequestDto1);
+            bookingService.create(userDto2.getId(), bookingRequestDto1);
 
             NotFoundException exception = assertThrows(NotFoundException.class,
                     () -> bookingController.patch(userDto2.getId(),itemDto.getId(), true));
@@ -452,7 +455,7 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            bookingController.create(userDto2.getId(), bookingRequestDto1);
+            bookingService.create(userDto2.getId(), bookingRequestDto1);
 
             bookingController.patch(userDto1.getId(),itemDto.getId(), true);
 
@@ -495,7 +498,7 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            BookingResponseDto bookingResponseDto = bookingController.create(userDto2.getId(), bookingRequestDto);
+            BookingResponseDto bookingResponseDto = bookingService.create(userDto2.getId(), bookingRequestDto);
 
             BookingResponseDto bookingGetByController1 = bookingController.getById(userDto2.getId(), bookingResponseDto.getId());
 
@@ -575,7 +578,7 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            BookingResponseDto bookingResponseDto = bookingController.create(userDto2.getId(), bookingRequestDto);
+            BookingResponseDto bookingResponseDto = bookingService.create(userDto2.getId(), bookingRequestDto);
 
 
             NotFoundException exception = assertThrows(NotFoundException.class,
@@ -617,7 +620,7 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 1, 29, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            BookingResponseDto bookingResponseDtoPast = bookingController.create(userDto2.getId(), bookingRequestDtoPast);
+            BookingResponseDto bookingResponseDtoPast = bookingService.create(userDto2.getId(), bookingRequestDtoPast);
             bookingController.patch(userDto1.getId(), bookingResponseDtoPast.getId(), true);
 
             BookingRequestDto bookingRequestDtoCurrent = BookingRequestDto.builder()
@@ -625,7 +628,7 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 7, 30, 10, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            BookingResponseDto bookingResponseDtoCurrent = bookingController.create(userDto2.getId(), bookingRequestDtoCurrent);
+            BookingResponseDto bookingResponseDtoCurrent = bookingService.create(userDto2.getId(), bookingRequestDtoCurrent);
             bookingController.patch(userDto1.getId(), bookingResponseDtoCurrent.getId(), true);
 
             BookingRequestDto bookingRequestDtoFuture = BookingRequestDto.builder()
@@ -633,20 +636,23 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 7, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            bookingController.create(userDto2.getId(), bookingRequestDtoFuture);
+            bookingService.create(userDto2.getId(), bookingRequestDtoFuture);
 
             BookingRequestDto bookingRequestDtoRejected = BookingRequestDto.builder()
                     .start(LocalDateTime.of(2023, 8, 30, 10, 0, 0))
                     .end(LocalDateTime.of(2023, 8, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            BookingResponseDto bookingResponseDtoRejected = bookingController.create(userDto2.getId(), bookingRequestDtoRejected);
+            BookingResponseDto bookingResponseDtoRejected = bookingService.create(userDto2.getId(), bookingRequestDtoRejected);
             bookingController.patch(userDto1.getId(), bookingResponseDtoRejected.getId(), false);
         }
 
         @Test
         public void shouldGetByStateAll() {
-            List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L, "ALL");
+            List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L,
+                    "ALL",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 4);
             assertEquals(bookings.get(0).getId(), 4L);
@@ -657,7 +663,10 @@ public class BookingControllerTest {
 
         @Test
         public void shouldGetByStateCurrent() {
-            List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L, "CURRENT");
+            List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L,
+                    "CURRENT",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getId(), 2L);
@@ -665,7 +674,10 @@ public class BookingControllerTest {
 
         @Test
         public void shouldGetByStatePast() {
-            List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L, "PAST");
+            List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L,
+                    "PAST",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getId(), 1L);
@@ -673,7 +685,10 @@ public class BookingControllerTest {
 
         @Test
         public void shouldGetByStateFuture() {
-            List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L, "FUTURE");
+            List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L,
+                    "FUTURE",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 2);
             assertEquals(bookings.get(0).getId(), 4L);
@@ -682,7 +697,10 @@ public class BookingControllerTest {
 
         @Test
         public void shouldGetByStateWaiting() {
-            List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L, "WAITING");
+            List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L,
+                    "WAITING",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getId(), 3L);
@@ -690,7 +708,10 @@ public class BookingControllerTest {
 
         @Test
         public void shouldGetByStateRejected() {
-            List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L, "REJECTED");
+            List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L,
+                    "REJECTED",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getId(), 4L);
@@ -699,14 +720,20 @@ public class BookingControllerTest {
         @Test
         public void shouldThrowExceptionIfBookerNotFound() {
             NotFoundException exception = assertThrows(NotFoundException.class,
-                    () -> bookingController.getAllByBookerId(100L, "ALL"));
+                    () -> bookingController.getAllByBookerId(100L,
+                            "ALL",
+                            Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                            Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE)));
             assertEquals("Пользователя с таким id не существует.", exception.getMessage());
         }
 
         @Test
         public void shouldThrowExceptionWithUnknownState() {
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> bookingController.getAllByBookerId(2L, "UNKNOWN"));
+                    () -> bookingController.getAllByBookerId(2L,
+                            "UNKNOWN",
+                            Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                            Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE)));
             assertEquals("Unknown state: UNKNOWN", exception.getMessage());
         }
     }
@@ -744,7 +771,7 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 1, 29, 11, 0, 0))
                     .itemId(itemDtoPast.getId())
                     .build();
-            BookingResponseDto bookingResponseDtoPast = bookingController.create(userDto2.getId(), bookingRequestDtoPast);
+            BookingResponseDto bookingResponseDtoPast = bookingService.create(userDto2.getId(), bookingRequestDtoPast);
             bookingController.patch(userDto1.getId(), bookingResponseDtoPast.getId(), true);
 
             ItemDto itemDtoCurrent = ItemDto.builder()
@@ -762,7 +789,7 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 7, 30, 10, 0, 0))
                     .itemId(itemDtoCurrent.getId())
                     .build();
-            BookingResponseDto bookingResponseDtoCurrent = bookingController.create(userDto2.getId(), bookingRequestDtoCurrent);
+            BookingResponseDto bookingResponseDtoCurrent = bookingService.create(userDto2.getId(), bookingRequestDtoCurrent);
             bookingController.patch(userDto1.getId(), bookingResponseDtoCurrent.getId(), true);
 
             ItemDto itemDtoFuture = ItemDto.builder()
@@ -780,7 +807,7 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 7, 30, 11, 0, 0))
                     .itemId(itemDtoFuture.getId())
                     .build();
-            bookingController.create(userDto2.getId(), bookingRequestDtoFuture);
+            bookingService.create(userDto2.getId(), bookingRequestDtoFuture);
 
             ItemDto itemDtoRejected = ItemDto.builder()
                     .id(4L)
@@ -797,13 +824,16 @@ public class BookingControllerTest {
                     .end(LocalDateTime.of(2023, 8, 30, 11, 0, 0))
                     .itemId(itemDtoRejected.getId())
                     .build();
-            BookingResponseDto bookingResponseDtoRejected = bookingController.create(userDto2.getId(), bookingRequestDtoRejected);
+            BookingResponseDto bookingResponseDtoRejected = bookingService.create(userDto2.getId(), bookingRequestDtoRejected);
             bookingController.patch(userDto1.getId(), bookingResponseDtoRejected.getId(), false);
         }
 
         @Test
         public void shouldGetByStateAll() {
-            List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L, "ALL");
+            List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L,
+                    "ALL",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 4);
             assertEquals(bookings.get(0).getItem().getId(), 4L);
@@ -814,7 +844,10 @@ public class BookingControllerTest {
 
         @Test
         public void shouldGetByStateCurrent() {
-            List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L, "CURRENT");
+            List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L,
+                    "CURRENT",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getItem().getId(), 2L);
@@ -822,7 +855,10 @@ public class BookingControllerTest {
 
         @Test
         public void shouldGetByStatePast() {
-            List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L, "PAST");
+            List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L,
+                    "PAST",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getItem().getId(), 1L);
@@ -830,7 +866,10 @@ public class BookingControllerTest {
 
         @Test
         public void shouldGetByStateFuture() {
-            List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L, "FUTURE");
+            List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L,
+                    "FUTURE",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 2);
             assertEquals(bookings.get(0).getItem().getId(), 4L);
@@ -839,7 +878,10 @@ public class BookingControllerTest {
 
         @Test
         public void shouldGetByStateWaiting() {
-            List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L, "WAITING");
+            List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L,
+                    "WAITING",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getItem().getId(), 3L);
@@ -847,7 +889,10 @@ public class BookingControllerTest {
 
         @Test
         public void shouldGetByStateRejected() {
-            List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L, "REJECTED");
+            List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L,
+                    "REJECTED",
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getItem().getId(), 4L);
@@ -856,14 +901,20 @@ public class BookingControllerTest {
         @Test
         public void shouldThrowExceptionIfOwnerNotFound() {
             NotFoundException exception = assertThrows(NotFoundException.class,
-                    () -> bookingController.getAllByOwnerId(100L, "ALL"));
+                    () -> bookingController.getAllByOwnerId(100L,
+                            "ALL",
+                            Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                            Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE)));
             assertEquals("Пользователя с таким id не существует.", exception.getMessage());
         }
 
         @Test
         public void shouldThrowExceptionWithUnknownState() {
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> bookingController.getAllByOwnerId(1L, "UNKNOWN"));
+                    () -> bookingController.getAllByOwnerId(1L,
+                            "UNKNOWN",
+                            Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
+                            Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE)));
             assertEquals("Unknown state: UNKNOWN", exception.getMessage());
         }
     }
