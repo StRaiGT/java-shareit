@@ -30,7 +30,7 @@ public abstract class ItemMapper {
     @Mapping(target = "ownerId", expression = "java(item.getOwner().getId())")
     @Mapping(target = "lastBooking", expression = "java(lastBooking)")
     @Mapping(target = "nextBooking", expression = "java(nextBooking)")
-    @Mapping(target = "comments", expression = "java(commentToCommentDto(item.getComments()))")
+    @Mapping(target = "comments", expression = "java(commentsToCommentsDto(item.getComments()))")
     public abstract ItemExtendedDto toItemExtendedDto(Item item, BookingItemDto lastBooking, BookingItemDto nextBooking);
 
     @Mapping(target = "bookerId", expression = "java(booking.getBooker().getId())")
@@ -45,7 +45,7 @@ public abstract class ItemMapper {
     @Mapping(target = "authorName", expression = "java(comment.getAuthor().getName())")
     public abstract CommentDto commentToCommentDto(Comment comment);
 
-    protected List<CommentDto> commentToCommentDto(List<Comment> comments) {
+    protected List<CommentDto> commentsToCommentsDto(List<Comment> comments) {
         return comments.stream()
                 .map(this::commentToCommentDto)
                 .collect(Collectors.toList());

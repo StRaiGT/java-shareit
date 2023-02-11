@@ -11,7 +11,6 @@ import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.model.BookingRequestDto;
 import ru.practicum.shareit.booking.model.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.common.Constrains;
 import ru.practicum.shareit.exception.BookingException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -62,8 +61,8 @@ public class ItemControllerTest {
 
             List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(
                     userDto.getId(),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 1);
 
@@ -142,8 +141,8 @@ public class ItemControllerTest {
 
             List<ItemExtendedDto> itemsFromController1 = itemController.getByOwnerId(
                     userDto1.getId(),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController1.size(), 2);
 
@@ -166,8 +165,8 @@ public class ItemControllerTest {
 
             List<ItemExtendedDto> itemsFromController2 = itemController.getByOwnerId(
                     userDto2.getId(),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController2.size(), 1);
 
@@ -192,8 +191,8 @@ public class ItemControllerTest {
 
             List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(
                     userDto.getId(),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 0);
         }
@@ -255,8 +254,8 @@ public class ItemControllerTest {
 
             List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(
                     userDto1.getId(),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 2);
 
@@ -616,8 +615,8 @@ public class ItemControllerTest {
             itemController.delete(itemDto.getId());
 
             assertEquals(itemController.getByOwnerId(userDto.getId(),
-                            Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                            Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE)).size(),
+                            Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                            Integer.parseInt(UserController.PAGE_DEFAULT_SIZE)).size(),
                     0);
         }
 
@@ -697,8 +696,8 @@ public class ItemControllerTest {
 
             List<ItemDto> itemsFromController = itemController.search(
                     "sEcrEt",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 2);
 
@@ -741,8 +740,8 @@ public class ItemControllerTest {
 
             List<ItemDto> itemsFromController = itemController.search(
                     " ",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 0);
         }

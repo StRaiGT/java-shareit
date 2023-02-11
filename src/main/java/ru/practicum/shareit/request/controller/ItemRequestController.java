@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.common.Constrains;
 import ru.practicum.shareit.request.model.ItemRequestCreateDto;
 import ru.practicum.shareit.request.model.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequestExtendedDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
+import ru.practicum.shareit.user.controller.UserController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -30,27 +30,27 @@ public class ItemRequestController {
     private final ItemRequestService itemRequestService;
 
     @PostMapping
-    public ItemRequestDto create(@RequestHeader(Constrains.headerUserId) Long userId,
+    public ItemRequestDto create(@RequestHeader(UserController.headerUserId) Long userId,
                                  @Valid @RequestBody ItemRequestCreateDto itemRequestCreateDto) {
         return itemRequestService.create(userId, itemRequestCreateDto);
     }
 
     @GetMapping("/{id}")
-    public ItemRequestExtendedDto getById(@RequestHeader(Constrains.headerUserId) Long userId,
+    public ItemRequestExtendedDto getById(@RequestHeader(UserController.headerUserId) Long userId,
                                           @PathVariable Long id) {
         return itemRequestService.getById(userId, id);
     }
 
     @GetMapping
-    public List<ItemRequestExtendedDto> getByRequesterId(@RequestHeader(Constrains.headerUserId) Long userId) {
+    public List<ItemRequestExtendedDto> getByRequesterId(@RequestHeader(UserController.headerUserId) Long userId) {
         return itemRequestService.getByRequesterId(userId);
     }
 
     @GetMapping("/all")
     public List<ItemRequestExtendedDto> getAll(
-            @RequestHeader(Constrains.headerUserId) Long userId,
-            @RequestParam(defaultValue = Constrains.PAGE_DEFAULT_FROM, required = false) @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = Constrains.PAGE_DEFAULT_SIZE, required = false) @Positive Integer size) {
+            @RequestHeader(UserController.headerUserId) Long userId,
+            @RequestParam(defaultValue = UserController.PAGE_DEFAULT_FROM, required = false) @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = UserController.PAGE_DEFAULT_SIZE, required = false) @Positive Integer size) {
         return itemRequestService.getAll(userId, PageRequest.of(from / size, size));
     }
 }

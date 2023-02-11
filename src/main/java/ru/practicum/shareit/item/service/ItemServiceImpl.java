@@ -76,8 +76,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto patch(Long userId, Long id, ItemDto itemDto) {
         log.info("Обновление вещи {} с id {} пользователем с id {}.", itemDto, id, userId);
 
-        Item repoItem = itemRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Вещи с таким id не существует."));
+        Item repoItem = getItemById(id);
 
         if (!Objects.equals(userId, repoItem.getOwner().getId())) {
             throw new ForbiddenException("Изменение вещи доступно только владельцу.");

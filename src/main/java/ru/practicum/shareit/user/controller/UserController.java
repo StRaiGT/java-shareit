@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.common.markers.Create;
-import ru.practicum.shareit.common.markers.Update;
+import ru.practicum.shareit.markers.Create;
+import ru.practicum.shareit.markers.Update;
 import ru.practicum.shareit.user.model.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -21,6 +21,9 @@ import java.util.List;
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 public class UserController {
+    public static final String headerUserId = "X-Sharer-User-Id";
+    public static final String PAGE_DEFAULT_FROM = "0";
+    public static final String PAGE_DEFAULT_SIZE = "10";
     private final UserService userService;
 
     @GetMapping

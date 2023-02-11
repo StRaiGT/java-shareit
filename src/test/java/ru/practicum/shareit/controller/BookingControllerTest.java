@@ -12,7 +12,6 @@ import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.model.BookingRequestDto;
 import ru.practicum.shareit.booking.model.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.common.Constrains;
 import ru.practicum.shareit.exception.BookingException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.controller.ItemController;
@@ -651,8 +650,8 @@ public class BookingControllerTest {
         public void shouldGetByStateAll() {
             List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L,
                     "ALL",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 4);
             assertEquals(bookings.get(0).getId(), 4L);
@@ -665,8 +664,8 @@ public class BookingControllerTest {
         public void shouldGetByStateCurrent() {
             List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L,
                     "CURRENT",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getId(), 2L);
@@ -676,8 +675,8 @@ public class BookingControllerTest {
         public void shouldGetByStatePast() {
             List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L,
                     "PAST",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getId(), 1L);
@@ -687,8 +686,8 @@ public class BookingControllerTest {
         public void shouldGetByStateFuture() {
             List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L,
                     "FUTURE",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 2);
             assertEquals(bookings.get(0).getId(), 4L);
@@ -699,8 +698,8 @@ public class BookingControllerTest {
         public void shouldGetByStateWaiting() {
             List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L,
                     "WAITING",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getId(), 3L);
@@ -710,8 +709,8 @@ public class BookingControllerTest {
         public void shouldGetByStateRejected() {
             List<BookingResponseDto> bookings = bookingController.getAllByBookerId(2L,
                     "REJECTED",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getId(), 4L);
@@ -722,8 +721,8 @@ public class BookingControllerTest {
             NotFoundException exception = assertThrows(NotFoundException.class,
                     () -> bookingController.getAllByBookerId(100L,
                             "ALL",
-                            Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                            Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE)));
+                            Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                            Integer.parseInt(UserController.PAGE_DEFAULT_SIZE)));
             assertEquals("Пользователя с таким id не существует.", exception.getMessage());
         }
 
@@ -732,8 +731,8 @@ public class BookingControllerTest {
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                     () -> bookingController.getAllByBookerId(2L,
                             "UNKNOWN",
-                            Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                            Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE)));
+                            Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                            Integer.parseInt(UserController.PAGE_DEFAULT_SIZE)));
             assertEquals("Unknown state: UNKNOWN", exception.getMessage());
         }
     }
@@ -832,8 +831,8 @@ public class BookingControllerTest {
         public void shouldGetByStateAll() {
             List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L,
                     "ALL",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 4);
             assertEquals(bookings.get(0).getItem().getId(), 4L);
@@ -846,8 +845,8 @@ public class BookingControllerTest {
         public void shouldGetByStateCurrent() {
             List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L,
                     "CURRENT",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getItem().getId(), 2L);
@@ -857,8 +856,8 @@ public class BookingControllerTest {
         public void shouldGetByStatePast() {
             List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L,
                     "PAST",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getItem().getId(), 1L);
@@ -868,8 +867,8 @@ public class BookingControllerTest {
         public void shouldGetByStateFuture() {
             List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L,
                     "FUTURE",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 2);
             assertEquals(bookings.get(0).getItem().getId(), 4L);
@@ -880,8 +879,8 @@ public class BookingControllerTest {
         public void shouldGetByStateWaiting() {
             List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L,
                     "WAITING",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getItem().getId(), 3L);
@@ -891,8 +890,8 @@ public class BookingControllerTest {
         public void shouldGetByStateRejected() {
             List<BookingResponseDto> bookings = bookingController.getAllByOwnerId(1L,
                     "REJECTED",
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                    Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE));
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(bookings.size(), 1);
             assertEquals(bookings.get(0).getItem().getId(), 4L);
@@ -903,8 +902,8 @@ public class BookingControllerTest {
             NotFoundException exception = assertThrows(NotFoundException.class,
                     () -> bookingController.getAllByOwnerId(100L,
                             "ALL",
-                            Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                            Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE)));
+                            Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                            Integer.parseInt(UserController.PAGE_DEFAULT_SIZE)));
             assertEquals("Пользователя с таким id не существует.", exception.getMessage());
         }
 
@@ -913,8 +912,8 @@ public class BookingControllerTest {
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                     () -> bookingController.getAllByOwnerId(1L,
                             "UNKNOWN",
-                            Integer.parseInt(Constrains.PAGE_DEFAULT_FROM),
-                            Integer.parseInt(Constrains.PAGE_DEFAULT_SIZE)));
+                            Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                            Integer.parseInt(UserController.PAGE_DEFAULT_SIZE)));
             assertEquals("Unknown state: UNKNOWN", exception.getMessage());
         }
     }
