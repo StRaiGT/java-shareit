@@ -682,6 +682,7 @@ public class BookingServiceImplTest {
 
             Booking savedBooking = bookingArgumentCaptor.getValue();
 
+            assertEquals(booking, savedBooking);
             assertEquals(booking.getId(), savedBooking.getId());
             assertEquals(booking.getStatus(), savedBooking.getStatus());
             assertEquals(booking.getStart(), savedBooking.getStart());

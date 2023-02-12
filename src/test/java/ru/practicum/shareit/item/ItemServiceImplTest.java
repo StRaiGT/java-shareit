@@ -16,6 +16,8 @@ import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.BookingException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.comment.model.Comment;
+import ru.practicum.shareit.item.comment.model.CommentDto;
 import ru.practicum.shareit.item.comment.model.CommentRequestDto;
 import ru.practicum.shareit.item.comment.storage.CommentRepository;
 import ru.practicum.shareit.item.mapper.ItemMapperImpl;
@@ -64,6 +66,9 @@ public class ItemServiceImplTest {
     @Captor
     private ArgumentCaptor<Item> itemArgumentCaptor;
 
+    @Captor
+    private ArgumentCaptor<Comment> commentArgumentCaptor;
+
     private final User user1 = TestConstrains.getUser1();
     private final User user2 = TestConstrains.getUser2();
     private final Item item1 = TestConstrains.getItem1(user1);
@@ -75,6 +80,7 @@ public class ItemServiceImplTest {
     private final Booking getBooking2 = TestConstrains.getBooking2(user2, item1, dateTime.minusHours(15));
     private final Booking getBooking3 = TestConstrains.getBooking3(user2, item1, dateTime.plusHours(15));
     private final Booking getBooking4 = TestConstrains.getBooking4(user2, item1, dateTime.plusHours(20));
+    private final Comment comment1 = TestConstrains.getComment1(user2, dateTime);
     private final CommentRequestDto comment1RequestDto = TestConstrains.getCommentRequestDto();
     private final Pageable pageable = TestConstrains.getPageable();
 
@@ -297,13 +303,19 @@ public class ItemServiceImplTest {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByItemIdAndBookerIdAndEndIsBeforeAndStatusEquals(any(), any(), any(), any()))
                     .thenReturn(List.of(getBooking1, getBooking2));
+            when(commentRepository.save(any())).thenReturn(comment1);
+            when(itemMapper.commentToCommentDto(any())).thenCallRealMethod();
 
-            itemService.addComment(user2.getId(), item1.getId(), comment1RequestDto);
+            CommentDto commentDto = itemService.addComment(user2.getId(), item1.getId(), comment1RequestDto);
 
             verify(userService, times(1)).getUserById(user2.getId());
             verify(bookingRepository, times(1))
                     .findByItemIdAndBookerIdAndEndIsBeforeAndStatusEquals(any(), any(), any(), any());
-            verify(commentRepository, times(1)).save(any());
+            verify(commentRepository, times(1)).save(commentArgumentCaptor.capture());
+
+            Comment savedComment = commentArgumentCaptor.getValue();
+            savedComment.setId(commentDto.getId());
+            assertEquals(comment1, savedComment);
         }
 
         @Test

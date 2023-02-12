@@ -17,6 +17,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.mapper.ItemRequestMapperImpl;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.model.ItemRequestCreateDto;
+import ru.practicum.shareit.request.model.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequestExtendedDto;
 import ru.practicum.shareit.request.service.ItemRequestServiceImpl;
 import ru.practicum.shareit.request.storage.ItemRequestRepository;
@@ -71,14 +72,18 @@ public class ItemRequestServiceImplTest {
         void shouldCreate() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(itemRequestMapper.toItemRequest(any(), any(), any())).thenCallRealMethod();
+            when(itemRequestRepository.save(any())).thenReturn(itemRequest1);
+            when(itemRequestMapper.toItemRequestDto(any())).thenCallRealMethod();
 
-            itemRequestService.create(user2.getId(), item1RequestCreateDto);
+            ItemRequestDto result = itemRequestService.create(user2.getId(), item1RequestCreateDto);
 
             verify(itemRequestRepository, times(1)).save(itemRequestArgumentCaptor.capture());
             verify(itemRequestMapper, times(1)).toItemRequest(any(), any(), any());
 
             ItemRequest savedItemRequest = itemRequestArgumentCaptor.getValue();
+            savedItemRequest.setId(result.getId());
 
+            assertEquals(itemRequest1, savedItemRequest);
             assertEquals(item1RequestCreateDto.getDescription(), savedItemRequest.getDescription());
             assertEquals(user2.getId(), savedItemRequest.getRequesterId().getId());
             assertEquals(user2.getName(), savedItemRequest.getRequesterId().getName());
