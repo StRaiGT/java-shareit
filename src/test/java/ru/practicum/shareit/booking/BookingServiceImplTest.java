@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,8 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import ru.practicum.shareit.TestConstrains;
 import ru.practicum.shareit.booking.enums.State;
 import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.mapper.BookingMapperImpl;
@@ -26,6 +28,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserDto;
 import ru.practicum.shareit.user.service.UserService;
@@ -63,27 +66,109 @@ public class BookingServiceImplTest {
     @Captor
     private ArgumentCaptor<Booking> bookingArgumentCaptor;
 
-    private final User user1 = TestConstrains.getUser1();
-    private final User user2 = TestConstrains.getUser2();
-    private final User user3 = TestConstrains.getUser3();
-    private final UserDto user2Dto = TestConstrains.getUser2Dto();
-    private final Item item1 = TestConstrains.getItem1(user1);
-    private final ItemDto item1Dto = TestConstrains.getItem1Dto(user1);
-    private final Item itemIsNoAvailable = TestConstrains.getItem3(user1);
-    private final LocalDateTime dateTime = TestConstrains.getDateTime();
-    private final Booking booking = TestConstrains.getBooking1(user2, item1, dateTime);
-    private final Booking bookingIsWaiting = TestConstrains.getBooking3(user2, item1, dateTime);
-    private final BookingRequestDto bookingRequestDto = TestConstrains.getBookingRequestDto(dateTime, item1);
-    private final BookingRequestDto bookingRequestDtoWrongDate = TestConstrains.getBookingRequestDtoWrongDate(
-            dateTime, item1);
-    private final BookingResponseDto bookingResponseDto = TestConstrains.getBooking1ResponseDto(user2Dto, item1Dto,
-            dateTime);
-    private final Pageable pageable = TestConstrains.getPageable();
+    private static User user1;
+    private static User user2;
+    private static User user3;
+    private static Item item1;
+    private static LocalDateTime dateTime;
+    private static Item itemIsNoAvailable;
+    private static Booking booking;
+    private static BookingRequestDto bookingRequestDto;
+    private static BookingRequestDto bookingRequestDtoWrongDate;
+    private static BookingResponseDto bookingResponseDto;
+    private static Pageable pageable;
+
+    @BeforeAll
+    public static void beforeAll() {
+        user1 = User.builder()
+                .id(1L)
+                .name("Test user 1")
+                .email("tester1@yandex.ru")
+                .build();
+
+        user2 = User.builder()
+                .id(2L)
+                .name("Test user 2")
+                .email("tester2@yandex.ru")
+                .build();
+
+        user3 = User.builder()
+                .id(3L)
+                .name("Test user 3")
+                .email("tester3@yandex.ru")
+                .build();
+
+        UserDto user2Dto = UserDto.builder()
+                .id(2L)
+                .name("Test user 2")
+                .email("tester2@yandex.ru")
+                .build();
+
+        item1 = Item.builder()
+                .id(1L)
+                .name("item1 name")
+                .description("seaRch1 description ")
+                .available(true)
+                .owner(user1)
+                .build();
+
+        ItemDto item1Dto = ItemDto.builder()
+                .id(1L)
+                .name("item1 name")
+                .description("seaRch1 description ")
+                .available(true)
+                .ownerId(user1.getId())
+                .build();
+
+        itemIsNoAvailable = Item.builder()
+                .id(3L)
+                .name("item3 name")
+                .description("itEm3 description")
+                .available(false)
+                .owner(user1)
+                .build();
+
+        dateTime = LocalDateTime.of(2023,1,1,10,0,0);
+
+        booking = Booking.builder()
+                .id(1L)
+                .start(dateTime.minusYears(10))
+                .end(dateTime.minusYears(9))
+                .item(item1)
+                .booker(user2)
+                .status(Status.APPROVED)
+                .build();
+
+        bookingRequestDto = BookingRequestDto.builder()
+                .start(dateTime.plusYears(5))
+                .end(dateTime.plusYears(6))
+                .itemId(item1.getId())
+                .build();
+
+        bookingRequestDtoWrongDate = BookingRequestDto.builder()
+                .start(dateTime.plusYears(5))
+                .end(dateTime)
+                .itemId(item1.getId())
+                .build();
+
+        bookingResponseDto = BookingResponseDto.builder()
+                .id(1L)
+                .start(dateTime.minusYears(10))
+                .end(dateTime.minusYears(9))
+                .item(item1Dto)
+                .booker(user2Dto)
+                .status(Status.APPROVED)
+                .build();
+
+        final int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+        final int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
+        pageable = PageRequest.of(from / size, size);
+    }
 
     @Nested
     class GetById {
         @Test
-        void shouldGetByAuthor() {
+        public void shouldGetByAuthor() {
             when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
             when(bookingMapper.bookingToBookingResponseDto(booking)).thenReturn(bookingResponseDto);
 
@@ -107,7 +192,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetByOwner() {
+        public void shouldGetByOwner() {
             when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
             when(bookingMapper.bookingToBookingResponseDto(booking)).thenReturn(bookingResponseDto);
 
@@ -131,7 +216,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldThrowExceptionIfNotOwnerOrAuthor() {
+        public void shouldThrowExceptionIfNotOwnerOrAuthor() {
             when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
             NotFoundException exception = assertThrows(NotFoundException.class,
@@ -144,7 +229,7 @@ public class BookingServiceImplTest {
     @Nested
     class GetAllByBookerId {
         @Test
-        void shouldGetAllIfBooker() {
+        public void shouldGetAllIfBooker() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByBookerIdOrderByStartDesc(user2.getId(), pageable))
                     .thenReturn(new PageImpl<>(List.of(booking)));
@@ -173,7 +258,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetAllEmptyIfNotBooker() {
+        public void shouldGetAllEmptyIfNotBooker() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(bookingRepository.findByBookerIdOrderByStartDesc(user1.getId(), pageable))
                     .thenReturn(new PageImpl<>(List.of()));
@@ -187,7 +272,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetCurrentIfBooker() {
+        public void shouldGetCurrentIfBooker() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(any(), any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of(booking)));
@@ -216,7 +301,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetCurrentEmptyIfNotBooker() {
+        public void shouldGetCurrentEmptyIfNotBooker() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(any(), any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of()));
@@ -230,7 +315,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetPastIfBooker() {
+        public void shouldGetPastIfBooker() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByBookerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(any(), any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of(booking)));
@@ -259,7 +344,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetPastEmptyIfNotBooker() {
+        public void shouldGetPastEmptyIfNotBooker() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(bookingRepository.findByBookerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(any(), any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of()));
@@ -273,7 +358,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetFutureIfBooker() {
+        public void shouldGetFutureIfBooker() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of(booking)));
@@ -302,7 +387,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetFutureEmptyIfNotBooker() {
+        public void shouldGetFutureEmptyIfNotBooker() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of()));
@@ -316,7 +401,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetWaitingIfBooker() {
+        public void shouldGetWaitingIfBooker() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDesc(any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of(booking)));
@@ -345,7 +430,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetWaitingEmptyIfNotBooker() {
+        public void shouldGetWaitingEmptyIfNotBooker() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDesc(any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of()));
@@ -359,7 +444,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetRejectedIfBooker() {
+        public void shouldGetRejectedIfBooker() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDesc(any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of(booking)));
@@ -388,7 +473,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetRejectedEmptyIfNotBooker() {
+        public void shouldGetRejectedEmptyIfNotBooker() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDesc(any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of()));
@@ -405,7 +490,7 @@ public class BookingServiceImplTest {
     @Nested
     class GetAllByOwnerId {
         @Test
-        void shouldGetAllIfOwner() {
+        public void shouldGetAllIfOwner() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(bookingRepository.findByItemOwnerIdOrderByStartDesc(user1.getId(), pageable))
                     .thenReturn(new PageImpl<>(List.of(booking)));
@@ -434,7 +519,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetAllEmptyIfNotBooker() {
+        public void shouldGetAllEmptyIfNotBooker() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByItemOwnerIdOrderByStartDesc(user2.getId(), pageable))
                     .thenReturn(new PageImpl<>(List.of()));
@@ -448,7 +533,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetCurrentIfOwner() {
+        public void shouldGetCurrentIfOwner() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(any(), any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of(booking)));
@@ -477,7 +562,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetCurrentEmptyIfNotBooker() {
+        public void shouldGetCurrentEmptyIfNotBooker() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(any(), any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of()));
@@ -491,7 +576,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetPastIfOwner() {
+        public void shouldGetPastIfOwner() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(bookingRepository.findByItemOwnerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(any(), any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of(booking)));
@@ -520,7 +605,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetPastEmptyIfNotBooker() {
+        public void shouldGetPastEmptyIfNotBooker() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByItemOwnerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(any(), any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of()));
@@ -534,7 +619,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetFutureIfOwner() {
+        public void shouldGetFutureIfOwner() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of(booking)));
@@ -563,7 +648,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetFutureEmptyIfNotBooker() {
+        public void shouldGetFutureEmptyIfNotBooker() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of()));
@@ -577,7 +662,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetWaitingIfOwner() {
+        public void shouldGetWaitingIfOwner() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(bookingRepository.findByItemOwnerIdAndStatusEqualsOrderByStartDesc(any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of(booking)));
@@ -606,7 +691,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetWaitingEmptyIfNotBooker() {
+        public void shouldGetWaitingEmptyIfNotBooker() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByItemOwnerIdAndStatusEqualsOrderByStartDesc(any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of()));
@@ -620,7 +705,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetRejectedIfOwner() {
+        public void shouldGetRejectedIfOwner() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(bookingRepository.findByItemOwnerIdAndStatusEqualsOrderByStartDesc(any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of(booking)));
@@ -649,7 +734,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldGetRejectedEmptyIfNotBooker() {
+        public void shouldGetRejectedEmptyIfNotBooker() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByItemOwnerIdAndStatusEqualsOrderByStartDesc(any(), any(), any()))
                     .thenReturn(new PageImpl<>(List.of()));
@@ -666,7 +751,7 @@ public class BookingServiceImplTest {
     @Nested
     class Create {
         @Test
-        void shouldCreate() {
+        public void shouldCreate() {
             when(itemService.getItemById(bookingRequestDto.getItemId())).thenReturn(item1);
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingMapper.requestDtoToBooking(bookingRequestDto, item1, user2, Status.WAITING))
@@ -691,7 +776,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldThrowExceptionIfEndIsBeforeStart() {
+        public void shouldThrowExceptionIfEndIsBeforeStart() {
             BookingException exception = assertThrows(BookingException.class,
                     () -> bookingService.create(user2.getId(), bookingRequestDtoWrongDate));
             assertEquals("Недопустимое время брони.", exception.getMessage());
@@ -699,7 +784,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldThrowExceptionIfItemIsNotAvailable() {
+        public void shouldThrowExceptionIfItemIsNotAvailable() {
             when(itemService.getItemById(bookingRequestDto.getItemId())).thenReturn(itemIsNoAvailable);
 
             BookingException exception = assertThrows(BookingException.class,
@@ -710,7 +795,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldThrowExceptionIfBookingByOwner() {
+        public void shouldThrowExceptionIfBookingByOwner() {
             when(itemService.getItemById(bookingRequestDto.getItemId())).thenReturn(item1);
             when(userService.getUserById(user1.getId())).thenReturn(user1);
 
@@ -725,13 +810,27 @@ public class BookingServiceImplTest {
 
     @Nested
     class Patch {
+        private Booking bookingIsWaiting1;
+
+        @BeforeEach
+        public void beforeEachPatch() {
+            bookingIsWaiting1 = Booking.builder()
+                    .id(3L)
+                    .start(dateTime.plusYears(8))
+                    .end(dateTime.plusYears(9))
+                    .item(item1)
+                    .booker(user2)
+                    .status(Status.WAITING)
+                    .build();
+        }
+
         @Test
-        void shouldApprove() {
-            when(bookingRepository.findById(bookingIsWaiting.getId())).thenReturn(Optional.of(bookingIsWaiting));
+        public void shouldApprove() {
+            when(bookingRepository.findById(bookingIsWaiting1.getId())).thenReturn(Optional.of(bookingIsWaiting1));
 
-            bookingService.patch(user1.getId(), bookingIsWaiting.getId(), true);
+            bookingService.patch(user1.getId(), bookingIsWaiting1.getId(), true);
 
-            verify(bookingRepository, times(1)).findById(bookingIsWaiting.getId());
+            verify(bookingRepository, times(1)).findById(bookingIsWaiting1.getId());
             verify(bookingRepository, times(1)).save(bookingArgumentCaptor.capture());
 
             Booking savedBooking = bookingArgumentCaptor.getValue();
@@ -740,12 +839,12 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldReject() {
-            when(bookingRepository.findById(bookingIsWaiting.getId())).thenReturn(Optional.of(bookingIsWaiting));
+        public void shouldReject() {
+            when(bookingRepository.findById(bookingIsWaiting1.getId())).thenReturn(Optional.of(bookingIsWaiting1));
 
-            bookingService.patch(user1.getId(), bookingIsWaiting.getId(), false);
+            bookingService.patch(user1.getId(), bookingIsWaiting1.getId(), false);
 
-            verify(bookingRepository, times(1)).findById(bookingIsWaiting.getId());
+            verify(bookingRepository, times(1)).findById(bookingIsWaiting1.getId());
             verify(bookingRepository, times(1)).save(bookingArgumentCaptor.capture());
 
             Booking savedBooking = bookingArgumentCaptor.getValue();
@@ -754,7 +853,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldThrowExceptionIfPatchNotOwner() {
+        public void shouldThrowExceptionIfPatchNotOwner() {
             when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
 
             NotFoundException exception = assertThrows(NotFoundException.class,
@@ -765,7 +864,7 @@ public class BookingServiceImplTest {
         }
 
         @Test
-        void shouldThrowExceptionIfAlreadyPatchBefore() {
+        public void shouldThrowExceptionIfAlreadyPatchBefore() {
             when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
 
             BookingException exception = assertThrows(BookingException.class,

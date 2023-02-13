@@ -1,4 +1,4 @@
-package ru.practicum.shareit.controller;
+package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class BookingControllerE2E {
+public class BookingFullContextTest {
     private final UserController userController;
     private final ItemController itemController;
     private final BookingController bookingController;

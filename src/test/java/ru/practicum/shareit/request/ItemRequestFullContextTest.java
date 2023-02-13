@@ -1,4 +1,4 @@
-package ru.practicum.shareit.controller;
+package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Nested;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ItemRequestControllerE2E {
+public class ItemRequestFullContextTest {
     private final UserController userController;
     private final ItemController itemController;
     private final ItemRequestController itemRequestController;

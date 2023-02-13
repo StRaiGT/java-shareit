@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,8 +10,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import ru.practicum.shareit.TestConstrains;
+import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.BookingException;
@@ -26,6 +28,7 @@ import ru.practicum.shareit.item.model.ItemDto;
 import ru.practicum.shareit.item.model.ItemExtendedDto;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -69,25 +72,132 @@ public class ItemServiceImplTest {
     @Captor
     private ArgumentCaptor<Comment> commentArgumentCaptor;
 
-    private final User user1 = TestConstrains.getUser1();
-    private final User user2 = TestConstrains.getUser2();
-    private final Item item1 = TestConstrains.getItem1(user1);
-    private final Item item2 = TestConstrains.getItem2(user2);
-    private final Item item3 = TestConstrains.getItem3(user1);
-    private final ItemDto patchItem1Dto = TestConstrains.getPatchItem1Dto();
-    private final LocalDateTime dateTime = TestConstrains.getDateTime();
-    private final Booking getBooking1 = TestConstrains.getBooking1(user2, item1, dateTime.minusHours(20));
-    private final Booking getBooking2 = TestConstrains.getBooking2(user2, item1, dateTime.minusHours(15));
-    private final Booking getBooking3 = TestConstrains.getBooking3(user2, item1, dateTime.plusHours(15));
-    private final Booking getBooking4 = TestConstrains.getBooking4(user2, item1, dateTime.plusHours(20));
-    private final Comment comment1 = TestConstrains.getComment1(user2, dateTime);
-    private final CommentRequestDto comment1RequestDto = TestConstrains.getCommentRequestDto();
-    private final Pageable pageable = TestConstrains.getPageable();
+    private static User user1;
+    private static User user2;
+    private static Item item1;
+    private static Item item2;
+    private static Item item3;
+    private static ItemDto item1DtoToPatch;
+    private static ItemDto item1DtoToPatchBlank;
+    private static Booking booking1;
+    private static Booking booking2;
+    private static Booking booking3;
+    private static Booking booking4;
+    private static Comment comment1;
+    private static CommentRequestDto comment1RequestDto;
+    private static Pageable pageable;
+
+    @BeforeAll
+    public static void beforeAll() {
+        user1 = User.builder()
+                .id(1L)
+                .name("Test user 1")
+                .email("tester1@yandex.ru")
+                .build();
+
+        user2 = User.builder()
+                .id(2L)
+                .name("Test user 2")
+                .email("tester2@yandex.ru")
+                .build();
+
+        item1 = Item.builder()
+                .id(1L)
+                .name("item1 name")
+                .description("seaRch1 description ")
+                .available(true)
+                .owner(user1)
+                .build();
+
+        item2 = Item.builder()
+                .id(2L)
+                .name("item2 name")
+                .description("SeARch1 description")
+                .available(true)
+                .owner(user2)
+                .build();
+
+        item3 = Item.builder()
+                .id(3L)
+                .name("item3 name")
+                .description("itEm3 description")
+                .available(false)
+                .owner(user1)
+                .build();
+
+        item1DtoToPatch = ItemDto.builder()
+                .id(1L)
+                .name("Patch item1 name")
+                .description("Patch seaRch1 description")
+                .available(false)
+                .build();
+
+        item1DtoToPatchBlank = ItemDto.builder()
+                .id(1L)
+                .name(" ")
+                .description(" ")
+                .available(null)
+                .build();
+
+        LocalDateTime dateTime = LocalDateTime.of(2023,1,1,10,0,0);
+
+        booking1 = Booking.builder()
+                .id(1L)
+                .start(dateTime.minusYears(10))
+                .end(dateTime.minusYears(9))
+                .item(item1)
+                .booker(user2)
+                .status(Status.APPROVED)
+                .build();
+
+        booking2 = Booking.builder()
+                .id(2L)
+                .start(dateTime.minusYears(5))
+                .end(dateTime.plusYears(5))
+                .item(item1)
+                .booker(user2)
+                .status(Status.APPROVED)
+                .build();
+
+        booking3 = Booking.builder()
+                .id(3L)
+                .start(dateTime.plusYears(8))
+                .end(dateTime.plusYears(9))
+                .item(item1)
+                .booker(user2)
+                .status(Status.WAITING)
+                .build();
+
+        booking4 = Booking.builder()
+                .id(4L)
+                .start(dateTime.plusYears(9))
+                .end(dateTime.plusYears(10))
+                .item(item1)
+                .booker(user2)
+                .status(Status.REJECTED)
+                .build();
+
+        comment1 = Comment.builder()
+                .id(1L)
+                .text("comment1 text")
+                .createdDate(dateTime)
+                .author(user2)
+                .itemId(1L)
+                .build();
+
+        comment1RequestDto = CommentRequestDto.builder()
+                .text("commentRequestDto text")
+                .build();
+
+        final int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+        final int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
+        pageable = PageRequest.of(from / size, size);
+    }
 
     @Nested
     class GetByOwnerId {
         @Test
-        void shouldGetTwoItems() {
+        public void shouldGetTwoItems() {
             when(itemRepository.findByOwnerIdOrderByIdAsc(any(), any())).thenReturn(new PageImpl<>(List.of(item1, item3)));
             when(itemMapper.toItemExtendedDto(any(), any(), any())).thenCallRealMethod();
 
@@ -98,7 +208,7 @@ public class ItemServiceImplTest {
         }
 
         @Test
-        void shouldGetZeroItems() {
+        public void shouldGetZeroItems() {
             when(itemRepository.findByOwnerIdOrderByIdAsc(any(), any())).thenReturn(new PageImpl<>(List.of()));
 
             itemService.getByOwnerId(user1.getId(), pageable);
@@ -111,7 +221,7 @@ public class ItemServiceImplTest {
     @Nested
     class GetItemById {
         @Test
-        void shouldGet() {
+        public void shouldGet() {
             when(itemRepository.findById(item2.getId())).thenReturn(Optional.of(item2));
 
             itemService.getItemById(item2.getId());
@@ -120,7 +230,7 @@ public class ItemServiceImplTest {
         }
 
         @Test
-        void shouldThrowExceptionIfItemIdNotFound() {
+        public void shouldThrowExceptionIfItemIdNotFound() {
             when(itemRepository.findById(item2.getId())).thenReturn(Optional.empty());
 
             NotFoundException exception = assertThrows(NotFoundException.class,
@@ -133,7 +243,7 @@ public class ItemServiceImplTest {
     @Nested
     class GetById {
         @Test
-        void shouldGetByNotOwner() {
+        public void shouldGetByNotOwner() {
             when(itemRepository.findById(item1.getId())).thenReturn(Optional.of(item1));
             when(itemMapper.toItemExtendedDto(any(), any(), any())).thenCallRealMethod();
 
@@ -146,27 +256,27 @@ public class ItemServiceImplTest {
         }
 
         @Test
-        void shouldGetByOwnerWithLastAndNextBookings() {
+        public void shouldGetByOwnerWithLastAndNextBookings() {
             when(itemRepository.findById(item1.getId())).thenReturn(Optional.of(item1));
             when(itemMapper.toItemExtendedDto(any(), any(), any())).thenCallRealMethod();
             when(bookingRepository.findByItemIdAndStartBeforeAndStatusEqualsOrderByStartDesc(any(), any(), any()))
-                    .thenReturn(List.of(getBooking2, getBooking1));
+                    .thenReturn(List.of(booking2, booking1));
             when(bookingRepository.findByItemIdAndStartAfterAndStatusEqualsOrderByStartAsc(any(), any(), any()))
-                    .thenReturn(List.of(getBooking3, getBooking4));
+                    .thenReturn(List.of(booking3, booking4));
             when(itemMapper.bookingToBookingItemDto(any())).thenCallRealMethod();
 
             ItemExtendedDto itemFromService = itemService.getById(user1.getId(), item1.getId());
 
             assertNotNull(itemFromService.getLastBooking());
-            assertEquals(getBooking2.getId(), itemFromService.getLastBooking().getId());
-            assertEquals(getBooking2.getBooker().getId(), itemFromService.getLastBooking().getBookerId());
-            assertEquals(getBooking2.getStart(), itemFromService.getLastBooking().getStart());
-            assertEquals(getBooking2.getEnd(), itemFromService.getLastBooking().getEnd());
+            assertEquals(booking2.getId(), itemFromService.getLastBooking().getId());
+            assertEquals(booking2.getBooker().getId(), itemFromService.getLastBooking().getBookerId());
+            assertEquals(booking2.getStart(), itemFromService.getLastBooking().getStart());
+            assertEquals(booking2.getEnd(), itemFromService.getLastBooking().getEnd());
             assertNotNull(itemFromService.getNextBooking());
-            assertEquals(getBooking3.getId(), itemFromService.getNextBooking().getId());
-            assertEquals(getBooking3.getBooker().getId(), itemFromService.getNextBooking().getBookerId());
-            assertEquals(getBooking3.getStart(), itemFromService.getNextBooking().getStart());
-            assertEquals(getBooking3.getEnd(), itemFromService.getNextBooking().getEnd());
+            assertEquals(booking3.getId(), itemFromService.getNextBooking().getId());
+            assertEquals(booking3.getBooker().getId(), itemFromService.getNextBooking().getBookerId());
+            assertEquals(booking3.getStart(), itemFromService.getNextBooking().getStart());
+            assertEquals(booking3.getEnd(), itemFromService.getNextBooking().getEnd());
 
             verify(itemRepository, times(1)).findById(any());
             verify(itemMapper, times(1)).toItemExtendedDto(any(), any(), any());
@@ -178,7 +288,7 @@ public class ItemServiceImplTest {
         }
 
         @Test
-        void shouldGetByOwnerWithEmptyLastAndNextBookings() {
+        public void shouldGetByOwnerWithEmptyLastAndNextBookings() {
             when(itemRepository.findById(item1.getId())).thenReturn(Optional.of(item1));
             when(itemMapper.toItemExtendedDto(any(), any(), any())).thenCallRealMethod();
             when(bookingRepository.findByItemIdAndStartBeforeAndStatusEqualsOrderByStartDesc(any(), any(), any()))
@@ -204,7 +314,7 @@ public class ItemServiceImplTest {
     @Nested
     class Create {
         @Test
-        void shouldCreate() {
+        public void shouldCreate() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(itemMapper.toItemDto(any())).thenCallRealMethod();
             when(itemMapper.toItem(any(), any())).thenCallRealMethod();
@@ -221,10 +331,10 @@ public class ItemServiceImplTest {
     @Nested
     class Patch {
         @Test
-        void shouldPatchByOwner() {
+        public void shouldPatchByOwner() {
             when(itemRepository.findById(item1.getId())).thenReturn(Optional.of(item1));
 
-            itemService.patch(user1.getId(), item1.getId(), patchItem1Dto);
+            itemService.patch(user1.getId(), item1.getId(), item1DtoToPatch);
 
             verify(itemRepository, times(1)).findById(any());
             verify(itemRepository, times(1)).save(itemArgumentCaptor.capture());
@@ -232,17 +342,34 @@ public class ItemServiceImplTest {
             Item savedItem = itemArgumentCaptor.getValue();
 
             assertEquals(item1.getId(), savedItem.getId());
-            assertEquals(patchItem1Dto.getName(), savedItem.getName());
-            assertEquals(patchItem1Dto.getDescription(), savedItem.getDescription());
-            assertEquals(patchItem1Dto.getAvailable(), savedItem.getAvailable());
+            assertEquals(item1DtoToPatch.getName(), savedItem.getName());
+            assertEquals(item1DtoToPatch.getDescription(), savedItem.getDescription());
+            assertEquals(item1DtoToPatch.getAvailable(), savedItem.getAvailable());
         }
 
         @Test
-        void shouldThrowExceptionIfPatchByNotOwner() {
+        public void shouldNotPatchIfBlank() {
+            when(itemRepository.findById(item1.getId())).thenReturn(Optional.of(item1));
+
+            itemService.patch(user1.getId(), item1.getId(), item1DtoToPatchBlank);
+
+            verify(itemRepository, times(1)).findById(any());
+            verify(itemRepository, times(1)).save(itemArgumentCaptor.capture());
+
+            Item savedItem = itemArgumentCaptor.getValue();
+
+            assertEquals(item1.getId(), savedItem.getId());
+            assertEquals(item1.getName(), savedItem.getName());
+            assertEquals(item1.getDescription(), savedItem.getDescription());
+            assertEquals(item1.getAvailable(), savedItem.getAvailable());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfPatchByNotOwner() {
             when(itemRepository.findById(item1.getId())).thenReturn(Optional.of(item1));
 
             ForbiddenException exception = assertThrows(ForbiddenException.class,
-                    () ->  itemService.patch(user2.getId(), item1.getId(), patchItem1Dto));
+                    () ->  itemService.patch(user2.getId(), item1.getId(), item1DtoToPatch));
             assertEquals("Изменение вещи доступно только владельцу.", exception.getMessage());
             verify(itemRepository, times(1)).findById(any());
             verify(itemRepository, never()).save(any());
@@ -252,14 +379,14 @@ public class ItemServiceImplTest {
     @Nested
     class Delete {
         @Test
-        void shouldDeleteIfIdExists() {
+        public void shouldDeleteIfIdExists() {
             itemService.delete(item1.getId());
 
             verify(itemRepository, times(1)).deleteById(item1.getId());
         }
 
         @Test
-        void shouldDeleteIfIdNotExists() {
+        public void shouldDeleteIfIdNotExists() {
             itemService.delete(99L);
 
             verify(itemRepository, times(1)).deleteById(99L);
@@ -269,7 +396,7 @@ public class ItemServiceImplTest {
     @Nested
     class Search {
         @Test
-        void shouldGetEmptyListIfTextIsEmpty() {
+        public void shouldGetEmptyListIfTextIsEmpty() {
             List<ItemDto> itemsFromService = itemService.search("", pageable);
 
             assertEquals(0, itemsFromService.size());
@@ -277,7 +404,7 @@ public class ItemServiceImplTest {
         }
 
         @Test
-        void shouldGetEmptyListIfTextIsBlank() {
+        public void shouldGetEmptyListIfTextIsBlank() {
             List<ItemDto> itemsFromService = itemService.search(" ", pageable);
 
             assertEquals(0, itemsFromService.size());
@@ -285,7 +412,7 @@ public class ItemServiceImplTest {
         }
 
         @Test
-        void shouldGetIfTextNotBlank() {
+        public void shouldGetIfTextNotBlank() {
             when(itemRepository.search("iTemS", pageable)).thenReturn(new PageImpl<>(List.of(item1, item2)));
 
             List<ItemDto> itemsFromService = itemService.search("iTemS", pageable);
@@ -298,11 +425,11 @@ public class ItemServiceImplTest {
     @Nested
     class AddComment {
         @Test
-        void shouldAdd() {
+        public void shouldAdd() {
             when(itemMapper.commentRequestDtoToComment(any(), any(), any(), any())).thenCallRealMethod();
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByItemIdAndBookerIdAndEndIsBeforeAndStatusEquals(any(), any(), any(), any()))
-                    .thenReturn(List.of(getBooking1, getBooking2));
+                    .thenReturn(List.of(booking1, booking2));
             when(commentRepository.save(any())).thenReturn(comment1);
             when(itemMapper.commentToCommentDto(any())).thenCallRealMethod();
 
@@ -319,7 +446,7 @@ public class ItemServiceImplTest {
         }
 
         @Test
-        void shouldThrowExceptionIfNotFinishedBooking() {
+        public void shouldThrowExceptionIfNotFinishedBooking() {
             when(itemMapper.commentRequestDtoToComment(any(), any(), any(), any())).thenCallRealMethod();
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(bookingRepository.findByItemIdAndBookerIdAndEndIsBeforeAndStatusEquals(any(), any(), any(), any()))

@@ -1,12 +1,12 @@
 package ru.practicum.shareit.booking;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practicum.shareit.TestConstrains;
 import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.mapper.BookingMapperImpl;
 import ru.practicum.shareit.booking.model.Booking;
@@ -37,17 +37,52 @@ public class BookingMapperImplTest {
     @InjectMocks
     private BookingMapperImpl bookingMapper;
 
-    private final User user = TestConstrains.getUser1();
-    private final Item item = TestConstrains.getItem1(user);
-    private final LocalDateTime dateTime = TestConstrains.getDateTime();
-    private final Status status = Status.WAITING;
-    private final BookingRequestDto bookingRequestDto = TestConstrains.getBookingRequestDto(dateTime, item);
-    private final Booking booking = TestConstrains.getBooking1(user, item, dateTime);
+    private static User user;
+    private static Item item;
+    private static Status status;
+    private static BookingRequestDto bookingRequestDto;
+    private static Booking booking;
+
+    @BeforeAll
+    public static void beforeAll() {
+        user = User.builder()
+                .id(1L)
+                .name("Test user 1")
+                .email("tester1@yandex.ru")
+                .build();
+
+        item = Item.builder()
+                .id(1L)
+                .name("item1 name")
+                .description("seaRch1 description ")
+                .available(true)
+                .owner(user)
+                .build();
+
+        LocalDateTime dateTime = LocalDateTime.of(2023,1,1,10,0,0);
+
+        bookingRequestDto = BookingRequestDto.builder()
+                .start(dateTime.plusYears(5))
+                .end(dateTime.plusYears(6))
+                .itemId(item.getId())
+                .build();
+
+        status = Status.WAITING;
+
+        booking = Booking.builder()
+                .id(1L)
+                .start(dateTime.minusYears(10))
+                .end(dateTime.minusYears(9))
+                .item(item)
+                .booker(user)
+                .status(Status.APPROVED)
+                .build();
+    }
 
     @Nested
     class RequestDtoToBooking {
         @Test
-        void shouldReturnBooking() {
+        public void shouldReturnBooking() {
             Booking result = bookingMapper.requestDtoToBooking(bookingRequestDto, item, user, status);
 
             assertNull(result.getId());
@@ -67,7 +102,7 @@ public class BookingMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             Booking result = bookingMapper.requestDtoToBooking(null, null,
                     null, null);
 
@@ -78,7 +113,7 @@ public class BookingMapperImplTest {
     @Nested
     class BookingToBookingResponseDto {
         @Test
-        void shouldReturnBookingResponseDto() {
+        public void shouldReturnBookingResponseDto() {
             when(userMapper.toUserDto(any())).thenCallRealMethod();
             when(itemMapper.toItemDto(any())).thenCallRealMethod();
 
@@ -102,7 +137,7 @@ public class BookingMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             BookingResponseDto result = bookingMapper.bookingToBookingResponseDto(null);
 
             assertNull(result);

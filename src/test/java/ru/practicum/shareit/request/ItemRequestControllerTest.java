@@ -2,6 +2,7 @@ package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -34,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ItemRequestController.class)
-public class ItemRequestControllerIT {
+public class ItemRequestControllerTest {
     @Autowired
     private ObjectMapper mapper;
 
@@ -44,34 +45,83 @@ public class ItemRequestControllerIT {
     @MockBean
     private ItemRequestService itemRequestService;
 
+    private static User user1;
+    private static User user2;
+    private static ItemRequestDto itemRequestDto;
+    private static ItemRequestExtendedDto itemRequestExtendedDto1;
+    private static ItemRequestExtendedDto itemRequestExtendedDto2;
+
     @BeforeAll
-    static void addData() {
-        //TODO
+    public static void beforeAll() {
+        user1 = User.builder()
+                .id(1L)
+                .name("Test user 1")
+                .email("tester1@yandex.ru")
+                .build();
+
+        user2 = User.builder()
+                .id(2L)
+                .name("Test user 2")
+                .email("tester2@yandex.ru")
+                .build();
+
+        itemRequestDto = ItemRequestDto.builder()
+                .id(user1.getId())
+                .description("item description")
+                .created(LocalDateTime.now())
+                .build();
+
+        ItemDto itemDto1 = ItemDto.builder()
+                .id(1L)
+                .name("item dto 1")
+                .description("item dto 1 description")
+                .available(true)
+                .ownerId(user1.getId())
+                .requestId(1L)
+                .build();
+
+        ItemDto itemDto2 = ItemDto.builder()
+                .id(2L)
+                .name("item dto 2")
+                .description("item dto 2 description")
+                .available(false)
+                .ownerId(user1.getId())
+                .requestId(2L)
+                .build();
+
+        itemRequestExtendedDto1 = ItemRequestExtendedDto.builder()
+                .id(1L)
+                .description("request 1 description")
+                .created(LocalDateTime.now())
+                .items(List.of(itemDto1, itemDto2))
+                .build();
+
+        itemRequestExtendedDto2 = ItemRequestExtendedDto.builder()
+                .id(2L)
+                .description("request 2 description")
+                .created(LocalDateTime.now())
+                .items(List.of())
+                .build();
     }
 
     @Nested
     class Create {
+        private ItemRequestCreateDto itemRequestCreateDto;
+
+        @BeforeEach
+        public void beforeEachCreate() {
+            itemRequestCreateDto = ItemRequestCreateDto.builder()
+                    .description("item description")
+                    .build();
+        }
+
         @Test
         public void shouldCreate() throws Exception {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
-
-            ItemRequestCreateDto itemRequestCreateDto = ItemRequestCreateDto.builder()
-                    .description("item description")
-                    .build();
-
-            ItemRequestDto itemRequestDto = ItemRequestDto.builder()
-                    .id(user.getId())
-                    .description("item description")
-                    .created(LocalDateTime.now())
-                    .build();
-
-            when(itemRequestService.create(ArgumentMatchers.eq(user.getId()), ArgumentMatchers.any(ItemRequestCreateDto.class)))
+            when(itemRequestService.create(ArgumentMatchers.eq(user1.getId()), ArgumentMatchers.any(ItemRequestCreateDto.class)))
                     .thenReturn(itemRequestDto);
 
             mvc.perform(post("/requests")
-                            .header(UserController.headerUserId, user.getId())
+                            .header(UserController.headerUserId, user1.getId())
                             .content(mapper.writeValueAsString(itemRequestCreateDto))
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -80,20 +130,15 @@ public class ItemRequestControllerIT {
                     .andExpect(content().json(mapper.writeValueAsString(itemRequestDto)));
 
             verify(itemRequestService, times(1))
-                    .create(ArgumentMatchers.eq(user.getId()), ArgumentMatchers.any(ItemRequestCreateDto.class));
+                    .create(ArgumentMatchers.eq(user1.getId()), ArgumentMatchers.any(ItemRequestCreateDto.class));
         }
 
         @Test
         public void shouldThrowExceptionIfNotDescription() throws Exception {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
-
-            ItemRequestCreateDto itemRequestCreateDto = ItemRequestCreateDto.builder()
-                    .build();
+            itemRequestCreateDto.setDescription(null);
 
             mvc.perform(post("/requests")
-                            .header(UserController.headerUserId, user.getId())
+                            .header(UserController.headerUserId, user1.getId())
                             .content(mapper.writeValueAsString(itemRequestCreateDto))
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -105,16 +150,10 @@ public class ItemRequestControllerIT {
 
         @Test
         public void shouldThrowExceptionIfDescriptionIsEmpty() throws Exception {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
-
-            ItemRequestCreateDto itemRequestCreateDto = ItemRequestCreateDto.builder()
-                    .description("")
-                    .build();
+            itemRequestCreateDto.setDescription("");
 
             mvc.perform(post("/requests")
-                            .header(UserController.headerUserId, user.getId())
+                            .header(UserController.headerUserId, user1.getId())
                             .content(mapper.writeValueAsString(itemRequestCreateDto))
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -126,16 +165,10 @@ public class ItemRequestControllerIT {
 
         @Test
         public void shouldThrowExceptionIfDescriptionIsBlank() throws Exception {
-            User user = User.builder()
-                    .id(1L)
-                    .build();
-
-            ItemRequestCreateDto itemRequestCreateDto = ItemRequestCreateDto.builder()
-                    .description(" ")
-                    .build();
+            itemRequestCreateDto.setDescription(" ");
 
             mvc.perform(post("/requests")
-                            .header(UserController.headerUserId, user.getId())
+                            .header(UserController.headerUserId, user1.getId())
                             .content(mapper.writeValueAsString(itemRequestCreateDto))
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -150,53 +183,20 @@ public class ItemRequestControllerIT {
     class GetById {
         @Test
         public void shouldGet() throws Exception {
-            User user1 = User.builder()
-                    .id(1L)
-                    .build();
+            when(itemRequestService.getById(ArgumentMatchers.eq(user2.getId()), ArgumentMatchers.eq(itemRequestExtendedDto1.getId())))
+                    .thenReturn(itemRequestExtendedDto1);
 
-            User user2 = User.builder()
-                    .id(2L)
-                    .build();
-
-            ItemDto itemDto1 = ItemDto.builder()
-                    .id(1L)
-                    .name("item dto 1")
-                    .description("item dto 1 description")
-                    .available(true)
-                    .ownerId(user1.getId())
-                    .requestId(1L)
-                    .build();
-
-            ItemDto itemDto2 = ItemDto.builder()
-                    .id(2L)
-                    .name("item dto 2")
-                    .description("item dto 2 description")
-                    .available(false)
-                    .ownerId(user1.getId())
-                    .requestId(2L)
-                    .build();
-
-            ItemRequestExtendedDto itemRequestExtendedDto = ItemRequestExtendedDto.builder()
-                    .id(1L)
-                    .description("request description")
-                    .created(LocalDateTime.now())
-                    .items(List.of(itemDto1, itemDto2))
-                    .build();
-
-            when(itemRequestService.getById(ArgumentMatchers.eq(user2.getId()), ArgumentMatchers.eq(itemRequestExtendedDto.getId())))
-                    .thenReturn(itemRequestExtendedDto);
-
-            mvc.perform(get("/requests/{id}", itemRequestExtendedDto.getId())
+            mvc.perform(get("/requests/{id}", itemRequestExtendedDto1.getId())
                             .header(UserController.headerUserId, user2.getId())
-                            .content(mapper.writeValueAsString(itemRequestExtendedDto))
+                            .content(mapper.writeValueAsString(itemRequestExtendedDto1))
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(content().json(mapper.writeValueAsString(itemRequestExtendedDto)));
+                    .andExpect(content().json(mapper.writeValueAsString(itemRequestExtendedDto1)));
 
             verify(itemRequestService, times(1))
-                    .getById(ArgumentMatchers.eq(user2.getId()), ArgumentMatchers.eq(itemRequestExtendedDto.getId()));
+                    .getById(ArgumentMatchers.eq(user2.getId()), ArgumentMatchers.eq(itemRequestExtendedDto1.getId()));
         }
     }
 
@@ -204,46 +204,6 @@ public class ItemRequestControllerIT {
     class GetByRequesterId {
         @Test
         public void shouldGet() throws Exception {
-            User user1 = User.builder()
-                    .id(1L)
-                    .build();
-
-            User user2 = User.builder()
-                    .id(2L)
-                    .build();
-
-            ItemDto itemDto1 = ItemDto.builder()
-                    .id(1L)
-                    .name("item dto 1")
-                    .description("item dto 1 description")
-                    .available(true)
-                    .ownerId(user1.getId())
-                    .requestId(1L)
-                    .build();
-
-            ItemDto itemDto2 = ItemDto.builder()
-                    .id(2L)
-                    .name("item dto 2")
-                    .description("item dto 2 description")
-                    .available(false)
-                    .ownerId(user1.getId())
-                    .requestId(2L)
-                    .build();
-
-            ItemRequestExtendedDto itemRequestExtendedDto1 = ItemRequestExtendedDto.builder()
-                    .id(1L)
-                    .description("request 1 description")
-                    .created(LocalDateTime.now())
-                    .items(List.of(itemDto1, itemDto2))
-                    .build();
-
-            ItemRequestExtendedDto itemRequestExtendedDto2 = ItemRequestExtendedDto.builder()
-                    .id(2L)
-                    .description("request 2 description")
-                    .created(LocalDateTime.now())
-                    .items(List.of())
-                    .build();
-
             when(itemRequestService.getByRequesterId(ArgumentMatchers.eq(user2.getId())))
                     .thenReturn(List.of(itemRequestExtendedDto1, itemRequestExtendedDto2));
 
@@ -260,47 +220,17 @@ public class ItemRequestControllerIT {
 
     @Nested
     class GetAll {
+        private int from;
+        private int size;
+
+        @BeforeEach
+        public void beforeEachGetAll() {
+            from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+            size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
+        }
+
         @Test
         public void shouldGet() throws Exception {
-            User user1 = User.builder()
-                    .id(1L)
-                    .build();
-
-            ItemDto itemDto1 = ItemDto.builder()
-                    .id(1L)
-                    .name("item dto 1")
-                    .description("item dto 1 description")
-                    .available(true)
-                    .ownerId(user1.getId())
-                    .requestId(1L)
-                    .build();
-
-            ItemDto itemDto2 = ItemDto.builder()
-                    .id(2L)
-                    .name("item dto 2")
-                    .description("item dto 2 description")
-                    .available(false)
-                    .ownerId(user1.getId())
-                    .requestId(2L)
-                    .build();
-
-            ItemRequestExtendedDto itemRequestExtendedDto1 = ItemRequestExtendedDto.builder()
-                    .id(1L)
-                    .description("request 1 description")
-                    .created(LocalDateTime.now())
-                    .items(List.of(itemDto1, itemDto2))
-                    .build();
-
-            ItemRequestExtendedDto itemRequestExtendedDto2 = ItemRequestExtendedDto.builder()
-                    .id(2L)
-                    .description("request 2 description")
-                    .created(LocalDateTime.now())
-                    .items(List.of())
-                    .build();
-
-            int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-            int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
-
             when(itemRequestService.getAll(ArgumentMatchers.eq(user1.getId()),
                             ArgumentMatchers.eq(PageRequest.of(from / size, size))))
                     .thenReturn(List.of(itemRequestExtendedDto1, itemRequestExtendedDto2));
@@ -317,12 +247,7 @@ public class ItemRequestControllerIT {
 
         @Test
         public void shouldThrowExceptionIfInvalidFrom() throws Exception {
-            User user1 = User.builder()
-                    .id(1L)
-                    .build();
-
-            int from = -1;
-            int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
+            from = -1;
 
             mvc.perform(get("/requests/all?from={from}&size={size}", from, size)
                             .header(UserController.headerUserId, user1.getId()))
@@ -333,12 +258,7 @@ public class ItemRequestControllerIT {
 
         @Test
         public void shouldThrowExceptionIfSizeIsNegative() throws Exception {
-            User user1 = User.builder()
-                    .id(1L)
-                    .build();
-
-            int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-            int size = -1;
+            size = -1;
 
             mvc.perform(get("/requests/all?from={from}&size={size}", from, size)
                             .header(UserController.headerUserId, user1.getId()))
@@ -349,12 +269,7 @@ public class ItemRequestControllerIT {
 
         @Test
         public void shouldThrowExceptionIfSizeIsZero() throws Exception {
-            User user1 = User.builder()
-                    .id(1L)
-                    .build();
-
-            int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-            int size = 0;
+            size = 0;
 
             mvc.perform(get("/requests/all?from={from}&size={size}", from, size)
                             .header(UserController.headerUserId, user1.getId()))

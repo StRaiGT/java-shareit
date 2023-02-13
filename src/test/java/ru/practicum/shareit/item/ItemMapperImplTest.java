@@ -1,11 +1,12 @@
 package ru.practicum.shareit.item;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practicum.shareit.TestConstrains;
+import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingItemDto;
 import ru.practicum.shareit.item.comment.model.Comment;
@@ -18,6 +19,7 @@ import ru.practicum.shareit.item.model.ItemExtendedDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -27,21 +29,93 @@ public class ItemMapperImplTest {
     @InjectMocks
     private ItemMapperImpl itemMapper;
 
-    private final User user = TestConstrains.getUser1();
-    private final CommentRequestDto commentRequestDto = TestConstrains.getCommentRequestDto();
-    private final LocalDateTime dateTime = TestConstrains.getDateTime();
-    private final Comment comment1 = TestConstrains.getComment1(user, dateTime);
-    private final Comment comment2 = TestConstrains.getComment2(user, dateTime);
-    private final Item item = TestConstrains.getItem1WithComments(user, comment1, comment2);
-    private final ItemDto itemDto = TestConstrains.getItem1WithCommentsDto(user);
-    private final Booking booking = TestConstrains.getBooking1(user, item,dateTime);
-    private final BookingItemDto lastBooking = TestConstrains.getLastBooking1(user, dateTime);
-    private final BookingItemDto nextBooking = TestConstrains.getNextBooking2(user, dateTime);
+    private static User user;
+    private static CommentRequestDto commentRequestDto;
+    private static LocalDateTime dateTime;
+    private static Comment comment1;
+    private static Item item;
+    private static ItemDto itemDto;
+    private static Booking booking;
+    private static BookingItemDto lastBooking;
+    private static BookingItemDto nextBooking;
+
+    @BeforeAll
+    public static void beforeAll() {
+        user = User.builder()
+                .id(1L)
+                .name("Test user 1")
+                .email("tester1@yandex.ru")
+                .build();
+
+        commentRequestDto = CommentRequestDto.builder()
+                .text("commentRequestDto text")
+                .build();
+
+        dateTime = LocalDateTime.of(2023,1,1,10,0,0);
+
+        comment1 = Comment.builder()
+                .id(1L)
+                .text("comment1 text")
+                .createdDate(dateTime)
+                .author(user)
+                .itemId(1L)
+                .build();
+
+        Comment comment2 = Comment.builder()
+                .id(2L)
+                .text("comment2 text")
+                .createdDate(dateTime)
+                .author(user)
+                .itemId(1L)
+                .build();
+
+        item = Item.builder()
+                .id(1L)
+                .name("item name")
+                .description("item description")
+                .available(true)
+                .owner(user)
+                .requestId(1L)
+                .comments(List.of(comment1, comment2))
+                .build();
+
+        itemDto = ItemDto.builder()
+                .id(1L)
+                .name("item name")
+                .description("item description")
+                .available(true)
+                .ownerId(user.getId())
+                .requestId(1L)
+                .build();
+
+        booking = Booking.builder()
+                .id(1L)
+                .start(dateTime.minusYears(10))
+                .end(dateTime.minusYears(9))
+                .item(item)
+                .booker(user)
+                .status(Status.APPROVED)
+                .build();
+
+        lastBooking = BookingItemDto.builder()
+                .id(1L)
+                .bookerId(user.getId())
+                .start(dateTime)
+                .end(dateTime.plusHours(1))
+                .build();
+
+        nextBooking = BookingItemDto.builder()
+                .id(2L)
+                .bookerId(user.getId())
+                .start(dateTime.plusHours(2))
+                .end(dateTime.plusHours(3))
+                .build();
+    }
 
     @Nested
     class ToItemDto {
         @Test
-        void shouldReturnItemDto() {
+        public void shouldReturnItemDto() {
             ItemDto result = itemMapper.toItemDto(item);
 
             assertEquals(item.getId(), result.getId());
@@ -53,7 +127,7 @@ public class ItemMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             ItemDto result = itemMapper.toItemDto(null);
 
             assertNull(result);
@@ -63,7 +137,7 @@ public class ItemMapperImplTest {
     @Nested
     class ToItem {
         @Test
-        void shouldReturnItemDto() {
+        public void shouldReturnItemDto() {
             Item result = itemMapper.toItem(itemDto, user);
 
             assertEquals(itemDto.getId(), result.getId());
@@ -78,7 +152,7 @@ public class ItemMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             Item result = itemMapper.toItem(null, null);
 
             assertNull(result);
@@ -88,7 +162,7 @@ public class ItemMapperImplTest {
     @Nested
     class ToItemExtendedDto {
         @Test
-        void shouldReturnItemExtendedDto() {
+        public void shouldReturnItemExtendedDto() {
             ItemExtendedDto result = itemMapper.toItemExtendedDto(item, lastBooking, nextBooking);
 
             assertEquals(item.getId(), result.getId());
@@ -122,7 +196,7 @@ public class ItemMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             ItemExtendedDto result = itemMapper.toItemExtendedDto(null, null, null);
 
             assertNull(result);
@@ -132,7 +206,7 @@ public class ItemMapperImplTest {
     @Nested
     class BookingToBookingItemDto {
         @Test
-        void shouldReturnBookingItemDto() {
+        public void shouldReturnBookingItemDto() {
             BookingItemDto result = itemMapper.bookingToBookingItemDto(booking);
 
             assertEquals(booking.getId(), result.getId());
@@ -142,7 +216,7 @@ public class ItemMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             BookingItemDto result = itemMapper.bookingToBookingItemDto(null);
 
             assertNull(result);
@@ -152,7 +226,7 @@ public class ItemMapperImplTest {
     @Nested
     class CommentRequestDtoToComment {
         @Test
-        void shouldReturnComment() {
+        public void shouldReturnComment() {
             Comment result = itemMapper.commentRequestDtoToComment(commentRequestDto, dateTime.plusHours(4),
                     user, item.getId());
 
@@ -166,7 +240,7 @@ public class ItemMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             Comment result = itemMapper.commentRequestDtoToComment(null, null,
                     null, null);
 
@@ -177,7 +251,7 @@ public class ItemMapperImplTest {
     @Nested
     class CommentToCommentDto {
         @Test
-        void shouldReturnCommentDto() {
+        public void shouldReturnCommentDto() {
             CommentDto result = itemMapper.commentToCommentDto(comment1);
 
             assertEquals(comment1.getId(), result.getId());
@@ -187,7 +261,7 @@ public class ItemMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             CommentDto result = itemMapper.commentToCommentDto(null);
 
             assertNull(result);

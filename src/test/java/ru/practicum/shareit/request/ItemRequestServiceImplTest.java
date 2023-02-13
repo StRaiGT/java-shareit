@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,8 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import ru.practicum.shareit.TestConstrains;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapperImpl;
 import ru.practicum.shareit.item.model.Item;
@@ -21,6 +22,7 @@ import ru.practicum.shareit.request.model.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequestExtendedDto;
 import ru.practicum.shareit.request.service.ItemRequestServiceImpl;
 import ru.practicum.shareit.request.storage.ItemRequestRepository;
+import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -57,19 +59,60 @@ public class ItemRequestServiceImplTest {
     @Captor
     private ArgumentCaptor<ItemRequest> itemRequestArgumentCaptor;
 
-    private final User user1 = TestConstrains.getUser1();
-    private final User user2 = TestConstrains.getUser2();
+    private static User user1;
+    private static User user2;
+    private static Item item1;
+    private static LocalDateTime dateTime;
+    private static ItemRequestCreateDto item1RequestCreateDto;
+    private static ItemRequest itemRequest1;
+    private static Pageable pageable;
 
-    private final Item item1 = TestConstrains.getItem1WithRequest(user1);
-    private final LocalDateTime dateTime = TestConstrains.getDateTime();
-    ItemRequestCreateDto item1RequestCreateDto = TestConstrains.getItem1RequestCreateDto();
-    ItemRequest itemRequest1 = TestConstrains.getItemRequest1(user2, dateTime, List.of(item1));
-    private final Pageable pageable = TestConstrains.getPageable();
+    @BeforeAll
+    public static void beforeAll() {
+        user1 = User.builder()
+                .id(1L)
+                .name("Test user 1")
+                .email("tester1@yandex.ru")
+                .build();
+
+        user2 = User.builder()
+                .id(2L)
+                .name("Test user 2")
+                .email("tester2@yandex.ru")
+                .build();
+
+        item1 = Item.builder()
+                .id(1L)
+                .name("item name")
+                .description("item description")
+                .available(true)
+                .owner(user1)
+                .requestId(1L)
+                .build();
+
+        dateTime = LocalDateTime.of(2023,1,1,10,0,0);
+
+        item1RequestCreateDto = ItemRequestCreateDto.builder()
+                .description("item description")
+                .build();
+
+        itemRequest1 = ItemRequest.builder()
+                .id(1L)
+                .description("itemRequest1 description")
+                .requesterId(user2)
+                .created(dateTime)
+                .items(List.of(item1))
+                .build();
+
+        final int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+        final int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
+        pageable = PageRequest.of(from / size, size);
+    }
 
     @Nested
     class Create {
         @Test
-        void shouldCreate() {
+        public void shouldCreate() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(itemRequestMapper.toItemRequest(any(), any(), any())).thenCallRealMethod();
             when(itemRequestRepository.save(any())).thenReturn(itemRequest1);
@@ -96,7 +139,7 @@ public class ItemRequestServiceImplTest {
     @Nested
     class GetById {
         @Test
-        void shouldGet() {
+        public void shouldGet() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(itemRequestRepository.findById(1L)).thenReturn(Optional.of(itemRequest1));
             when(itemMapper.toItemDto(any())).thenCallRealMethod();
@@ -122,7 +165,7 @@ public class ItemRequestServiceImplTest {
         }
 
         @Test
-        void shouldThrowExceptionIfItemRequestIdNotFound() {
+        public void shouldThrowExceptionIfItemRequestIdNotFound() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(itemRequestRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -137,7 +180,7 @@ public class ItemRequestServiceImplTest {
     @Nested
     class GetByRequesterId {
         @Test
-        void shouldGet() {
+        public void shouldGet() {
             when(userService.getUserById(user2.getId())).thenReturn(user2);
             when(itemRequestRepository.findByRequesterId_IdOrderByCreatedAsc(user2.getId()))
                     .thenReturn(List.of(itemRequest1));
@@ -168,7 +211,7 @@ public class ItemRequestServiceImplTest {
         }
 
         @Test
-        void shouldGetEmptyIfNotItemRequests() {
+        public void shouldGetEmptyIfNotItemRequests() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(itemRequestRepository.findByRequesterId_IdOrderByCreatedAsc(user1.getId()))
                     .thenReturn(List.of());
@@ -185,7 +228,7 @@ public class ItemRequestServiceImplTest {
     @Nested
     class GetAll {
         @Test
-        void shouldGetNotSelfRequests() {
+        public void shouldGetNotSelfRequests() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(itemRequestRepository.findByRequesterId_IdNot(user1.getId(), pageable))
                     .thenReturn(new PageImpl<>(List.of(itemRequest1)));
@@ -213,7 +256,7 @@ public class ItemRequestServiceImplTest {
         }
 
         @Test
-        void shouldGetEmptyIfNotRequests() {
+        public void shouldGetEmptyIfNotRequests() {
             when(userService.getUserById(user1.getId())).thenReturn(user1);
             when(itemRequestRepository.findByRequesterId_IdNot(user1.getId(), pageable))
                     .thenReturn(new PageImpl<>(List.of()));

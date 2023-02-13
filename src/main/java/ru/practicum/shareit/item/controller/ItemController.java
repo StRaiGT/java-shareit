@@ -13,13 +13,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.markers.Create;
-import ru.practicum.shareit.markers.Update;
 import ru.practicum.shareit.item.comment.model.CommentDto;
 import ru.practicum.shareit.item.comment.model.CommentRequestDto;
 import ru.practicum.shareit.item.model.ItemDto;
 import ru.practicum.shareit.item.model.ItemExtendedDto;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.markers.Create;
 import ru.practicum.shareit.user.controller.UserController;
 
 import javax.validation.Valid;
@@ -57,7 +56,7 @@ public class ItemController {
     @PatchMapping("/{id}")
     public ItemDto patch(@RequestHeader(UserController.headerUserId) Long userId,
                          @PathVariable Long id,
-                         @Validated(Update.class) @RequestBody ItemDto itemDto) {
+                         @RequestBody ItemDto itemDto) {
         return itemService.patch(userId, id, itemDto);
     }
 

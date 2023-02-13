@@ -82,10 +82,10 @@ public class ItemServiceImpl implements ItemService {
             throw new ForbiddenException("Изменение вещи доступно только владельцу.");
         }
 
-        if (itemDto.getName() != null) {
+        if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
             repoItem.setName(itemDto.getName());
         }
-        if (itemDto.getDescription() != null) {
+        if (itemDto.getDescription() != null && !itemDto.getDescription().isBlank()) {
             repoItem.setDescription(itemDto.getDescription());
         }
         if (itemDto.getAvailable() != null) {

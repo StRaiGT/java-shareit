@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -29,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
-public class UserControllerIT {
+public class UserControllerTest {
     @Autowired
     private ObjectMapper mapper;
 
@@ -39,43 +40,47 @@ public class UserControllerIT {
     @MockBean
     private UserService userService;
 
+    private static UserDto userDto1;
+    private static UserDto userDto2;
+
     @BeforeAll
-    static void addData() {
-        //TODO
+    public static void beforeAll() {
+        userDto1 = UserDto.builder()
+                .id(1L)
+                .name("Test user 1")
+                .email("tester1@yandex.ru")
+                .build();
+
+        userDto2 = UserDto.builder()
+                .id(2L)
+                .name("Test user 2")
+                .email("tester2@yandex.ru")
+                .build();
     }
 
     @Nested
     class Create {
         @Test
         public void shouldCreate() throws Exception {
-            UserDto userDto = UserDto.builder()
-                    .id(1L)
-                    .name("Test user 1")
-                    .email("tester1@yandex.ru")
-                    .build();
-
-            when(userService.create(ArgumentMatchers.any(UserDto.class))).thenReturn(userDto);
+            when(userService.create(ArgumentMatchers.any(UserDto.class))).thenReturn(userDto1);
 
             mvc.perform(post("/users")
-                            .content(mapper.writeValueAsString(userDto))
+                            .content(mapper.writeValueAsString(userDto1))
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(content().json(mapper.writeValueAsString(userDto)));
+                    .andExpect(content().json(mapper.writeValueAsString(userDto1)));
 
             verify(userService, times(1)).create(ArgumentMatchers.any(UserDto.class));
         }
 
         @Test
         public void shouldThrowExceptionIfEmailIsNull() throws Exception {
-            UserDto userDto = UserDto.builder()
-                    .id(1L)
-                    .name("Test user 1")
-                    .build();
+            userDto1.setEmail(null);
 
             mvc.perform(post("/users")
-                            .content(mapper.writeValueAsString(userDto))
+                            .content(mapper.writeValueAsString(userDto1))
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
@@ -86,14 +91,10 @@ public class UserControllerIT {
 
         @Test
         public void shouldThrowExceptionIfEmailIsEmpty() throws Exception {
-            UserDto userDto = UserDto.builder()
-                    .id(1L)
-                    .name("Test user 1")
-                    .email("")
-                    .build();
+            userDto1.setEmail("");
 
             mvc.perform(post("/users")
-                            .content(mapper.writeValueAsString(userDto))
+                            .content(mapper.writeValueAsString(userDto1))
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
@@ -104,14 +105,10 @@ public class UserControllerIT {
 
         @Test
         public void shouldThrowExceptionIfEmailIsBlank() throws Exception {
-            UserDto userDto = UserDto.builder()
-                    .id(1L)
-                    .name("Test user 1")
-                    .email(" ")
-                    .build();
+            userDto1.setEmail(" ");
 
             mvc.perform(post("/users")
-                            .content(mapper.writeValueAsString(userDto))
+                            .content(mapper.writeValueAsString(userDto1))
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
@@ -122,14 +119,10 @@ public class UserControllerIT {
 
         @Test
         public void shouldThrowExceptionIfIsNotEmail() throws Exception {
-            UserDto userDto = UserDto.builder()
-                    .id(1L)
-                    .name("Test user 1")
-                    .email("tester1yandex.ru")
-                    .build();
+            userDto1.setEmail("tester1yandex.ru");
 
             mvc.perform(post("/users")
-                            .content(mapper.writeValueAsString(userDto))
+                            .content(mapper.writeValueAsString(userDto1))
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
@@ -143,18 +136,6 @@ public class UserControllerIT {
     class GetAll {
         @Test
         public void shouldGet() throws Exception {
-            UserDto userDto1 = UserDto.builder()
-                    .id(1L)
-                    .name("Test user 1")
-                    .email("tester1@yandex.ru")
-                    .build();
-
-            UserDto userDto2 = UserDto.builder()
-                    .id(2L)
-                    .name("Test user 2")
-                    .email("tester2@yandex.ru")
-                    .build();
-
             when(userService.getAll()).thenReturn(List.of(userDto1, userDto2));
 
             mvc.perform(get("/users"))
@@ -180,12 +161,6 @@ public class UserControllerIT {
     class GetById {
         @Test
         public void shouldGet() throws Exception {
-            UserDto userDto1 = UserDto.builder()
-                    .id(1L)
-                    .name("Test user 1")
-                    .email("tester1@yandex.ru")
-                    .build();
-
             when(userService.getById(ArgumentMatchers.eq(userDto1.getId()))).thenReturn(userDto1);
 
             mvc.perform(get("/users/{id}", userDto1.getId()))
@@ -198,48 +173,45 @@ public class UserControllerIT {
 
     @Nested
     class Patch {
-        @Test
-        public void shouldPatch() throws Exception {
-            UserDto userDtoToPatch = UserDto.builder()
+        private UserDto userDtoToPatch;
+        private UserDto userDtoPatched;
+
+        @BeforeEach
+        public void beforeEachPatch() {
+            userDtoToPatch = UserDto.builder()
                     .name("Patched test user 1")
                     .email("PatchedTester1@yandex.ru")
                     .build();
 
-            UserDto userDto1Patched = UserDto.builder()
+            userDtoPatched = UserDto.builder()
                     .id(1L)
                     .name("Patched test user 1")
                     .email("PatchedTester1@yandex.ru")
                     .build();
+        }
 
-            when(userService.patch(ArgumentMatchers.eq(userDto1Patched.getId()), ArgumentMatchers.any(UserDto.class)))
-                    .thenReturn(userDto1Patched);
+        @Test
+        public void shouldPatch() throws Exception {
+            when(userService.patch(ArgumentMatchers.eq(userDtoPatched.getId()), ArgumentMatchers.any(UserDto.class)))
+                    .thenReturn(userDtoPatched);
 
-            mvc.perform(patch("/users/{id}", userDto1Patched.getId())
+            mvc.perform(patch("/users/{id}", userDtoPatched.getId())
                             .content(mapper.writeValueAsString(userDtoToPatch))
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(content().json(mapper.writeValueAsString(userDto1Patched)));
+                    .andExpect(content().json(mapper.writeValueAsString(userDtoPatched)));
 
             verify(userService, times(1))
-                    .patch(ArgumentMatchers.eq(userDto1Patched.getId()), ArgumentMatchers.any(UserDto.class));
+                    .patch(ArgumentMatchers.eq(userDtoPatched.getId()), ArgumentMatchers.any(UserDto.class));
         }
 
         @Test
         public void shouldThrowExceptionIfNotEmail() throws Exception {
-            UserDto userDtoToPatch = UserDto.builder()
-                    .name("Patched test user 1")
-                    .email("PatchedTester1yandex.ru")
-                    .build();
+            userDtoToPatch.setEmail("PatchedTester1yandex.ru");
 
-            UserDto userDto1Patched = UserDto.builder()
-                    .id(1L)
-                    .name("Patched test user 1")
-                    .email("PatchedTester1@yandex.ru")
-                    .build();
-
-            mvc.perform(patch("/users/{id}", userDto1Patched.getId())
+            mvc.perform(patch("/users/{id}", userDtoPatched.getId())
                             .content(mapper.writeValueAsString(userDtoToPatch))
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)

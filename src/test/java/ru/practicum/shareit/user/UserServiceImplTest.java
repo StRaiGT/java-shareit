@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practicum.shareit.TestConstrains;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.mapper.UserMapperImpl;
 import ru.practicum.shareit.user.model.User;
@@ -43,21 +43,28 @@ class UserServiceImplTest {
     @Captor
     private ArgumentCaptor<User> userArgumentCaptor;
 
-    private User user1;
-    private User user2;
-    private UserDto patchUserDto;
+    private static User user1;
+    private static User user2;
 
-    @BeforeEach
-    void addUsers() {
-        user1 = TestConstrains.getUser1();
-        user2 = TestConstrains.getUser2();
-        patchUserDto = TestConstrains.getPatchUser1Dto();
+    @BeforeAll
+    public static void beforeAll() {
+        user1 = User.builder()
+                .id(1L)
+                .name("Test user 1")
+                .email("tester1@yandex.ru")
+                .build();
+
+        user2 = User.builder()
+                .id(2L)
+                .name("Test user 2")
+                .email("tester2@yandex.ru")
+                .build();
     }
 
     @Nested
     class GetAll {
         @Test
-        void shouldGet() {
+        public void shouldGet() {
             when(userRepository.findAll()).thenReturn(List.of(user1, user2));
             when(userMapper.toUserDto(any())).thenCallRealMethod();
 
@@ -94,7 +101,7 @@ class UserServiceImplTest {
     @Nested
     class GetById {
         @Test
-        void shouldGet() {
+        public void shouldGet() {
             when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
             when(userMapper.toUserDto(any())).thenCallRealMethod();
 
@@ -108,7 +115,7 @@ class UserServiceImplTest {
         }
 
         @Test
-        void shouldThrowExceptionIfUserIdNotFound() {
+        public void shouldThrowExceptionIfUserIdNotFound() {
             when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
             NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.getById(99L));
@@ -120,7 +127,7 @@ class UserServiceImplTest {
     @Nested
     class Create {
         @Test
-        void shouldCreate() {
+        public void shouldCreate() {
             when(userMapper.toUserDto(any())).thenCallRealMethod();
             when(userMapper.toUser(any())).thenCallRealMethod();
 
@@ -132,8 +139,19 @@ class UserServiceImplTest {
 
     @Nested
     class Patch {
+        private UserDto patchUserDto;
+
+        @BeforeEach
+        public void beforeEachPatch() {
+            patchUserDto = UserDto.builder()
+                    .id(1L)
+                    .name("Patch test user 1")
+                    .email("tester2@yandex.ru")
+                    .build();
+        }
+
         @Test
-        void shouldPatch() {
+        public void shouldPatch() {
             when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
 
             userService.patch(user1.getId(), patchUserDto);
@@ -148,7 +166,7 @@ class UserServiceImplTest {
         }
 
         @Test
-        void shouldThrowExceptionIfUserNotFound() {
+        public void shouldThrowExceptionIfUserNotFound() {
             when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
             NotFoundException exception = assertThrows(NotFoundException.class,
@@ -162,7 +180,7 @@ class UserServiceImplTest {
     @Nested
     class Delete {
         @Test
-        void shouldDelete() {
+        public void shouldDelete() {
             when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
             userService.delete(user1.getId());
@@ -174,7 +192,7 @@ class UserServiceImplTest {
         }
 
         @Test
-        void shouldDeleteIfUserIdNotFound() {
+        public void shouldDeleteIfUserIdNotFound() {
             when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
             userService.delete(99L);
@@ -189,7 +207,7 @@ class UserServiceImplTest {
     @Nested
     class GetUserById {
         @Test
-        void shouldGet() {
+        public void shouldGet() {
             when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
 
             User userFromService = userService.getUserById(1L);
@@ -201,7 +219,7 @@ class UserServiceImplTest {
         }
 
         @Test
-        void shouldThrowExceptionIfUserIdNotFound() {
+        public void shouldThrowExceptionIfUserIdNotFound() {
             when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
             NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.getById(99L));

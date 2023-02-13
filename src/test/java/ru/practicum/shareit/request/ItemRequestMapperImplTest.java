@@ -1,11 +1,11 @@
 package ru.practicum.shareit.request;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practicum.shareit.TestConstrains;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapperImpl;
@@ -26,17 +26,57 @@ public class ItemRequestMapperImplTest {
     @InjectMocks
     private ItemRequestMapperImpl itemRequestMapper;
 
-    private final User user = TestConstrains.getUser1();
-    private final LocalDateTime dateTime = TestConstrains.getDateTime();
-    private final List<Item> items = List.of(TestConstrains.getItem1WithRequest(user));
-    private final List<ItemDto> itemsDto = List.of(TestConstrains.getItem1WithCommentsDto(user));
-    private final ItemRequest itemRequest = TestConstrains.getItemRequest1(user, dateTime, items);
-    private final ItemRequestCreateDto itemRequestCreateDto = TestConstrains.getItem1RequestCreateDto();
+    private static User user;
+    private static LocalDateTime dateTime;
+    private static List<ItemDto> itemsDto;
+    private static ItemRequest itemRequest;
+    private static ItemRequestCreateDto itemRequestCreateDto;
+
+    @BeforeAll
+    public static void beforeAll() {
+        user = User.builder()
+                .id(1L)
+                .name("Test user 1")
+                .email("tester1@yandex.ru")
+                .build();
+
+        dateTime = LocalDateTime.of(2023,1,1,10,0,0);
+
+        List<Item> items = List.of(Item.builder()
+                .id(1L)
+                .name("item name")
+                .description("item description")
+                .available(true)
+                .owner(user)
+                .requestId(1L)
+                .build());
+
+        itemsDto = List.of(ItemDto.builder()
+                .id(1L)
+                .name("item name")
+                .description("item description")
+                .available(true)
+                .ownerId(user.getId())
+                .requestId(1L)
+                .build());
+
+        itemRequest = ItemRequest.builder()
+                .id(1L)
+                .description("itemRequest1 description")
+                .requesterId(user)
+                .created(dateTime)
+                .items(items)
+                .build();
+
+        itemRequestCreateDto = ItemRequestCreateDto.builder()
+                .description("item description")
+                .build();
+    }
 
     @Nested
     class ToItemRequest {
         @Test
-        void shouldReturnItemRequest() {
+        public void shouldReturnItemRequest() {
             ItemRequest result = itemRequestMapper.toItemRequest(itemRequestCreateDto, user, dateTime);
 
             assertNull(result.getId());
@@ -49,7 +89,7 @@ public class ItemRequestMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             ItemRequest result = itemRequestMapper.toItemRequest(null, null, null);
 
             assertNull(result);
@@ -59,7 +99,7 @@ public class ItemRequestMapperImplTest {
     @Nested
     class ToItemRequestDto {
         @Test
-        void shouldReturnItemRequestDto() {
+        public void shouldReturnItemRequestDto() {
             ItemRequestDto result = itemRequestMapper.toItemRequestDto(itemRequest);
 
             assertEquals(itemRequest.getId(), result.getId());
@@ -68,7 +108,7 @@ public class ItemRequestMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             ItemRequestDto result = itemRequestMapper.toItemRequestDto(null);
 
             assertNull(result);
@@ -78,7 +118,7 @@ public class ItemRequestMapperImplTest {
     @Nested
     class ToItemRequestExtendedDto {
         @Test
-        void shouldReturnItemRequestExtendedDto() {
+        public void shouldReturnItemRequestExtendedDto() {
             ItemRequestExtendedDto result = itemRequestMapper.toItemRequestExtendedDto(itemRequest, itemsDto);
 
             assertEquals(itemRequest.getId(), result.getId());
@@ -88,7 +128,7 @@ public class ItemRequestMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             ItemRequestExtendedDto result = itemRequestMapper.toItemRequestExtendedDto(null, null);
 
             assertNull(result);

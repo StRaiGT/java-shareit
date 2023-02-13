@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -37,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = BookingController.class)
-public class BookingControllerIT {
+public class BookingControllerTest {
     @Autowired
     private ObjectMapper mapper;
 
@@ -53,11 +54,9 @@ public class BookingControllerIT {
     private static ItemDto itemDto;
     private static BookingResponseDto bookingResponseDto1;
     private static BookingResponseDto bookingResponseDto2;
-    private static int from;
-    private static int size;
 
     @BeforeAll
-    static void addData() {
+    public static void beforeAll() {
         user1 = User.builder()
                 .id(1L)
                 .name("Test user 1")
@@ -88,7 +87,7 @@ public class BookingControllerIT {
         bookingResponseDto1 = BookingResponseDto.builder()
                 .id(1L)
                 .start(LocalDateTime.now().plusMinutes(5))
-                .end(LocalDateTime.now().plusHours(1))
+                .end(LocalDateTime.now().plusMinutes(10))
                 .item(itemDto)
                 .booker(userDto2)
                 .status(Status.WAITING)
@@ -97,37 +96,30 @@ public class BookingControllerIT {
         bookingResponseDto2 = BookingResponseDto.builder()
                 .id(2L)
                 .start(LocalDateTime.now().plusMinutes(15))
-                .end(LocalDateTime.now().plusHours(2))
+                .end(LocalDateTime.now().plusMinutes(20))
                 .item(itemDto)
                 .booker(userDto2)
                 .status(Status.WAITING)
                 .build();
-
-        from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-        size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
     }
 
     @Nested
     class Create {
-        @Test
-        public void shouldCreate() throws Exception {
-            BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
+        private BookingRequestDto bookingRequestDto;
+
+        @BeforeEach
+        public void beforeEachCreate() {
+            bookingRequestDto = BookingRequestDto.builder()
                     .start(LocalDateTime.now().plusMinutes(5))
-                    .end(LocalDateTime.now().plusHours(1))
+                    .end(LocalDateTime.now().plusMinutes(10))
                     .itemId(1L)
                     .build();
+        }
 
-            BookingResponseDto bookingResponseDto = BookingResponseDto.builder()
-                    .id(1L)
-                    .start(bookingRequestDto.getStart())
-                    .end(bookingRequestDto.getEnd())
-                    .item(itemDto)
-                    .booker(userDto2)
-                    .status(Status.WAITING)
-                    .build();
-
+        @Test
+        public void shouldCreate() throws Exception {
             when(bookingService.create(ArgumentMatchers.eq(user2.getId()), ArgumentMatchers.any(BookingRequestDto.class)))
-                    .thenReturn(bookingResponseDto);
+                    .thenReturn(bookingResponseDto1);
 
             mvc.perform(post("/bookings")
                             .header(UserController.headerUserId, user2.getId())
@@ -136,7 +128,7 @@ public class BookingControllerIT {
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(content().json(mapper.writeValueAsString(bookingResponseDto)));
+                    .andExpect(content().json(mapper.writeValueAsString(bookingResponseDto1)));
 
             verify(bookingService, times(1)).create(ArgumentMatchers.eq(user2.getId()),
                     ArgumentMatchers.any(BookingRequestDto.class));
@@ -144,11 +136,8 @@ public class BookingControllerIT {
 
         @Test
         public void shouldThrowExceptionIfStartInPast() throws Exception {
-            BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
-                    .start(LocalDateTime.now().minusMinutes(5))
-                    .end(LocalDateTime.now().plusHours(1))
-                    .itemId(1L)
-                    .build();
+            bookingRequestDto.setStart(LocalDateTime.now().minusMinutes(5));
+            bookingRequestDto.setEnd(LocalDateTime.now().plusMinutes(10));
 
             mvc.perform(post("/bookings")
                             .header(UserController.headerUserId, user2.getId())
@@ -163,11 +152,8 @@ public class BookingControllerIT {
 
         @Test
         public void shouldThrowExceptionIfEndInPresent() throws Exception {
-            BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
-                    .start(LocalDateTime.now().plusMinutes(5))
-                    .end(LocalDateTime.now())
-                    .itemId(1L)
-                    .build();
+            bookingRequestDto.setStart(LocalDateTime.now().plusMinutes(5));
+            bookingRequestDto.setEnd(LocalDateTime.now());
 
             mvc.perform(post("/bookings")
                             .header(UserController.headerUserId, user2.getId())
@@ -182,11 +168,7 @@ public class BookingControllerIT {
 
         @Test
         public void shouldThrowExceptionIfItemIdIsNull() throws Exception {
-            BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
-                    .start(LocalDateTime.now().plusMinutes(5))
-                    .end(LocalDateTime.now().plusHours(1))
-                    .itemId(null)
-                    .build();
+            bookingRequestDto.setItemId(null);
 
             mvc.perform(post("/bookings")
                             .header(UserController.headerUserId, user2.getId())
@@ -202,16 +184,23 @@ public class BookingControllerIT {
 
     @Nested
     class Patch {
-        @Test
-        public void shouldApproved() throws Exception {
-            BookingResponseDto bookingResponseDto = BookingResponseDto.builder()
+        private BookingResponseDto bookingResponseDto;
+
+        @BeforeEach
+        public void beforeEachPatch() {
+            bookingResponseDto = BookingResponseDto.builder()
                     .id(1L)
                     .start(LocalDateTime.now().plusMinutes(5))
-                    .end(LocalDateTime.now().plusHours(1))
+                    .end(LocalDateTime.now().plusMinutes(10))
                     .item(itemDto)
                     .booker(userDto2)
-                    .status(Status.APPROVED)
+                    .status(Status.WAITING)
                     .build();
+        }
+
+        @Test
+        public void shouldApproved() throws Exception {
+            bookingResponseDto.setStatus(Status.APPROVED);
 
             when(bookingService.patch(ArgumentMatchers.eq(user2.getId()), ArgumentMatchers.eq(bookingResponseDto.getId()),
                     ArgumentMatchers.eq(true)))
@@ -228,14 +217,7 @@ public class BookingControllerIT {
 
         @Test
         public void shouldReject() throws Exception {
-            BookingResponseDto bookingResponseDto = BookingResponseDto.builder()
-                    .id(1L)
-                    .start(LocalDateTime.now().plusMinutes(5))
-                    .end(LocalDateTime.now().plusHours(1))
-                    .item(itemDto)
-                    .booker(userDto2)
-                    .status(Status.REJECTED)
-                    .build();
+            bookingResponseDto.setStatus(Status.REJECTED);
 
             when(bookingService.patch(ArgumentMatchers.eq(user2.getId()), ArgumentMatchers.eq(bookingResponseDto.getId()),
                     ArgumentMatchers.eq(false)))
@@ -270,6 +252,15 @@ public class BookingControllerIT {
 
     @Nested
     class GetAllByByBookerId {
+        private int from;
+        private int size;
+
+        @BeforeEach
+        public void beforeEachGetAllByBookerId() {
+            from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+            size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
+        }
+
         @Test
         public void shouldGetWithValidState() throws Exception {
             when(bookingService.getAllByBookerId(ArgumentMatchers.eq(userDto2.getId()), ArgumentMatchers.eq(State.ALL),
@@ -314,7 +305,7 @@ public class BookingControllerIT {
 
         @Test
         public void shouldThrowExceptionIfFromIsNegative() throws Exception {
-            int from = -1;
+            from = -1;
 
             mvc.perform(get("/bookings?from={from}&size={size}", from, size)
                             .header(UserController.headerUserId, user2.getId()))
@@ -326,7 +317,7 @@ public class BookingControllerIT {
 
         @Test
         public void shouldThrowExceptionIfSizeIsZero() throws Exception {
-            int size = 0;
+            size = 0;
 
             mvc.perform(get("/bookings?from={from}&size={size}", from, size)
                             .header(UserController.headerUserId, user2.getId()))
@@ -339,6 +330,15 @@ public class BookingControllerIT {
 
     @Nested
     class GetAllByByOwnerId {
+        private int from;
+        private int size;
+
+        @BeforeEach
+        public void beforeEachGetAllByByOwnerId() {
+            from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+            size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
+        }
+
         @Test
         public void shouldGetWithValidState() throws Exception {
             when(bookingService.getAllByOwnerId(ArgumentMatchers.eq(itemDto.getOwnerId()), ArgumentMatchers.eq(State.ALL),
@@ -383,7 +383,7 @@ public class BookingControllerIT {
 
         @Test
         public void shouldThrowExceptionIfFromIsNegative() throws Exception {
-            int from = -1;
+            from = -1;
 
             mvc.perform(get("/bookings/owner?from={from}&size={size}", from, size)
                             .header(UserController.headerUserId, user1.getId()))
@@ -395,7 +395,7 @@ public class BookingControllerIT {
 
         @Test
         public void shouldThrowExceptionIfSizeIsZero() throws Exception {
-            int size = 0;
+            size = 0;
 
             mvc.perform(get("/bookings/owner?from={from}&size={size}", from, size)
                             .header(UserController.headerUserId, user1.getId()))

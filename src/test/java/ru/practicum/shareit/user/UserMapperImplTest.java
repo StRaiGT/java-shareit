@@ -1,11 +1,11 @@
 package ru.practicum.shareit.user;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practicum.shareit.TestConstrains;
 import ru.practicum.shareit.user.mapper.UserMapperImpl;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserDto;
@@ -18,13 +18,28 @@ class UserMapperImplTest {
     @InjectMocks
     private UserMapperImpl userMapper;
 
-    private final User user = TestConstrains.getUser1();
-    private final UserDto userDto = TestConstrains.getUser1Dto();
+    private static User user;
+    private static UserDto userDto;
+
+    @BeforeAll
+    public static void beforeAll() {
+        user = User.builder()
+                .id(1L)
+                .name("Test user 1")
+                .email("tester1@yandex.ru")
+                .build();
+
+        userDto = UserDto.builder()
+                .id(1L)
+                .name("Test user 1")
+                .email("tester1@yandex.ru")
+                .build();
+    }
 
     @Nested
     class ToUserDto {
         @Test
-        void shouldReturnUserDto() {
+        public void shouldReturnUserDto() {
             UserDto result = userMapper.toUserDto(user);
 
             assertEquals(user.getId(), result.getId());
@@ -33,7 +48,7 @@ class UserMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             UserDto result = userMapper.toUserDto(null);
 
             assertNull(result);
@@ -43,7 +58,7 @@ class UserMapperImplTest {
     @Nested
     class ToUser {
         @Test
-        void shouldReturnUser() {
+        public void shouldReturnUser() {
             User result = userMapper.toUser(userDto);
 
             assertEquals(userDto.getId(), result.getId());
@@ -52,7 +67,7 @@ class UserMapperImplTest {
         }
 
         @Test
-        void shouldReturnNull() {
+        public void shouldReturnNull() {
             User result = userMapper.toUser(null);
 
             assertNull(result);
