@@ -7,7 +7,7 @@ public enum State {
 
     public static Optional<State> stringToState(String state) {
         for (State value : State.values()) {
-            if (value.name().equals(state)) {
+            if (value.name().equals(state.toUpperCase())) {
                 return Optional.of(value);
             }
         }

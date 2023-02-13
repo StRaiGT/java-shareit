@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ItemControllerTest {
+public class ItemControllerE2E {
     private final UserController userController;
     private final ItemController itemController;
     private final BookingController bookingController;

@@ -69,7 +69,7 @@ public class BookingController {
     @PatchMapping("/{id}")
     public BookingResponseDto patch(@RequestHeader(UserController.headerUserId) Long userId,
                                    @PathVariable Long id,
-                                   @RequestParam() Boolean approved) {
+                                   @RequestParam Boolean approved) {
         return bookingService.patch(userId, id, approved);
     }
 }

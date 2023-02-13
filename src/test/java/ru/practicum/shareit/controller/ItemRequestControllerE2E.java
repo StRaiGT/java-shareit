@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ItemRequestControllerTest {
+public class ItemRequestControllerE2E {
     private final UserController userController;
     private final ItemController itemController;
     private final ItemRequestController itemRequestController;
