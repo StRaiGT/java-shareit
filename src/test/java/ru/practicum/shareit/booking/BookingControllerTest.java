@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -38,12 +39,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = BookingController.class)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class BookingControllerTest {
-    @Autowired
-    private ObjectMapper mapper;
-
-    @Autowired
-    private MockMvc mvc;
+    private final ObjectMapper mapper;
+    private final MockMvc mvc;
 
     @MockBean
     private BookingService bookingService;

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -24,15 +25,12 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ItemRequestRepositoryTest {
-    @Autowired
-    private ItemRequestRepository itemRequestRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ItemRepository itemRepository;
-
+    private final ItemRequestRepository itemRequestRepository;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
     private static User user1;
     private static User user2;
     private static Item item1;
