@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,23 +17,16 @@ class UserMapperImplTest {
     @InjectMocks
     private UserMapperImpl userMapper;
 
-    private static User user;
-    private static UserDto userDto;
-
-    @BeforeAll
-    public static void beforeAll() {
-        user = User.builder()
-                .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
-                .build();
-
-        userDto = UserDto.builder()
-                .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
-                .build();
-    }
+    private final User user = User.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
+    private final UserDto userDto = UserDto.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
 
     @Nested
     class ToUserDto {

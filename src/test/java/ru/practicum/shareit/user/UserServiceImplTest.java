@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,6 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -43,20 +43,23 @@ class UserServiceImplTest {
     @Captor
     private ArgumentCaptor<User> userArgumentCaptor;
 
-    private static User user1;
-    private static User user2;
+    private final User user1 = User.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
+    private final User user2 = User.builder()
+            .id(2L)
+            .name("Test user 2")
+            .email("tester2@yandex.ru")
+            .build();
+    private UserDto patchUserDto;
 
-    @BeforeAll
-    public static void beforeAll() {
-        user1 = User.builder()
+    @BeforeEach
+    public void beforeEachPatch() {
+        patchUserDto = UserDto.builder()
                 .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
-                .build();
-
-        user2 = User.builder()
-                .id(2L)
-                .name("Test user 2")
+                .name("Patch test user 1")
                 .email("tester2@yandex.ru")
                 .build();
     }
@@ -72,17 +75,11 @@ class UserServiceImplTest {
 
             assertEquals(2, usersFromService.size());
 
-            UserDto usersFromService1 = usersFromService.get(0);
-            UserDto usersFromService2 = usersFromService.get(1);
+            UserDto userFromService1 = usersFromService.get(0);
+            UserDto userFromService2 = usersFromService.get(1);
 
-            assertEquals(user1.getId(), usersFromService1.getId());
-            assertEquals(user1.getName(), usersFromService1.getName());
-            assertEquals(user1.getEmail(), usersFromService1.getEmail());
-
-            assertEquals(user2.getId(), usersFromService2.getId());
-            assertEquals(user2.getName(), usersFromService2.getName());
-            assertEquals(user2.getEmail(), usersFromService2.getEmail());
-
+            checkUserDto(user1, userFromService1);
+            checkUserDto(user2, userFromService2);
             verify(userMapper, times(2)).toUserDto(any());
             verify(userRepository, times(1)).findAll();
         }
@@ -93,7 +90,7 @@ class UserServiceImplTest {
 
             List<UserDto> usersFromService = userService.getAll();
 
-            assertEquals(0, usersFromService.size());
+            assertTrue(usersFromService.isEmpty());
             verify(userRepository, times(1)).findAll();
         }
     }
@@ -107,9 +104,7 @@ class UserServiceImplTest {
 
             UserDto userFromService = userService.getById(1L);
 
-            assertEquals(user1.getId(), userFromService.getId());
-            assertEquals(user1.getName(), userFromService.getName());
-            assertEquals(user1.getEmail(), userFromService.getEmail());
+            checkUserDto(user1, userFromService);
             verify(userRepository, times(1)).findById(1L);
             verify(userMapper, times(1)).toUserDto(any());
         }
@@ -139,17 +134,6 @@ class UserServiceImplTest {
 
     @Nested
     class Patch {
-        private UserDto patchUserDto;
-
-        @BeforeEach
-        public void beforeEachPatch() {
-            patchUserDto = UserDto.builder()
-                    .id(1L)
-                    .name("Patch test user 1")
-                    .email("tester2@yandex.ru")
-                    .build();
-        }
-
         @Test
         public void shouldPatch() {
             when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
@@ -226,5 +210,11 @@ class UserServiceImplTest {
             assertEquals("Пользователя с таким id не существует.", exception.getMessage());
             verify(userRepository, times(1)).findById(any());
         }
+    }
+
+    private void checkUserDto(User user, UserDto userDtoFromService) {
+        assertEquals(user.getId(), userDtoFromService.getId());
+        assertEquals(user.getName(), userDtoFromService.getName());
+        assertEquals(user.getEmail(), userDtoFromService.getEmail());
     }
 }

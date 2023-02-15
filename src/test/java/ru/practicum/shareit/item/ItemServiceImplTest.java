@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -72,127 +72,95 @@ public class ItemServiceImplTest {
     @Captor
     private ArgumentCaptor<Comment> commentArgumentCaptor;
 
-    private static User user1;
-    private static User user2;
-    private static Item item1;
-    private static Item item2;
-    private static Item item3;
-    private static ItemDto item1DtoToPatch;
-    private static ItemDto item1DtoToPatchBlank;
-    private static Booking booking1;
-    private static Booking booking2;
-    private static Booking booking3;
-    private static Booking booking4;
-    private static Comment comment1;
-    private static CommentRequestDto comment1RequestDto;
-    private static Pageable pageable;
-
-    @BeforeAll
-    public static void beforeAll() {
-        user1 = User.builder()
-                .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
-                .build();
-
-        user2 = User.builder()
-                .id(2L)
-                .name("Test user 2")
-                .email("tester2@yandex.ru")
-                .build();
-
-        item1 = Item.builder()
-                .id(1L)
-                .name("item1 name")
-                .description("seaRch1 description ")
-                .available(true)
-                .owner(user1)
-                .build();
-
-        item2 = Item.builder()
-                .id(2L)
-                .name("item2 name")
-                .description("SeARch1 description")
-                .available(true)
-                .owner(user2)
-                .build();
-
-        item3 = Item.builder()
-                .id(3L)
-                .name("item3 name")
-                .description("itEm3 description")
-                .available(false)
-                .owner(user1)
-                .build();
-
-        item1DtoToPatch = ItemDto.builder()
-                .id(1L)
-                .name("Patch item1 name")
-                .description("Patch seaRch1 description")
-                .available(false)
-                .build();
-
-        item1DtoToPatchBlank = ItemDto.builder()
-                .id(1L)
-                .name(" ")
-                .description(" ")
-                .available(null)
-                .build();
-
-        LocalDateTime dateTime = LocalDateTime.of(2023,1,1,10,0,0);
-
-        booking1 = Booking.builder()
-                .id(1L)
-                .start(dateTime.minusYears(10))
-                .end(dateTime.minusYears(9))
-                .item(item1)
-                .booker(user2)
-                .status(Status.APPROVED)
-                .build();
-
-        booking2 = Booking.builder()
-                .id(2L)
-                .start(dateTime.minusYears(5))
-                .end(dateTime.plusYears(5))
-                .item(item1)
-                .booker(user2)
-                .status(Status.APPROVED)
-                .build();
-
-        booking3 = Booking.builder()
-                .id(3L)
-                .start(dateTime.plusYears(8))
-                .end(dateTime.plusYears(9))
-                .item(item1)
-                .booker(user2)
-                .status(Status.WAITING)
-                .build();
-
-        booking4 = Booking.builder()
-                .id(4L)
-                .start(dateTime.plusYears(9))
-                .end(dateTime.plusYears(10))
-                .item(item1)
-                .booker(user2)
-                .status(Status.REJECTED)
-                .build();
-
-        comment1 = Comment.builder()
-                .id(1L)
-                .text("comment1 text")
-                .createdDate(dateTime)
-                .author(user2)
-                .itemId(1L)
-                .build();
-
-        comment1RequestDto = CommentRequestDto.builder()
-                .text("commentRequestDto text")
-                .build();
-
-        final int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-        final int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
-        pageable = PageRequest.of(from / size, size);
-    }
+    private final LocalDateTime dateTime = LocalDateTime.of(2023,1,1,10,0,0);
+    private final int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+    private final int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
+    private final Pageable pageable = PageRequest.of(from / size, size);
+    private final User user1 = User.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
+    private final User user2 = User.builder()
+            .id(2L)
+            .name("Test user 2")
+            .email("tester2@yandex.ru")
+            .build();
+    private final Item item1 = Item.builder()
+            .id(1L)
+            .name("item1 name")
+            .description("seaRch1 description ")
+            .available(true)
+            .owner(user1)
+            .build();
+    private final Item item2 = Item.builder()
+            .id(2L)
+            .name("item2 name")
+            .description("SeARch1 description")
+            .available(true)
+            .owner(user2)
+            .build();
+    private final Item item3 = Item.builder()
+            .id(3L)
+            .name("item3 name")
+            .description("itEm3 description")
+            .available(false)
+            .owner(user1)
+            .build();
+    private final ItemDto item1DtoToPatch = ItemDto.builder()
+            .id(1L)
+            .name("Patch item1 name")
+            .description("Patch seaRch1 description")
+            .available(false)
+            .build();
+    private final ItemDto item1DtoToPatchBlank = ItemDto.builder()
+            .id(1L)
+            .name(" ")
+            .description(" ")
+            .available(null)
+            .build();
+    private final Booking booking1 = Booking.builder()
+            .id(1L)
+            .start(dateTime.minusYears(10))
+            .end(dateTime.minusYears(9))
+            .item(item1)
+            .booker(user2)
+            .status(Status.APPROVED)
+            .build();
+    private final Booking booking2 = Booking.builder()
+            .id(2L)
+            .start(dateTime.minusYears(5))
+            .end(dateTime.plusYears(5))
+            .item(item1)
+            .booker(user2)
+            .status(Status.APPROVED)
+            .build();
+    private final Booking booking3 = Booking.builder()
+            .id(3L)
+            .start(dateTime.plusYears(8))
+            .end(dateTime.plusYears(9))
+            .item(item1)
+            .booker(user2)
+            .status(Status.WAITING)
+            .build();
+    private final Booking booking4 = Booking.builder()
+            .id(4L)
+            .start(dateTime.plusYears(9))
+            .end(dateTime.plusYears(10))
+            .item(item1)
+            .booker(user2)
+            .status(Status.REJECTED)
+            .build();
+    private final Comment comment1 = Comment.builder()
+            .id(1L)
+            .text("comment1 text")
+            .createdDate(dateTime)
+            .author(user2)
+            .itemId(1L)
+            .build();
+    private final CommentRequestDto comment1RequestDto = CommentRequestDto.builder()
+            .text("commentRequestDto text")
+            .build();
 
     @Nested
     class GetByOwnerId {
@@ -272,6 +240,7 @@ public class ItemServiceImplTest {
             assertEquals(booking2.getBooker().getId(), itemFromService.getLastBooking().getBookerId());
             assertEquals(booking2.getStart(), itemFromService.getLastBooking().getStart());
             assertEquals(booking2.getEnd(), itemFromService.getLastBooking().getEnd());
+
             assertNotNull(itemFromService.getNextBooking());
             assertEquals(booking3.getId(), itemFromService.getNextBooking().getId());
             assertEquals(booking3.getBooker().getId(), itemFromService.getNextBooking().getBookerId());
@@ -399,7 +368,7 @@ public class ItemServiceImplTest {
         public void shouldGetEmptyListIfTextIsEmpty() {
             List<ItemDto> itemsFromService = itemService.search("", pageable);
 
-            assertEquals(0, itemsFromService.size());
+            assertTrue(itemsFromService.isEmpty());
             verify(itemRepository, never()).search(any(), any());
         }
 
@@ -407,7 +376,7 @@ public class ItemServiceImplTest {
         public void shouldGetEmptyListIfTextIsBlank() {
             List<ItemDto> itemsFromService = itemService.search(" ", pageable);
 
-            assertEquals(0, itemsFromService.size());
+            assertTrue(itemsFromService.isEmpty());
             verify(itemRepository, never()).search(any(), any());
         }
 

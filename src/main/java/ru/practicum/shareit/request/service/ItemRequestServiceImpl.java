@@ -2,7 +2,6 @@ package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,9 +80,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.info("Вывод всех запросов вещей постранично {}.", pageable);
 
         userService.getUserById(userId);
-        Page<ItemRequest> itemRequests = itemRequestRepository.findByRequesterId_IdNot(userId, pageable);
 
-        return itemRequests.stream()
+        return itemRequestRepository.findByRequesterId_IdNot(userId, pageable).stream()
                 .map((itemRequest) -> itemRequestMapper.toItemRequestExtendedDto(
                         itemRequest,
                         itemRequest.getItems()

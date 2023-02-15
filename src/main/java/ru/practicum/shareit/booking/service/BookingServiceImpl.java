@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,32 +52,32 @@ public class BookingServiceImpl implements BookingService {
 
         userService.getUserById(userId);
 
-        Page<Booking> bookings = null;
+        List<Booking> bookings = null;
         LocalDateTime dateTime = LocalDateTime.now();
 
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId, pageable);
+                bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId, pageable).toList();
                 break;
             case CURRENT:
                 bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
-                        userId, dateTime, dateTime, pageable);
+                        userId, dateTime, dateTime, pageable).toList();
                 break;
             case PAST:
                 bookings = bookingRepository.findByBookerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(
-                        userId, dateTime, Status.APPROVED, pageable);
+                        userId, dateTime, Status.APPROVED, pageable).toList();
                 break;
             case FUTURE:
                 bookings = bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(
-                        userId, dateTime, pageable);
+                        userId, dateTime, pageable).toList();
                 break;
             case WAITING:
                 bookings = bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDesc(
-                        userId, Status.WAITING, pageable);
+                        userId, Status.WAITING, pageable).toList();
                 break;
             case REJECTED:
                 bookings = bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDesc(
-                        userId, Status.REJECTED, pageable);
+                        userId, Status.REJECTED, pageable).toList();
         }
 
         return bookings.stream()
@@ -92,32 +91,32 @@ public class BookingServiceImpl implements BookingService {
 
         userService.getUserById(userId);
 
-        Page<Booking> bookings = null;
+        List<Booking> bookings = null;
         LocalDateTime dateTime = LocalDateTime.now();
 
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId, pageable);
+                bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId, pageable).toList();
                 break;
             case CURRENT:
                 bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
-                        userId, dateTime, dateTime, pageable);
+                        userId, dateTime, dateTime, pageable).toList();
                 break;
             case PAST:
                 bookings = bookingRepository.findByItemOwnerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(
-                        userId, dateTime, Status.APPROVED, pageable);
+                        userId, dateTime, Status.APPROVED, pageable).toList();
                 break;
             case FUTURE:
                 bookings = bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(
-                        userId, dateTime, pageable);
+                        userId, dateTime, pageable).toList();
                 break;
             case WAITING:
                 bookings = bookingRepository.findByItemOwnerIdAndStatusEqualsOrderByStartDesc(
-                        userId, Status.WAITING, pageable);
+                        userId, Status.WAITING, pageable).toList();
                 break;
             case REJECTED:
                 bookings = bookingRepository.findByItemOwnerIdAndStatusEqualsOrderByStartDesc(
-                        userId, Status.REJECTED, pageable);
+                        userId, Status.REJECTED, pageable).toList();
         }
 
         return bookings.stream()

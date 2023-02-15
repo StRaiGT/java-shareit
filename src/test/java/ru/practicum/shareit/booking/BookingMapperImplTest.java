@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,47 +36,33 @@ public class BookingMapperImplTest {
     @InjectMocks
     private BookingMapperImpl bookingMapper;
 
-    private static User user;
-    private static Item item;
-    private static Status status;
-    private static BookingRequestDto bookingRequestDto;
-    private static Booking booking;
-
-    @BeforeAll
-    public static void beforeAll() {
-        user = User.builder()
-                .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
-                .build();
-
-        item = Item.builder()
-                .id(1L)
-                .name("item1 name")
-                .description("seaRch1 description ")
-                .available(true)
-                .owner(user)
-                .build();
-
-        LocalDateTime dateTime = LocalDateTime.of(2023,1,1,10,0,0);
-
-        bookingRequestDto = BookingRequestDto.builder()
-                .start(dateTime.plusYears(5))
-                .end(dateTime.plusYears(6))
-                .itemId(item.getId())
-                .build();
-
-        status = Status.WAITING;
-
-        booking = Booking.builder()
-                .id(1L)
-                .start(dateTime.minusYears(10))
-                .end(dateTime.minusYears(9))
-                .item(item)
-                .booker(user)
-                .status(Status.APPROVED)
-                .build();
-    }
+    private final LocalDateTime dateTime = LocalDateTime.of(2023,1,1,10,0,0);
+    private final Status status = Status.WAITING;
+    private final User user = User.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
+    private final Item item = Item.builder()
+            .id(1L)
+            .name("item1 name")
+            .description("seaRch1 description ")
+            .available(true)
+            .owner(user)
+            .build();
+    private final BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
+            .start(dateTime.plusYears(5))
+            .end(dateTime.plusYears(6))
+            .itemId(item.getId())
+            .build();
+    private final Booking booking = Booking.builder()
+            .id(1L)
+            .start(dateTime.minusYears(10))
+            .end(dateTime.minusYears(9))
+            .item(item)
+            .booker(user)
+            .status(Status.APPROVED)
+            .build();
 
     @Nested
     class RequestDtoToBooking {

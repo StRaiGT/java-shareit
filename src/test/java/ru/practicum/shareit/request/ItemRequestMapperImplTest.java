@@ -1,6 +1,5 @@
 package ru.practicum.shareit.request;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,52 +25,38 @@ public class ItemRequestMapperImplTest {
     @InjectMocks
     private ItemRequestMapperImpl itemRequestMapper;
 
-    private static User user;
-    private static LocalDateTime dateTime;
-    private static List<ItemDto> itemsDto;
-    private static ItemRequest itemRequest;
-    private static ItemRequestCreateDto itemRequestCreateDto;
-
-    @BeforeAll
-    public static void beforeAll() {
-        user = User.builder()
-                .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
-                .build();
-
-        dateTime = LocalDateTime.of(2023,1,1,10,0,0);
-
-        List<Item> items = List.of(Item.builder()
-                .id(1L)
-                .name("item name")
-                .description("item description")
-                .available(true)
-                .owner(user)
-                .requestId(1L)
-                .build());
-
-        itemsDto = List.of(ItemDto.builder()
-                .id(1L)
-                .name("item name")
-                .description("item description")
-                .available(true)
-                .ownerId(user.getId())
-                .requestId(1L)
-                .build());
-
-        itemRequest = ItemRequest.builder()
-                .id(1L)
-                .description("itemRequest1 description")
-                .requesterId(user)
-                .created(dateTime)
-                .items(items)
-                .build();
-
-        itemRequestCreateDto = ItemRequestCreateDto.builder()
-                .description("item description")
-                .build();
-    }
+    private final LocalDateTime dateTime = LocalDateTime.of(2023,1,1,10,0,0);
+    private final User user = User.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
+    private final List<Item> items = List.of(Item.builder()
+            .id(1L)
+            .name("item name")
+            .description("item description")
+            .available(true)
+            .owner(user)
+            .requestId(1L)
+            .build());
+    private final List<ItemDto> itemsDto = List.of(ItemDto.builder()
+            .id(1L)
+            .name("item name")
+            .description("item description")
+            .available(true)
+            .ownerId(user.getId())
+            .requestId(1L)
+            .build());
+    private final ItemRequest itemRequest = ItemRequest.builder()
+            .id(1L)
+            .description("itemRequest1 description")
+            .requesterId(user)
+            .created(dateTime)
+            .items(items)
+            .build();
+    private final ItemRequestCreateDto itemRequestCreateDto = ItemRequestCreateDto.builder()
+            .description("item description")
+            .build();
 
     @Nested
     class ToItemRequest {

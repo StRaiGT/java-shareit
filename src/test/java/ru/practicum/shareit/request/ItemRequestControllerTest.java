@@ -2,7 +2,6 @@ package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -44,76 +43,64 @@ public class ItemRequestControllerTest {
     @MockBean
     private ItemRequestService itemRequestService;
 
-    private static User user1;
-    private static User user2;
-    private static ItemRequestDto itemRequestDto;
-    private static ItemRequestExtendedDto itemRequestExtendedDto1;
-    private static ItemRequestExtendedDto itemRequestExtendedDto2;
+    private final User user1 = User.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
+    private final User user2 = User.builder()
+            .id(2L)
+            .name("Test user 2")
+            .email("tester2@yandex.ru")
+            .build();
+    private final ItemRequestDto itemRequestDto = ItemRequestDto.builder()
+            .id(user1.getId())
+            .description("item description")
+            .created(LocalDateTime.now())
+            .build();
+    private final ItemDto itemDto1 = ItemDto.builder()
+            .id(1L)
+            .name("item dto 1")
+            .description("item dto 1 description")
+            .available(true)
+            .ownerId(user1.getId())
+            .requestId(1L)
+            .build();
+    private final ItemDto itemDto2 = ItemDto.builder()
+            .id(2L)
+            .name("item dto 2")
+            .description("item dto 2 description")
+            .available(false)
+            .ownerId(user1.getId())
+            .requestId(2L)
+            .build();
+    private final ItemRequestExtendedDto itemRequestExtendedDto1 = ItemRequestExtendedDto.builder()
+            .id(1L)
+            .description("request 1 description")
+            .created(LocalDateTime.now())
+            .items(List.of(itemDto1, itemDto2))
+            .build();
+    private final ItemRequestExtendedDto itemRequestExtendedDto2 = ItemRequestExtendedDto.builder()
+            .id(2L)
+            .description("request 2 description")
+            .created(LocalDateTime.now())
+            .items(List.of())
+            .build();
+    private ItemRequestCreateDto itemRequestCreateDto;
+    private int from;
+    private int size;
 
-    @BeforeAll
-    public static void beforeAll() {
-        user1 = User.builder()
-                .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
-                .build();
-
-        user2 = User.builder()
-                .id(2L)
-                .name("Test user 2")
-                .email("tester2@yandex.ru")
-                .build();
-
-        itemRequestDto = ItemRequestDto.builder()
-                .id(user1.getId())
+    @BeforeEach
+    public void beforeEach() {
+        itemRequestCreateDto = ItemRequestCreateDto.builder()
                 .description("item description")
-                .created(LocalDateTime.now())
                 .build();
-
-        ItemDto itemDto1 = ItemDto.builder()
-                .id(1L)
-                .name("item dto 1")
-                .description("item dto 1 description")
-                .available(true)
-                .ownerId(user1.getId())
-                .requestId(1L)
-                .build();
-
-        ItemDto itemDto2 = ItemDto.builder()
-                .id(2L)
-                .name("item dto 2")
-                .description("item dto 2 description")
-                .available(false)
-                .ownerId(user1.getId())
-                .requestId(2L)
-                .build();
-
-        itemRequestExtendedDto1 = ItemRequestExtendedDto.builder()
-                .id(1L)
-                .description("request 1 description")
-                .created(LocalDateTime.now())
-                .items(List.of(itemDto1, itemDto2))
-                .build();
-
-        itemRequestExtendedDto2 = ItemRequestExtendedDto.builder()
-                .id(2L)
-                .description("request 2 description")
-                .created(LocalDateTime.now())
-                .items(List.of())
-                .build();
+        from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+        size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
     }
 
     @Nested
     class Create {
-        private ItemRequestCreateDto itemRequestCreateDto;
-
-        @BeforeEach
-        public void beforeEachCreate() {
-            itemRequestCreateDto = ItemRequestCreateDto.builder()
-                    .description("item description")
-                    .build();
-        }
-
         @Test
         public void shouldCreate() throws Exception {
             when(itemRequestService.create(ArgumentMatchers.eq(user1.getId()), ArgumentMatchers.any(ItemRequestCreateDto.class)))
@@ -219,15 +206,6 @@ public class ItemRequestControllerTest {
 
     @Nested
     class GetAll {
-        private int from;
-        private int size;
-
-        @BeforeEach
-        public void beforeEachGetAll() {
-            from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-            size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
-        }
-
         @Test
         public void shouldGet() throws Exception {
             when(itemRequestService.getAll(ArgumentMatchers.eq(user1.getId()),

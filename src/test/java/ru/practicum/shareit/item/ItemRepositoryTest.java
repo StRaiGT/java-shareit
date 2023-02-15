@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -27,55 +27,41 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ItemRepositoryTest {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private static User user1;
-    private static User user2;
-    private static Item item1;
-    private static Item item2;
-    private static Item item3;
-    private static Pageable pageable;
 
-    @BeforeAll
-    public static void beforeAll() {
-        user1 = User.builder()
-                .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
-                .build();
-
-        user2 = User.builder()
-                .id(2L)
-                .name("Test user 2")
-                .email("tester2@yandex.ru")
-                .build();
-
-        item1 = Item.builder()
-                .id(1L)
-                .name("item1 name")
-                .description("seaRch1 description ")
-                .available(true)
-                .owner(user1)
-                .build();
-
-        item2 = Item.builder()
-                .id(2L)
-                .name("item2 name")
-                .description("SeARch1 description")
-                .available(true)
-                .owner(user2)
-                .build();
-
-        item3 = Item.builder()
-                .id(3L)
-                .name("item3 name")
-                .description("itEm3 description")
-                .available(false)
-                .owner(user1)
-                .build();
-
-        final int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-        final int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
-        pageable = PageRequest.of(from / size, size);
-    }
+    private final int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+    private final int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
+    private final Pageable pageable = PageRequest.of(from / size, size);
+    private final User user1 = User.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
+    private final User user2 = User.builder()
+            .id(2L)
+            .name("Test user 2")
+            .email("tester2@yandex.ru")
+            .build();
+    private final Item item1 = Item.builder()
+            .id(1L)
+            .name("item1 name")
+            .description("seaRch1 description ")
+            .available(true)
+            .owner(user1)
+            .build();
+    private final Item item2 = Item.builder()
+            .id(2L)
+            .name("item2 name")
+            .description("SeARch1 description")
+            .available(true)
+            .owner(user2)
+            .build();
+    private final Item item3 = Item.builder()
+            .id(3L)
+            .name("item3 name")
+            .description("itEm3 description")
+            .available(false)
+            .owner(user1)
+            .build();
 
     @BeforeEach
     public void beforeEach() {
@@ -99,22 +85,8 @@ public class ItemRepositoryTest {
             Item itemsFromRepository1 = itemsFromRepository.get(0);
             Item itemsFromRepository2 = itemsFromRepository.get(1);
 
-            assertEquals(item1.getId(), itemsFromRepository1.getId());
-            assertEquals(item1.getName(), itemsFromRepository1.getName());
-            assertEquals(item1.getDescription(), itemsFromRepository1.getDescription());
-            assertEquals(item1.getAvailable(), itemsFromRepository1.getAvailable());
-            assertEquals(item1.getOwner().getId(), itemsFromRepository1.getOwner().getId());
-            assertEquals(item1.getOwner().getName(), itemsFromRepository1.getOwner().getName());
-            assertEquals(item1.getOwner().getEmail(), itemsFromRepository1.getOwner().getEmail());
-
-            assertEquals(item3.getId(), itemsFromRepository2.getId());
-            assertEquals(item3.getId(), itemsFromRepository2.getId());
-            assertEquals(item3.getName(), itemsFromRepository2.getName());
-            assertEquals(item3.getDescription(), itemsFromRepository2.getDescription());
-            assertEquals(item3.getAvailable(), itemsFromRepository2.getAvailable());
-            assertEquals(item3.getOwner().getId(), itemsFromRepository2.getOwner().getId());
-            assertEquals(item3.getOwner().getName(), itemsFromRepository2.getOwner().getName());
-            assertEquals(item3.getOwner().getEmail(), itemsFromRepository2.getOwner().getEmail());
+            checkItem(item1, itemsFromRepository1);
+            checkItem(item3, itemsFromRepository2);
         }
 
         @Test
@@ -127,13 +99,7 @@ public class ItemRepositoryTest {
 
             Item itemsFromRepository1 = itemsFromRepository.get(0);
 
-            assertEquals(item2.getId(), itemsFromRepository1.getId());
-            assertEquals(item2.getName(), itemsFromRepository1.getName());
-            assertEquals(item2.getDescription(), itemsFromRepository1.getDescription());
-            assertEquals(item2.getAvailable(), itemsFromRepository1.getAvailable());
-            assertEquals(item2.getOwner().getId(), itemsFromRepository1.getOwner().getId());
-            assertEquals(item2.getOwner().getName(), itemsFromRepository1.getOwner().getName());
-            assertEquals(item2.getOwner().getEmail(), itemsFromRepository1.getOwner().getEmail());
+            checkItem(item2, itemsFromRepository1);
         }
 
         @Test
@@ -142,7 +108,7 @@ public class ItemRepositoryTest {
                     .get()
                     .collect(Collectors.toList());
 
-            assertEquals(0, itemsFromRepository.size());
+            assertTrue(itemsFromRepository.isEmpty());
         }
     }
 
@@ -159,22 +125,8 @@ public class ItemRepositoryTest {
             Item itemsFromRepository1 = itemsFromRepository.get(0);
             Item itemsFromRepository2 = itemsFromRepository.get(1);
 
-            assertEquals(item1.getId(), itemsFromRepository1.getId());
-            assertEquals(item1.getName(), itemsFromRepository1.getName());
-            assertEquals(item1.getDescription(), itemsFromRepository1.getDescription());
-            assertEquals(item1.getAvailable(), itemsFromRepository1.getAvailable());
-            assertEquals(item1.getOwner().getId(), itemsFromRepository1.getOwner().getId());
-            assertEquals(item1.getOwner().getName(), itemsFromRepository1.getOwner().getName());
-            assertEquals(item1.getOwner().getEmail(), itemsFromRepository1.getOwner().getEmail());
-
-            assertEquals(item2.getId(), itemsFromRepository2.getId());
-            assertEquals(item2.getId(), itemsFromRepository2.getId());
-            assertEquals(item2.getName(), itemsFromRepository2.getName());
-            assertEquals(item2.getDescription(), itemsFromRepository2.getDescription());
-            assertEquals(item2.getAvailable(), itemsFromRepository2.getAvailable());
-            assertEquals(item2.getOwner().getId(), itemsFromRepository2.getOwner().getId());
-            assertEquals(item2.getOwner().getName(), itemsFromRepository2.getOwner().getName());
-            assertEquals(item2.getOwner().getEmail(), itemsFromRepository2.getOwner().getEmail());
+            checkItem(item1, itemsFromRepository1);
+            checkItem(item2, itemsFromRepository2);
         }
 
         @Test
@@ -183,7 +135,7 @@ public class ItemRepositoryTest {
                     .get()
                     .collect(Collectors.toList());
 
-            assertEquals(0, itemsFromRepository.size());
+            assertTrue(itemsFromRepository.isEmpty());
         }
 
         @Test
@@ -192,7 +144,17 @@ public class ItemRepositoryTest {
                     .get()
                     .collect(Collectors.toList());
 
-            assertEquals(0, itemsFromRepository.size());
+            assertTrue(itemsFromRepository.isEmpty());
         }
+    }
+
+    private void checkItem(Item item1, Item item2) {
+        assertEquals(item1.getId(), item2.getId());
+        assertEquals(item1.getName(), item2.getName());
+        assertEquals(item1.getDescription(), item2.getDescription());
+        assertEquals(item1.getAvailable(), item2.getAvailable());
+        assertEquals(item1.getOwner().getId(), item2.getOwner().getId());
+        assertEquals(item1.getOwner().getName(), item2.getOwner().getName());
+        assertEquals(item1.getOwner().getEmail(), item2.getOwner().getEmail());
     }
 }

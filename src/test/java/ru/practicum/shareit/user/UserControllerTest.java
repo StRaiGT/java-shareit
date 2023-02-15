@@ -2,7 +2,6 @@ package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -39,21 +38,30 @@ public class UserControllerTest {
     @MockBean
     private UserService userService;
 
-    private static UserDto userDto1;
-    private static UserDto userDto2;
+    private final UserDto userDto1 = UserDto.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
+    private final UserDto userDto2 = UserDto.builder()
+            .id(2L)
+            .name("Test user 2")
+            .email("tester2@yandex.ru")
+            .build();
+    private UserDto userDtoToPatch;
+    private UserDto userDtoPatched;
 
-    @BeforeAll
-    public static void beforeAll() {
-        userDto1 = UserDto.builder()
-                .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
+    @BeforeEach
+    public void beforeEach() {
+        userDtoToPatch = UserDto.builder()
+                .name("Patched test user 1")
+                .email("PatchedTester1@yandex.ru")
                 .build();
 
-        userDto2 = UserDto.builder()
-                .id(2L)
-                .name("Test user 2")
-                .email("tester2@yandex.ru")
+        userDtoPatched = UserDto.builder()
+                .id(1L)
+                .name("Patched test user 1")
+                .email("PatchedTester1@yandex.ru")
                 .build();
     }
 
@@ -172,23 +180,6 @@ public class UserControllerTest {
 
     @Nested
     class Patch {
-        private UserDto userDtoToPatch;
-        private UserDto userDtoPatched;
-
-        @BeforeEach
-        public void beforeEachPatch() {
-            userDtoToPatch = UserDto.builder()
-                    .name("Patched test user 1")
-                    .email("PatchedTester1@yandex.ru")
-                    .build();
-
-            userDtoPatched = UserDto.builder()
-                    .id(1L)
-                    .name("Patched test user 1")
-                    .email("PatchedTester1@yandex.ru")
-                    .build();
-        }
-
         @Test
         public void shouldPatch() throws Exception {
             when(userService.patch(ArgumentMatchers.eq(userDtoPatched.getId()), ArgumentMatchers.any(UserDto.class)))

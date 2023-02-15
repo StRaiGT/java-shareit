@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -31,50 +31,36 @@ public class ItemRequestRepositoryTest {
     private final ItemRequestRepository itemRequestRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-    private static User user1;
-    private static User user2;
-    private static Item item1;
-    private static LocalDateTime dateTime;
-    private static ItemRequest itemRequest1;
-    private static Pageable pageable;
 
-    @BeforeAll
-    public static void beforeAll() {
-        user1 = User.builder()
-                .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
-                .build();
-
-        user2 = User.builder()
-                .id(2L)
-                .name("Test user 2")
-                .email("tester2@yandex.ru")
-                .build();
-
-        item1 = Item.builder()
-                .id(1L)
-                .name("item name")
-                .description("item description")
-                .available(true)
-                .owner(user1)
-                .requestId(1L)
-                .build();
-
-        dateTime = LocalDateTime.of(2023,1,1,10,0,0);
-
-        final int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-        final int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
-        pageable = PageRequest.of(from / size, size);
-
-        itemRequest1 = ItemRequest.builder()
-                .id(1L)
-                .description("itemRequest1 description")
-                .requesterId(user2)
-                .created(dateTime)
-                .items(null)
-                .build();
-    }
+    private final int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+    private final int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
+    private final Pageable pageable = PageRequest.of(from / size, size);
+    private final LocalDateTime dateTime = LocalDateTime.of(2023,1,1,10,0,0);
+    private final User user1 = User.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
+    private final User user2 = User.builder()
+            .id(2L)
+            .name("Test user 2")
+            .email("tester2@yandex.ru")
+            .build();
+    private final Item item1 = Item.builder()
+            .id(1L)
+            .name("item name")
+            .description("item description")
+            .available(true)
+            .owner(user1)
+            .requestId(1L)
+            .build();
+    private final ItemRequest itemRequest1 = ItemRequest.builder()
+            .id(1L)
+            .description("itemRequest1 description")
+            .requesterId(user2)
+            .created(dateTime)
+            .items(null)
+            .build();
 
     @BeforeEach
     public void beforeEach() {
@@ -91,19 +77,17 @@ public class ItemRequestRepositoryTest {
             List<ItemRequest> itemsRequest = itemRequestRepository.findByRequesterId_IdOrderByCreatedAsc(user2.getId());
 
             assertEquals(1, itemsRequest.size());
-            assertEquals(itemRequest1.getId(), itemsRequest.get(0).getId());
-            assertEquals(itemRequest1.getDescription(), itemsRequest.get(0).getDescription());
-            assertEquals(user2.getId(), itemsRequest.get(0).getRequesterId().getId());
-            assertEquals(user2.getName(), itemsRequest.get(0).getRequesterId().getName());
-            assertEquals(user2.getEmail(), itemsRequest.get(0).getRequesterId().getEmail());
-            assertEquals(dateTime, itemsRequest.get(0).getCreated());
+
+            ItemRequest resultItemRequest = itemsRequest.get(0);
+
+            checkItemRequest(itemRequest1, user2, dateTime, resultItemRequest);
         }
 
         @Test
         public void shouldGetZeroIfNotRequests() {
             List<ItemRequest> itemsRequest = itemRequestRepository.findByRequesterId_IdOrderByCreatedAsc(user1.getId());
 
-            assertEquals(0, itemsRequest.size());
+            assertTrue(itemsRequest.isEmpty());
         }
     }
 
@@ -114,7 +98,7 @@ public class ItemRequestRepositoryTest {
             List<ItemRequest> itemsRequest = itemRequestRepository.findByRequesterId_IdNot(user2.getId(), pageable)
                     .get().collect(Collectors.toList());
 
-            assertEquals(0, itemsRequest.size());
+            assertTrue(itemsRequest.isEmpty());
         }
 
         @Test
@@ -123,12 +107,19 @@ public class ItemRequestRepositoryTest {
                     .get().collect(Collectors.toList());
 
             assertEquals(1, itemsRequest.size());
-            assertEquals(itemRequest1.getId(), itemsRequest.get(0).getId());
-            assertEquals(itemRequest1.getDescription(), itemsRequest.get(0).getDescription());
-            assertEquals(user2.getId(), itemsRequest.get(0).getRequesterId().getId());
-            assertEquals(user2.getName(), itemsRequest.get(0).getRequesterId().getName());
-            assertEquals(user2.getEmail(), itemsRequest.get(0).getRequesterId().getEmail());
-            assertEquals(dateTime, itemsRequest.get(0).getCreated());
+
+            ItemRequest resultItemRequest = itemsRequest.get(0);
+
+            checkItemRequest(itemRequest1, user2, dateTime, resultItemRequest);
         }
+    }
+
+    private void checkItemRequest(ItemRequest itemRequest, User user, LocalDateTime dateTime, ItemRequest resultItemRequest) {
+        assertEquals(itemRequest.getId(), resultItemRequest.getId());
+        assertEquals(itemRequest.getDescription(), resultItemRequest.getDescription());
+        assertEquals(user.getId(), resultItemRequest.getRequesterId().getId());
+        assertEquals(user.getName(), resultItemRequest.getRequesterId().getName());
+        assertEquals(user.getEmail(), resultItemRequest.getRequesterId().getEmail());
+        assertEquals(dateTime, resultItemRequest.getCreated());
     }
 }

@@ -92,11 +92,10 @@ public class ItemRequestFullContextTest {
 
             assertNotNull(itemRequestFromController.getItems());
             assertEquals(1, itemRequestFromController.getItems().size());
-            assertEquals(itemDto.getId(), itemRequestFromController.getItems().get(0).getId());
-            assertEquals(itemDto.getDescription(), itemRequestFromController.getItems().get(0).getDescription());
-            assertEquals(itemDto.getAvailable(), itemRequestFromController.getItems().get(0).getAvailable());
-            assertEquals(itemDto.getOwnerId(), itemRequestFromController.getItems().get(0).getOwnerId());
-            assertEquals(itemDto.getRequestId(), itemRequestFromController.getItems().get(0).getRequestId());
+
+            ItemDto itemFromResult = itemRequestFromController.getItems().get(0);
+
+            checkItemDto(itemDto, itemFromResult);
         }
     }
 
@@ -145,11 +144,10 @@ public class ItemRequestFullContextTest {
 
             assertNotNull(itemRequestFromController.getItems());
             assertEquals(1, itemRequestFromController.getItems().size());
-            assertEquals(itemDto.getId(), itemRequestFromController.getItems().get(0).getId());
-            assertEquals(itemDto.getDescription(), itemRequestFromController.getItems().get(0).getDescription());
-            assertEquals(itemDto.getAvailable(), itemRequestFromController.getItems().get(0).getAvailable());
-            assertEquals(itemDto.getOwnerId(), itemRequestFromController.getItems().get(0).getOwnerId());
-            assertEquals(itemDto.getRequestId(), itemRequestFromController.getItems().get(0).getRequestId());
+
+            ItemDto itemFromResult = itemRequestFromController.getItems().get(0);
+
+            checkItemDto(itemDto, itemFromResult);
         }
     }
 
@@ -201,11 +199,18 @@ public class ItemRequestFullContextTest {
 
             assertNotNull(itemRequestFromController.getItems());
             assertEquals(1, itemRequestFromController.getItems().size());
-            assertEquals(itemDto.getId(), itemRequestFromController.getItems().get(0).getId());
-            assertEquals(itemDto.getDescription(), itemRequestFromController.getItems().get(0).getDescription());
-            assertEquals(itemDto.getAvailable(), itemRequestFromController.getItems().get(0).getAvailable());
-            assertEquals(itemDto.getOwnerId(), itemRequestFromController.getItems().get(0).getOwnerId());
-            assertEquals(itemDto.getRequestId(), itemRequestFromController.getItems().get(0).getRequestId());
+
+            ItemDto itemFromResult = itemRequestFromController.getItems().get(0);
+
+            checkItemDto(itemDto, itemFromResult);
         }
+    }
+
+    private void checkItemDto(ItemDto itemDto, ItemDto resultItemDto) {
+        assertEquals(itemDto.getId(), resultItemDto.getId());
+        assertEquals(itemDto.getDescription(), resultItemDto.getDescription());
+        assertEquals(itemDto.getAvailable(), resultItemDto.getAvailable());
+        assertEquals(itemDto.getOwnerId(), resultItemDto.getOwnerId());
+        assertEquals(itemDto.getRequestId(), resultItemDto.getRequestId());
     }
 }

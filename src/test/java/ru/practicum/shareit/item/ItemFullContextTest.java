@@ -28,6 +28,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -68,12 +69,7 @@ public class ItemFullContextTest {
 
             ItemExtendedDto itemFromController = itemsFromController.get(0);
 
-            assertEquals(itemFromController.getId(), itemDto.getId());
-            assertEquals(itemFromController.getName(), itemDto.getName());
-            assertEquals(itemFromController.getDescription(), itemDto.getDescription());
-            assertEquals(itemFromController.getAvailable(), itemDto.getAvailable());
-            assertEquals(itemFromController.getOwnerId(), itemDto.getOwnerId());
-            assertEquals(itemFromController.getRequestId(), itemDto.getRequestId());
+            checkItemExtendedDto(itemFromController, itemDto);
         }
 
         @Test
@@ -149,19 +145,8 @@ public class ItemFullContextTest {
             ItemExtendedDto itemFromController1 = itemsFromController1.get(0);
             ItemExtendedDto itemFromController3 = itemsFromController1.get(1);
 
-            assertEquals(itemFromController1.getId(), itemDto1.getId());
-            assertEquals(itemFromController1.getName(), itemDto1.getName());
-            assertEquals(itemFromController1.getDescription(), itemDto1.getDescription());
-            assertEquals(itemFromController1.getAvailable(), itemDto1.getAvailable());
-            assertEquals(itemFromController1.getOwnerId(), itemDto1.getOwnerId());
-            assertEquals(itemFromController1.getRequestId(), itemDto1.getRequestId());
-
-            assertEquals(itemFromController3.getId(), itemDto3.getId());
-            assertEquals(itemFromController3.getName(), itemDto3.getName());
-            assertEquals(itemFromController3.getDescription(), itemDto3.getDescription());
-            assertEquals(itemFromController3.getAvailable(), itemDto3.getAvailable());
-            assertEquals(itemFromController3.getOwnerId(), itemDto3.getOwnerId());
-            assertEquals(itemFromController3.getRequestId(), itemDto3.getRequestId());
+            checkItemExtendedDto(itemFromController1, itemDto1);
+            checkItemExtendedDto(itemFromController3, itemDto3);
 
             List<ItemExtendedDto> itemsFromController2 = itemController.getByOwnerId(
                     userDto2.getId(),
@@ -172,12 +157,7 @@ public class ItemFullContextTest {
 
             ItemExtendedDto itemFromController2 = itemsFromController2.get(0);
 
-            assertEquals(itemFromController2.getId(), itemDto2.getId());
-            assertEquals(itemFromController2.getName(), itemDto2.getName());
-            assertEquals(itemFromController2.getDescription(), itemDto2.getDescription());
-            assertEquals(itemFromController2.getAvailable(), itemDto2.getAvailable());
-            assertEquals(itemFromController2.getOwnerId(), itemDto2.getOwnerId());
-            assertEquals(itemFromController2.getRequestId(), itemDto2.getRequestId());
+            checkItemExtendedDto(itemFromController2, itemDto2);
         }
 
         @Test
@@ -194,7 +174,7 @@ public class ItemFullContextTest {
                     Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
                     Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
-            assertEquals(itemsFromController.size(), 0);
+            assertTrue(itemsFromController.isEmpty());
         }
 
         @Test
@@ -263,14 +243,7 @@ public class ItemFullContextTest {
             ItemExtendedDto itemFromController2 = itemsFromController.get(1);
 
             assertEquals(itemFromController1.getId(), itemDto1.getId());
-            assertEquals(itemFromController1.getLastBooking().getId(), bookingResponseDto1.getId());
-            assertEquals(itemFromController1.getLastBooking().getBookerId(), bookingResponseDto1.getBooker().getId());
-            assertEquals(itemFromController1.getLastBooking().getStart(), bookingResponseDto1.getStart());
-            assertEquals(itemFromController1.getLastBooking().getEnd(), bookingResponseDto1.getEnd());
-            assertEquals(itemFromController1.getNextBooking().getId(), bookingResponseDto2.getId());
-            assertEquals(itemFromController1.getNextBooking().getBookerId(), bookingResponseDto2.getBooker().getId());
-            assertEquals(itemFromController1.getNextBooking().getStart(), bookingResponseDto2.getStart());
-            assertEquals(itemFromController1.getNextBooking().getEnd(), bookingResponseDto2.getEnd());
+            checkItemExtendedDtoBooking(itemFromController1, bookingResponseDto1, bookingResponseDto2);
 
             List<CommentDto> commentsItem1 = itemFromController1.getComments();
 
@@ -286,7 +259,7 @@ public class ItemFullContextTest {
 
             List<CommentDto> commentsItem2 = itemFromController2.getComments();
 
-            assertEquals(commentsItem2.size(), 0);
+            assertTrue(commentsItem2.isEmpty());
         }
     }
 
@@ -313,12 +286,7 @@ public class ItemFullContextTest {
 
             ItemExtendedDto itemFromController = itemController.getById(userDto.getId(), itemDto.getId());
 
-            assertEquals(itemFromController.getId(), itemDto.getId());
-            assertEquals(itemFromController.getName(), itemDto.getName());
-            assertEquals(itemFromController.getDescription(), itemDto.getDescription());
-            assertEquals(itemFromController.getAvailable(), itemDto.getAvailable());
-            assertEquals(itemFromController.getOwnerId(), itemDto.getOwnerId());
-            assertEquals(itemFromController.getRequestId(), itemDto.getRequestId());
+            checkItemExtendedDto(itemFromController, itemDto);
         }
 
         @Test
@@ -392,14 +360,7 @@ public class ItemFullContextTest {
             ItemExtendedDto itemFromController1 = itemController.getById(userDto1.getId(), itemDto1.getId());
 
             assertEquals(itemFromController1.getId(), itemDto1.getId());
-            assertEquals(itemFromController1.getLastBooking().getId(), bookingResponseDto1.getId());
-            assertEquals(itemFromController1.getLastBooking().getBookerId(), bookingResponseDto1.getBooker().getId());
-            assertEquals(itemFromController1.getLastBooking().getStart(), bookingResponseDto1.getStart());
-            assertEquals(itemFromController1.getLastBooking().getEnd(), bookingResponseDto1.getEnd());
-            assertEquals(itemFromController1.getNextBooking().getId(), bookingResponseDto2.getId());
-            assertEquals(itemFromController1.getNextBooking().getBookerId(), bookingResponseDto2.getBooker().getId());
-            assertEquals(itemFromController1.getNextBooking().getStart(), bookingResponseDto2.getStart());
-            assertEquals(itemFromController1.getNextBooking().getEnd(), bookingResponseDto2.getEnd());
+            checkItemExtendedDtoBooking(itemFromController1, bookingResponseDto1, bookingResponseDto2);
 
             List<CommentDto> commentsItem1 = itemFromController1.getComments();
 
@@ -417,7 +378,7 @@ public class ItemFullContextTest {
 
             List<CommentDto> commentsItem2 = itemFromController2.getComments();
 
-            assertEquals(commentsItem2.size(), 0);
+            assertTrue(commentsItem2.isEmpty());
         }
 
         @Test
@@ -497,7 +458,7 @@ public class ItemFullContextTest {
 
             List<CommentDto> commentsItem2 = itemFromController2.getComments();
 
-            assertEquals(commentsItem2.size(), 0);
+            assertTrue(commentsItem2.isEmpty());
         }
     }
 
@@ -582,12 +543,7 @@ public class ItemFullContextTest {
 
             ItemExtendedDto itemFromController = itemController.getById(userDto1.getId(), itemDto1.getId());
 
-            assertEquals(itemFromController.getId(), itemDto1.getId());
-            assertEquals(itemFromController.getName(), itemDto1.getName());
-            assertEquals(itemFromController.getDescription(), itemDto1.getDescription());
-            assertEquals(itemFromController.getAvailable(), itemDto1.getAvailable());
-            assertEquals(itemFromController.getOwnerId(), itemDto1.getOwnerId());
-            assertEquals(itemFromController.getRequestId(), itemDto1.getRequestId());
+            checkItemExtendedDto(itemFromController, itemDto1);
         }
     }
 
@@ -614,10 +570,10 @@ public class ItemFullContextTest {
 
             itemController.delete(itemDto.getId());
 
-            assertEquals(itemController.getByOwnerId(userDto.getId(),
-                            Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
-                            Integer.parseInt(UserController.PAGE_DEFAULT_SIZE)).size(),
-                    0);
+            assertTrue(itemController.getByOwnerId(userDto.getId(),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE))
+                    .isEmpty());
         }
 
         @Test
@@ -704,19 +660,8 @@ public class ItemFullContextTest {
             ItemDto itemFromController1 = itemsFromController.get(0);
             ItemDto itemFromController2 = itemsFromController.get(1);
 
-            assertEquals(itemFromController1.getId(), itemDto1.getId());
-            assertEquals(itemFromController1.getName(), itemDto1.getName());
-            assertEquals(itemFromController1.getDescription(), itemDto1.getDescription());
-            assertEquals(itemFromController1.getAvailable(), itemDto1.getAvailable());
-            assertEquals(itemFromController1.getOwnerId(), itemDto1.getOwnerId());
-            assertEquals(itemFromController1.getRequestId(), itemDto1.getRequestId());
-
-            assertEquals(itemFromController2.getId(), itemDto3.getId());
-            assertEquals(itemFromController2.getName(), itemDto3.getName());
-            assertEquals(itemFromController2.getDescription(), itemDto3.getDescription());
-            assertEquals(itemFromController2.getAvailable(), itemDto3.getAvailable());
-            assertEquals(itemFromController2.getOwnerId(), itemDto3.getOwnerId());
-            assertEquals(itemFromController2.getRequestId(), itemDto3.getRequestId());
+            checkItemDto(itemFromController1, itemDto1);
+            checkItemDto(itemFromController2, itemDto3);
         }
 
         @Test
@@ -743,7 +688,7 @@ public class ItemFullContextTest {
                     Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
                     Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
-            assertEquals(itemsFromController.size(), 0);
+            assertTrue(itemsFromController.isEmpty());
         }
     }
 
@@ -910,5 +855,37 @@ public class ItemFullContextTest {
                     () -> itemController.addComment(userDto2.getId(),itemDto.getId(), commentRequestDto));
             assertEquals("Пользователь не брал данную вещь в аренду.", exception.getMessage());
         }
+    }
+
+    private void checkItemExtendedDto(ItemExtendedDto itemFromController, ItemDto itemDto) {
+        assertEquals(itemFromController.getId(), itemDto.getId());
+        assertEquals(itemFromController.getName(), itemDto.getName());
+        assertEquals(itemFromController.getDescription(), itemDto.getDescription());
+        assertEquals(itemFromController.getAvailable(), itemDto.getAvailable());
+        assertEquals(itemFromController.getOwnerId(), itemDto.getOwnerId());
+        assertEquals(itemFromController.getRequestId(), itemDto.getRequestId());
+    }
+
+    private void checkItemExtendedDtoBooking(ItemExtendedDto itemFromController,
+                                             BookingResponseDto lastBookingResponseDto,
+                                             BookingResponseDto nextBookingResponseDto) {
+        assertEquals(itemFromController.getLastBooking().getId(), lastBookingResponseDto.getId());
+        assertEquals(itemFromController.getLastBooking().getBookerId(), lastBookingResponseDto.getBooker().getId());
+        assertEquals(itemFromController.getLastBooking().getStart(), lastBookingResponseDto.getStart());
+        assertEquals(itemFromController.getLastBooking().getEnd(), lastBookingResponseDto.getEnd());
+
+        assertEquals(itemFromController.getNextBooking().getId(), nextBookingResponseDto.getId());
+        assertEquals(itemFromController.getNextBooking().getBookerId(), nextBookingResponseDto.getBooker().getId());
+        assertEquals(itemFromController.getNextBooking().getStart(), nextBookingResponseDto.getStart());
+        assertEquals(itemFromController.getNextBooking().getEnd(), nextBookingResponseDto.getEnd());
+    }
+
+    private void checkItemDto(ItemDto itemDtoFromController, ItemDto itemDto) {
+        assertEquals(itemDtoFromController.getId(), itemDto.getId());
+        assertEquals(itemDtoFromController.getName(), itemDto.getName());
+        assertEquals(itemDtoFromController.getDescription(), itemDto.getDescription());
+        assertEquals(itemDtoFromController.getAvailable(), itemDto.getAvailable());
+        assertEquals(itemDtoFromController.getOwnerId(), itemDto.getOwnerId());
+        assertEquals(itemDtoFromController.getRequestId(), itemDto.getRequestId());
     }
 }

@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,43 +46,58 @@ public class BookingControllerTest {
     @MockBean
     private BookingService bookingService;
 
-    private static User user1;
-    private static User user2;
-    private static UserDto userDto2;
-    private static ItemDto itemDto;
-    private static BookingResponseDto bookingResponseDto1;
-    private static BookingResponseDto bookingResponseDto2;
+    private final User user1 = User.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
+    private final User user2 = User.builder()
+            .id(2L)
+            .name("Test user 2")
+            .email("tester2@yandex.ru")
+            .build();
+    private final UserDto userDto2 = UserDto.builder()
+            .id(user2.getId())
+            .name(user2.getName())
+            .email(user2.getEmail())
+            .build();
+    private final ItemDto itemDto = ItemDto.builder()
+            .id(1L)
+            .name("item dto 1")
+            .description("item dto 1 description")
+            .available(true)
+            .ownerId(user1.getId())
+            .requestId(1L)
+            .build();
+    private final BookingResponseDto bookingResponseDto1 = BookingResponseDto.builder()
+            .id(1L)
+            .start(LocalDateTime.now().plusMinutes(5))
+            .end(LocalDateTime.now().plusMinutes(10))
+            .item(itemDto)
+            .booker(userDto2)
+            .status(Status.WAITING)
+            .build();
+    private final BookingResponseDto bookingResponseDto2 = BookingResponseDto.builder()
+            .id(2L)
+            .start(LocalDateTime.now().plusMinutes(15))
+            .end(LocalDateTime.now().plusMinutes(20))
+            .item(itemDto)
+            .booker(userDto2)
+            .status(Status.WAITING)
+            .build();
+    private BookingRequestDto bookingRequestDto;
+    private BookingResponseDto bookingResponseDto;
+    private int from;
+    private int size;
 
-    @BeforeAll
-    public static void beforeAll() {
-        user1 = User.builder()
-                .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
+    @BeforeEach
+    public void beforeEach() {
+        bookingRequestDto = BookingRequestDto.builder()
+                .start(LocalDateTime.now().plusMinutes(5))
+                .end(LocalDateTime.now().plusMinutes(10))
+                .itemId(1L)
                 .build();
-
-        user2 = User.builder()
-                .id(2L)
-                .name("Test user 2")
-                .email("tester2@yandex.ru")
-                .build();
-
-        userDto2 = UserDto.builder()
-                .id(user2.getId())
-                .name(user2.getName())
-                .email(user2.getEmail())
-                .build();
-
-        itemDto = ItemDto.builder()
-                .id(1L)
-                .name("item dto 1")
-                .description("item dto 1 description")
-                .available(true)
-                .ownerId(user1.getId())
-                .requestId(1L)
-                .build();
-
-        bookingResponseDto1 = BookingResponseDto.builder()
+        bookingResponseDto = BookingResponseDto.builder()
                 .id(1L)
                 .start(LocalDateTime.now().plusMinutes(5))
                 .end(LocalDateTime.now().plusMinutes(10))
@@ -91,30 +105,12 @@ public class BookingControllerTest {
                 .booker(userDto2)
                 .status(Status.WAITING)
                 .build();
-
-        bookingResponseDto2 = BookingResponseDto.builder()
-                .id(2L)
-                .start(LocalDateTime.now().plusMinutes(15))
-                .end(LocalDateTime.now().plusMinutes(20))
-                .item(itemDto)
-                .booker(userDto2)
-                .status(Status.WAITING)
-                .build();
+        from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+        size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
     }
 
     @Nested
     class Create {
-        private BookingRequestDto bookingRequestDto;
-
-        @BeforeEach
-        public void beforeEachCreate() {
-            bookingRequestDto = BookingRequestDto.builder()
-                    .start(LocalDateTime.now().plusMinutes(5))
-                    .end(LocalDateTime.now().plusMinutes(10))
-                    .itemId(1L)
-                    .build();
-        }
-
         @Test
         public void shouldCreate() throws Exception {
             when(bookingService.create(ArgumentMatchers.eq(user2.getId()), ArgumentMatchers.any(BookingRequestDto.class)))
@@ -183,20 +179,6 @@ public class BookingControllerTest {
 
     @Nested
     class Patch {
-        private BookingResponseDto bookingResponseDto;
-
-        @BeforeEach
-        public void beforeEachPatch() {
-            bookingResponseDto = BookingResponseDto.builder()
-                    .id(1L)
-                    .start(LocalDateTime.now().plusMinutes(5))
-                    .end(LocalDateTime.now().plusMinutes(10))
-                    .item(itemDto)
-                    .booker(userDto2)
-                    .status(Status.WAITING)
-                    .build();
-        }
-
         @Test
         public void shouldApproved() throws Exception {
             bookingResponseDto.setStatus(Status.APPROVED);
@@ -251,15 +233,6 @@ public class BookingControllerTest {
 
     @Nested
     class GetAllByByBookerId {
-        private int from;
-        private int size;
-
-        @BeforeEach
-        public void beforeEachGetAllByBookerId() {
-            from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-            size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
-        }
-
         @Test
         public void shouldGetWithValidState() throws Exception {
             when(bookingService.getAllByBookerId(ArgumentMatchers.eq(userDto2.getId()), ArgumentMatchers.eq(State.ALL),
@@ -329,15 +302,6 @@ public class BookingControllerTest {
 
     @Nested
     class GetAllByByOwnerId {
-        private int from;
-        private int size;
-
-        @BeforeEach
-        public void beforeEachGetAllByByOwnerId() {
-            from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-            size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
-        }
-
         @Test
         public void shouldGetWithValidState() throws Exception {
             when(bookingService.getAllByOwnerId(ArgumentMatchers.eq(itemDto.getOwnerId()), ArgumentMatchers.eq(State.ALL),

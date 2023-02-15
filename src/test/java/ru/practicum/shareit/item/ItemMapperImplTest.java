@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,88 +28,66 @@ public class ItemMapperImplTest {
     @InjectMocks
     private ItemMapperImpl itemMapper;
 
-    private static User user;
-    private static CommentRequestDto commentRequestDto;
-    private static LocalDateTime dateTime;
-    private static Comment comment1;
-    private static Item item;
-    private static ItemDto itemDto;
-    private static Booking booking;
-    private static BookingItemDto lastBooking;
-    private static BookingItemDto nextBooking;
-
-    @BeforeAll
-    public static void beforeAll() {
-        user = User.builder()
-                .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
-                .build();
-
-        commentRequestDto = CommentRequestDto.builder()
-                .text("commentRequestDto text")
-                .build();
-
-        dateTime = LocalDateTime.of(2023,1,1,10,0,0);
-
-        comment1 = Comment.builder()
-                .id(1L)
-                .text("comment1 text")
-                .createdDate(dateTime)
-                .author(user)
-                .itemId(1L)
-                .build();
-
-        Comment comment2 = Comment.builder()
-                .id(2L)
-                .text("comment2 text")
-                .createdDate(dateTime)
-                .author(user)
-                .itemId(1L)
-                .build();
-
-        item = Item.builder()
-                .id(1L)
-                .name("item name")
-                .description("item description")
-                .available(true)
-                .owner(user)
-                .requestId(1L)
-                .comments(List.of(comment1, comment2))
-                .build();
-
-        itemDto = ItemDto.builder()
-                .id(1L)
-                .name("item name")
-                .description("item description")
-                .available(true)
-                .ownerId(user.getId())
-                .requestId(1L)
-                .build();
-
-        booking = Booking.builder()
-                .id(1L)
-                .start(dateTime.minusYears(10))
-                .end(dateTime.minusYears(9))
-                .item(item)
-                .booker(user)
-                .status(Status.APPROVED)
-                .build();
-
-        lastBooking = BookingItemDto.builder()
-                .id(1L)
-                .bookerId(user.getId())
-                .start(dateTime)
-                .end(dateTime.plusHours(1))
-                .build();
-
-        nextBooking = BookingItemDto.builder()
-                .id(2L)
-                .bookerId(user.getId())
-                .start(dateTime.plusHours(2))
-                .end(dateTime.plusHours(3))
-                .build();
-    }
+    private final LocalDateTime dateTime = LocalDateTime.of(2023,1,1,10,0,0);
+    private final User user = User.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
+    private final CommentRequestDto commentRequestDto = CommentRequestDto.builder()
+            .text("commentRequestDto text")
+            .build();
+    private final Comment comment1 = Comment.builder()
+            .id(1L)
+            .text("comment1 text")
+            .createdDate(dateTime)
+            .author(user)
+            .itemId(1L)
+            .build();
+    private final Comment comment2 = Comment.builder()
+            .id(2L)
+            .text("comment2 text")
+            .createdDate(dateTime)
+            .author(user)
+            .itemId(1L)
+            .build();
+    private final Item item = Item.builder()
+            .id(1L)
+            .name("item name")
+            .description("item description")
+            .available(true)
+            .owner(user)
+            .requestId(1L)
+            .comments(List.of(comment1, comment2))
+            .build();
+    private final ItemDto itemDto = ItemDto.builder()
+            .id(1L)
+            .name("item name")
+            .description("item description")
+            .available(true)
+            .ownerId(user.getId())
+            .requestId(1L)
+            .build();
+    private final Booking booking = Booking.builder()
+            .id(1L)
+            .start(dateTime.minusYears(10))
+            .end(dateTime.minusYears(9))
+            .item(item)
+            .booker(user)
+            .status(Status.APPROVED)
+            .build();
+    private final BookingItemDto lastBooking = BookingItemDto.builder()
+            .id(1L)
+            .bookerId(user.getId())
+            .start(dateTime)
+            .end(dateTime.plusHours(1))
+            .build();
+    private final BookingItemDto nextBooking = BookingItemDto.builder()
+            .id(2L)
+            .bookerId(user.getId())
+            .start(dateTime.plusHours(2))
+            .end(dateTime.plusHours(3))
+            .build();
 
     @Nested
     class ToItemDto {
@@ -184,15 +161,20 @@ public class ItemMapperImplTest {
 
             assertEquals(item.getComments().size(), result.getComments().size());
 
-            assertEquals(item.getComments().get(0).getId(), result.getComments().get(0).getId());
-            assertEquals(item.getComments().get(0).getText(), result.getComments().get(0).getText());
-            assertEquals(item.getComments().get(0).getCreatedDate(), result.getComments().get(0).getCreatedDate());
-            assertEquals(item.getComments().get(0).getAuthor().getName(), result.getComments().get(0).getAuthorName());
+            Comment commentFromItem1 = item.getComments().get(0);
+            Comment commentFromItem2 = item.getComments().get(1);
+            CommentDto commentFromResult1 = result.getComments().get(0);
+            CommentDto commentFromResult2 = result.getComments().get(1);
 
-            assertEquals(item.getComments().get(1).getId(), result.getComments().get(1).getId());
-            assertEquals(item.getComments().get(1).getText(), result.getComments().get(1).getText());
-            assertEquals(item.getComments().get(1).getCreatedDate(), result.getComments().get(1).getCreatedDate());
-            assertEquals(item.getComments().get(1).getAuthor().getName(), result.getComments().get(1).getAuthorName());
+            assertEquals(commentFromItem1.getId(), commentFromResult1.getId());
+            assertEquals(commentFromItem1.getText(), commentFromResult1.getText());
+            assertEquals(commentFromItem1.getCreatedDate(), commentFromResult1.getCreatedDate());
+            assertEquals(commentFromItem1.getAuthor().getName(), commentFromResult1.getAuthorName());
+
+            assertEquals(commentFromItem2.getId(), commentFromResult2.getId());
+            assertEquals(commentFromItem2.getText(), commentFromResult2.getText());
+            assertEquals(commentFromItem2.getCreatedDate(), commentFromResult2.getCreatedDate());
+            assertEquals(commentFromItem2.getAuthor().getName(), commentFromResult2.getAuthorName());
         }
 
         @Test

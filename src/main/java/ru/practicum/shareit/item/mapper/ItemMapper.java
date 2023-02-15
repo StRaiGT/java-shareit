@@ -17,35 +17,35 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
-public abstract class ItemMapper {
+public interface ItemMapper {
     @Mapping(target = "ownerId", expression = "java(item.getOwner().getId())")
-    public abstract ItemDto toItemDto(Item item);
+    ItemDto toItemDto(Item item);
 
     @Mapping(target = "id", expression = "java(itemDto.getId())")
     @Mapping(target = "name", expression = "java(itemDto.getName())")
     @Mapping(target = "owner", expression = "java(user)")
-    public abstract Item toItem(ItemDto itemDto, User user);
+    Item toItem(ItemDto itemDto, User user);
 
     @Mapping(target = "id", expression = "java(item.getId())")
     @Mapping(target = "ownerId", expression = "java(item.getOwner().getId())")
     @Mapping(target = "lastBooking", expression = "java(lastBooking)")
     @Mapping(target = "nextBooking", expression = "java(nextBooking)")
     @Mapping(target = "comments", expression = "java(commentsToCommentsDto(item.getComments()))")
-    public abstract ItemExtendedDto toItemExtendedDto(Item item, BookingItemDto lastBooking, BookingItemDto nextBooking);
+    ItemExtendedDto toItemExtendedDto(Item item, BookingItemDto lastBooking, BookingItemDto nextBooking);
 
     @Mapping(target = "bookerId", expression = "java(booking.getBooker().getId())")
-    public abstract BookingItemDto bookingToBookingItemDto(Booking booking);
+    BookingItemDto bookingToBookingItemDto(Booking booking);
 
     @Mapping(target = "id", expression = "java(null)")
     @Mapping(target = "createdDate", expression = "java(dateTime)")
     @Mapping(target = "author", expression = "java(user)")
-    public abstract Comment commentRequestDtoToComment(CommentRequestDto commentRequestDto, LocalDateTime dateTime,
+    Comment commentRequestDtoToComment(CommentRequestDto commentRequestDto, LocalDateTime dateTime,
                                                        User user, Long itemId);
 
     @Mapping(target = "authorName", expression = "java(comment.getAuthor().getName())")
-    public abstract CommentDto commentToCommentDto(Comment comment);
+    CommentDto commentToCommentDto(Comment comment);
 
-    protected List<CommentDto> commentsToCommentsDto(List<Comment> comments) {
+    default List<CommentDto> commentsToCommentsDto(List<Comment> comments) {
         return comments.stream()
                 .map(this::commentToCommentDto)
                 .collect(Collectors.toList());

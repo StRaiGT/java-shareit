@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -32,80 +32,60 @@ public class BookingRepositoryTest {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
-    private static User user1;
-    private static User user2;
-    private static Item item1;
-    private static LocalDateTime dateTime;
-    private static Booking bookingPast;
-    private static Booking bookingCurrent;
-    private static Booking bookingFuture;
-    private static Booking bookingRejected;
-    private static Pageable pageable;
 
-    @BeforeAll
-    public static void beforeAll() {
-        user1 = User.builder()
-                .id(1L)
-                .name("Test user 1")
-                .email("tester1@yandex.ru")
-                .build();
-
-        user2 = User.builder()
-                .id(2L)
-                .name("Test user 2")
-                .email("tester2@yandex.ru")
-                .build();
-
-        item1 = Item.builder()
-                .id(1L)
-                .name("item1 name")
-                .description("seaRch1 description ")
-                .available(true)
-                .owner(user1)
-                .build();
-
-        dateTime = LocalDateTime.of(2023,1,1,10,0,0);
-
-        final int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-        final int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
-        pageable = PageRequest.of(from / size, size);
-
-        bookingPast = Booking.builder()
-                .id(1L)
-                .start(dateTime.minusYears(10))
-                .end(dateTime.minusYears(9))
-                .item(item1)
-                .booker(user2)
-                .status(Status.APPROVED)
-                .build();
-
-        bookingCurrent = Booking.builder()
-                .id(2L)
-                .start(dateTime.minusYears(5))
-                .end(dateTime.plusYears(5))
-                .item(item1)
-                .booker(user2)
-                .status(Status.APPROVED)
-                .build();
-
-        bookingFuture = Booking.builder()
-                .id(3L)
-                .start(dateTime.plusYears(8))
-                .end(dateTime.plusYears(9))
-                .item(item1)
-                .booker(user2)
-                .status(Status.WAITING)
-                .build();
-
-        bookingRejected = Booking.builder()
-                .id(4L)
-                .start(dateTime.plusYears(9))
-                .end(dateTime.plusYears(10))
-                .item(item1)
-                .booker(user2)
-                .status(Status.REJECTED)
-                .build();
-    }
+    private final int from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+    private final int size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
+    private final Pageable pageable = PageRequest.of(from / size, size);
+    private final LocalDateTime dateTime = LocalDateTime.of(2023,1,1,10,0,0);
+    private final User user1 = User.builder()
+            .id(1L)
+            .name("Test user 1")
+            .email("tester1@yandex.ru")
+            .build();
+    private final User user2 = User.builder()
+            .id(2L)
+            .name("Test user 2")
+            .email("tester2@yandex.ru")
+            .build();
+    private final Item item1 = Item.builder()
+            .id(1L)
+            .name("item1 name")
+            .description("seaRch1 description ")
+            .available(true)
+            .owner(user1)
+            .build();
+    private final Booking bookingPast = Booking.builder()
+            .id(1L)
+            .start(dateTime.minusYears(10))
+            .end(dateTime.minusYears(9))
+            .item(item1)
+            .booker(user2)
+            .status(Status.APPROVED)
+            .build();
+    private final Booking bookingCurrent = Booking.builder()
+            .id(2L)
+            .start(dateTime.minusYears(5))
+            .end(dateTime.plusYears(5))
+            .item(item1)
+            .booker(user2)
+            .status(Status.APPROVED)
+            .build();
+    private final Booking bookingFuture = Booking.builder()
+            .id(3L)
+            .start(dateTime.plusYears(8))
+            .end(dateTime.plusYears(9))
+            .item(item1)
+            .booker(user2)
+            .status(Status.WAITING)
+            .build();
+    private final Booking bookingRejected = Booking.builder()
+            .id(4L)
+            .start(dateTime.plusYears(9))
+            .end(dateTime.plusYears(10))
+            .item(item1)
+            .booker(user2)
+            .status(Status.REJECTED)
+            .build();
 
     @BeforeEach
     public void beforeEach() {
@@ -137,7 +117,7 @@ public class BookingRepositoryTest {
             List<Booking> result = bookingRepository.findByBookerIdOrderByStartDesc(user1.getId(), pageable)
                     .get().collect(Collectors.toList());
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -159,7 +139,7 @@ public class BookingRepositoryTest {
                     .findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(user1.getId(), dateTime,
                             dateTime, pageable).get().collect(Collectors.toList());
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -181,7 +161,7 @@ public class BookingRepositoryTest {
                     .findByBookerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(user1.getId(), dateTime,
                             Status.APPROVED, pageable).get().collect(Collectors.toList());
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -204,7 +184,7 @@ public class BookingRepositoryTest {
                     .findByBookerIdAndStartAfterOrderByStartDesc(user1.getId(), dateTime, pageable)
                     .get().collect(Collectors.toList());
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -236,7 +216,7 @@ public class BookingRepositoryTest {
                     .findByBookerIdAndStatusEqualsOrderByStartDesc(user1.getId(), Status.WAITING, pageable)
                     .get().collect(Collectors.toList());
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -259,7 +239,7 @@ public class BookingRepositoryTest {
             List<Booking> result = bookingRepository.findByItemOwnerIdOrderByStartDesc(user2.getId(), pageable)
                     .get().collect(Collectors.toList());
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -279,7 +259,7 @@ public class BookingRepositoryTest {
             List<Booking> result = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
                     user2.getId(), dateTime, dateTime, pageable).get().collect(Collectors.toList());
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -299,7 +279,7 @@ public class BookingRepositoryTest {
             List<Booking> result = bookingRepository.findByItemOwnerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(
                     user2.getId(), dateTime, Status.APPROVED, pageable).get().collect(Collectors.toList());
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -320,7 +300,7 @@ public class BookingRepositoryTest {
             List<Booking> result = bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(user2.getId(),
                     dateTime, pageable).get().collect(Collectors.toList());
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -349,7 +329,7 @@ public class BookingRepositoryTest {
             List<Booking> result = bookingRepository.findByItemOwnerIdAndStatusEqualsOrderByStartDesc(user2.getId(),
                     Status.WAITING, pageable).get().collect(Collectors.toList());
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -370,7 +350,7 @@ public class BookingRepositoryTest {
             List<Booking> result = bookingRepository.findByItemIdAndStartBeforeAndStatusEqualsOrderByStartDesc(
                     item1.getId(), dateTime.minusYears(15), Status.APPROVED);
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -390,7 +370,7 @@ public class BookingRepositoryTest {
             List<Booking> result = bookingRepository.findByItemIdAndStartAfterAndStatusEqualsOrderByStartAsc(
                     item1.getId(), dateTime, Status.APPROVED);
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 
@@ -410,7 +390,7 @@ public class BookingRepositoryTest {
             List<Booking> result = bookingRepository.findByItemIdAndBookerIdAndEndIsBeforeAndStatusEquals(
                     item1.getId(), user2.getId(), dateTime.minusYears(15), Status.APPROVED);
 
-            assertEquals(0, result.size());
+            assertTrue(result.isEmpty());
         }
     }
 }

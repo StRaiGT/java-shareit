@@ -2,7 +2,6 @@ package ru.practicum.shareit.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,114 +46,103 @@ public class ItemControllerTest {
     @MockBean
     private ItemService itemService;
 
-    private static UserDto userDto1;
-    private static ItemDto itemDto1;
-    private static ItemDto itemDto2;
-    private static CommentDto commentDto1;
-    private static ItemExtendedDto itemExtendedDto1;
-    private static ItemExtendedDto itemExtendedDto2;
+    private final UserDto userDto1 = UserDto.builder()
+            .id(1L)
+            .name("Test user")
+            .email("tester@yandex.ru")
+            .build();
+    private final UserDto userDto2 = UserDto.builder()
+            .id(2L)
+            .name("Test user 2")
+            .email("tester2@yandex.ru")
+            .build();
+    private final ItemDto itemDto1 = ItemDto.builder()
+            .id(1L)
+            .name("Test item 1")
+            .description("Test item description 1")
+            .available(true)
+            .ownerId(userDto1.getId())
+            .requestId(null)
+            .build();
+    private final ItemDto itemDto2 = ItemDto.builder()
+            .id(2L)
+            .name("Test item 2")
+            .description("Test item description 2")
+            .available(true)
+            .ownerId(userDto2.getId())
+            .requestId(null)
+            .build();
+    private final BookingItemDto bookingItemDto1 = BookingItemDto.builder()
+            .id(1L)
+            .bookerId(userDto2.getId())
+            .start(LocalDateTime.now().minusMinutes(10))
+            .end(LocalDateTime.now().minusMinutes(5))
+            .build();
+    private final BookingItemDto bookingItemDto2 = BookingItemDto.builder()
+            .id(2L)
+            .bookerId(userDto2.getId())
+            .start(LocalDateTime.now().plusMinutes(5))
+            .end(LocalDateTime.now().plusMinutes(10))
+            .build();
+    private final CommentDto commentDto1 = CommentDto.builder()
+            .id(1L)
+            .text("comment 1")
+            .createdDate(LocalDateTime.now().minusMinutes(10))
+            .authorName(userDto2.getName())
+            .build();
+    private final CommentDto commentDto2 = CommentDto.builder()
+            .id(2L)
+            .text("comment 2")
+            .createdDate(LocalDateTime.now().minusMinutes(5))
+            .authorName(userDto2.getName())
+            .build();
+    private final ItemExtendedDto itemExtendedDto1 = ItemExtendedDto.builder()
+            .id(itemDto1.getId())
+            .name(itemDto1.getName())
+            .description(itemDto1.getDescription())
+            .available(itemDto1.getAvailable())
+            .ownerId(itemDto1.getOwnerId())
+            .requestId(null)
+            .lastBooking(bookingItemDto1)
+            .nextBooking(bookingItemDto2)
+            .comments(List.of(commentDto1, commentDto2))
+            .build();
+    private final ItemExtendedDto itemExtendedDto2 = ItemExtendedDto.builder()
+            .id(itemDto2.getId())
+            .name(itemDto2.getName())
+            .description(itemDto2.getDescription())
+            .available(itemDto2.getAvailable())
+            .ownerId(itemDto2.getOwnerId())
+            .requestId(null)
+            .lastBooking(null)
+            .nextBooking(null)
+            .comments(List.of())
+            .build();
+    private final String text = "text for search";
+    private ItemDto itemDto;
+    private CommentRequestDto commentRequestDto;
+    private int from;
+    private int size;
 
-    @BeforeAll
-    public static void beforeAll() {
-        userDto1 = UserDto.builder()
+    @BeforeEach
+    public void beforeEach() {
+        itemDto = ItemDto.builder()
                 .id(1L)
-                .name("Test user")
-                .email("tester@yandex.ru")
-                .build();
-
-        UserDto userDto2 = UserDto.builder()
-                .id(2L)
-                .name("Test user 2")
-                .email("tester2@yandex.ru")
-                .build();
-
-        itemDto1 = ItemDto.builder()
-                .id(1L)
-                .name("Test item 1")
-                .description("Test item description 1")
+                .name("Test item")
+                .description("Test item description")
                 .available(true)
                 .ownerId(userDto1.getId())
                 .requestId(null)
                 .build();
-
-        itemDto2 = ItemDto.builder()
-                .id(2L)
-                .name("Test item 2")
-                .description("Test item description 2")
-                .available(true)
-                .ownerId(userDto2.getId())
-                .requestId(null)
-                .build();
-
-        BookingItemDto bookingItemDto1 = BookingItemDto.builder()
-                .id(1L)
-                .bookerId(userDto2.getId())
-                .start(LocalDateTime.now().minusMinutes(10))
-                .end(LocalDateTime.now().minusMinutes(5))
-                .build();
-
-        BookingItemDto bookingItemDto2 = BookingItemDto.builder()
-                .id(2L)
-                .bookerId(userDto2.getId())
-                .start(LocalDateTime.now().plusMinutes(5))
-                .end(LocalDateTime.now().plusMinutes(10))
-                .build();
-
-        commentDto1 = CommentDto.builder()
-                .id(1L)
+        commentRequestDto = CommentRequestDto.builder()
                 .text("comment 1")
-                .createdDate(LocalDateTime.now().minusMinutes(10))
-                .authorName(userDto2.getName())
                 .build();
-
-        CommentDto commentDto2 = CommentDto.builder()
-                .id(2L)
-                .text("comment 2")
-                .createdDate(LocalDateTime.now().minusMinutes(5))
-                .authorName(userDto2.getName())
-                .build();
-
-        itemExtendedDto1 = ItemExtendedDto.builder()
-                .id(itemDto1.getId())
-                .name(itemDto1.getName())
-                .description(itemDto1.getDescription())
-                .available(itemDto1.getAvailable())
-                .ownerId(itemDto1.getOwnerId())
-                .requestId(null)
-                .lastBooking(bookingItemDto1)
-                .nextBooking(bookingItemDto2)
-                .comments(List.of(commentDto1, commentDto2))
-                .build();
-
-        itemExtendedDto2 = ItemExtendedDto.builder()
-                .id(itemDto2.getId())
-                .name(itemDto2.getName())
-                .description(itemDto2.getDescription())
-                .available(itemDto2.getAvailable())
-                .ownerId(itemDto2.getOwnerId())
-                .requestId(null)
-                .lastBooking(null)
-                .nextBooking(null)
-                .comments(List.of())
-                .build();
+        from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
+        size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
     }
 
     @Nested
     class Create {
-        private ItemDto itemDto;
-
-        @BeforeEach
-        public void beforeEachCreate() {
-            itemDto = ItemDto.builder()
-                    .id(1L)
-                    .name("Test item")
-                    .description("Test item description")
-                    .available(true)
-                    .ownerId(userDto1.getId())
-                    .requestId(null)
-                    .build();
-        }
-
         @Test
         public void shouldCreate() throws Exception {
             when(itemService.create(ArgumentMatchers.eq(userDto1.getId()), ArgumentMatchers.any(ItemDto.class)))
@@ -281,15 +269,6 @@ public class ItemControllerTest {
 
     @Nested
     class GetByOwner {
-        private int from;
-        private int size;
-
-        @BeforeEach
-        public void beforeEachGetByOwner() {
-            from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-            size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
-        }
-
         @Test
         public void shouldGet() throws Exception {
             when(itemService.getByOwnerId(ArgumentMatchers.eq(userDto1.getId()),
@@ -380,16 +359,6 @@ public class ItemControllerTest {
 
     @Nested
     class Search {
-        private int from;
-        private int size;
-        private final String text = "text for search";
-
-        @BeforeEach
-        public void beforeEachSearch() {
-            from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
-            size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);
-        }
-
         @Test
         public void shouldSearch() throws Exception {
             when(itemService.search(ArgumentMatchers.eq(text),
@@ -427,15 +396,6 @@ public class ItemControllerTest {
 
     @Nested
     class AddComment {
-        private CommentRequestDto commentRequestDto;
-
-        @BeforeEach
-        public void beforeEachAddComment() {
-            commentRequestDto = CommentRequestDto.builder()
-                    .text("comment 1")
-                    .build();
-        }
-
         @Test
         public void shouldAdd() throws Exception {
             when(itemService.addComment(ArgumentMatchers.eq(userDto1.getId()), ArgumentMatchers.eq(itemDto1.getId()),

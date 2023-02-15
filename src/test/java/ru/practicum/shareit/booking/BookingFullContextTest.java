@@ -67,20 +67,10 @@ public class BookingFullContextTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            BookingResponseDto bookingResponseDto = bookingService.create(userDto2.getId(), bookingRequestDto);
+            BookingResponseDto bookingFromService = bookingService.create(userDto2.getId(), bookingRequestDto);
 
-            assertEquals(bookingResponseDto.getId(), 1L);
-            assertEquals(bookingResponseDto.getStatus(), Status.WAITING);
-            assertEquals(bookingResponseDto.getStart(), bookingRequestDto.getStart());
-            assertEquals(bookingResponseDto.getEnd(), bookingRequestDto.getEnd());
-            assertEquals(bookingResponseDto.getItem().getId(), itemDto.getId());
-            assertEquals(bookingResponseDto.getItem().getName(), itemDto.getName());
-            assertEquals(bookingResponseDto.getItem().getDescription(), itemDto.getDescription());
-            assertEquals(bookingResponseDto.getItem().getAvailable(), itemDto.getAvailable());
-            assertEquals(bookingResponseDto.getItem().getOwnerId(), itemDto.getOwnerId());
-            assertEquals(bookingResponseDto.getBooker().getId(), userDto2.getId());
-            assertEquals(bookingResponseDto.getBooker().getName(), userDto2.getName());
-            assertEquals(bookingResponseDto.getBooker().getEmail(), userDto2.getEmail());
+            assertEquals(bookingFromService.getId(), 1L);
+            checkBookingResponseDto(bookingFromService, bookingRequestDto, itemDto, userDto2);
         }
 
         @Test
@@ -500,34 +490,12 @@ public class BookingFullContextTest {
             BookingResponseDto bookingResponseDto = bookingService.create(userDto2.getId(), bookingRequestDto);
 
             BookingResponseDto bookingGetByController1 = bookingController.getById(userDto2.getId(), bookingResponseDto.getId());
-
-            assertEquals(bookingGetByController1.getId(), 1L);
-            assertEquals(bookingGetByController1.getStatus(), Status.WAITING);
-            assertEquals(bookingGetByController1.getStart(), bookingRequestDto.getStart());
-            assertEquals(bookingGetByController1.getEnd(), bookingRequestDto.getEnd());
-            assertEquals(bookingGetByController1.getItem().getId(), itemDto.getId());
-            assertEquals(bookingGetByController1.getItem().getName(), itemDto.getName());
-            assertEquals(bookingGetByController1.getItem().getDescription(), itemDto.getDescription());
-            assertEquals(bookingGetByController1.getItem().getAvailable(), itemDto.getAvailable());
-            assertEquals(bookingGetByController1.getItem().getOwnerId(), itemDto.getOwnerId());
-            assertEquals(bookingGetByController1.getBooker().getId(), userDto2.getId());
-            assertEquals(bookingGetByController1.getBooker().getName(), userDto2.getName());
-            assertEquals(bookingGetByController1.getBooker().getEmail(), userDto2.getEmail());
-
             BookingResponseDto bookingGetByController2 = bookingController.getById(userDto1.getId(), bookingResponseDto.getId());
 
+            assertEquals(bookingGetByController1.getId(), 1L);
             assertEquals(bookingGetByController2.getId(), 1L);
-            assertEquals(bookingGetByController2.getStatus(), Status.WAITING);
-            assertEquals(bookingGetByController2.getStart(), bookingRequestDto.getStart());
-            assertEquals(bookingGetByController2.getEnd(), bookingRequestDto.getEnd());
-            assertEquals(bookingGetByController2.getItem().getId(), itemDto.getId());
-            assertEquals(bookingGetByController2.getItem().getName(), itemDto.getName());
-            assertEquals(bookingGetByController2.getItem().getDescription(), itemDto.getDescription());
-            assertEquals(bookingGetByController2.getItem().getAvailable(), itemDto.getAvailable());
-            assertEquals(bookingGetByController2.getItem().getOwnerId(), itemDto.getOwnerId());
-            assertEquals(bookingGetByController2.getBooker().getId(), userDto2.getId());
-            assertEquals(bookingGetByController2.getBooker().getName(), userDto2.getName());
-            assertEquals(bookingGetByController2.getBooker().getEmail(), userDto2.getEmail());
+            checkBookingResponseDto(bookingGetByController1, bookingRequestDto, itemDto, userDto2);
+            checkBookingResponseDto(bookingGetByController2, bookingRequestDto, itemDto, userDto2);
         }
 
         @Test
@@ -916,5 +884,20 @@ public class BookingFullContextTest {
                             Integer.parseInt(UserController.PAGE_DEFAULT_SIZE)));
             assertEquals("Unknown state: UNKNOWN", exception.getMessage());
         }
+    }
+
+    private void checkBookingResponseDto(BookingResponseDto bookingResponseDto, BookingRequestDto bookingRequestDto,
+                                         ItemDto itemDto, UserDto userDto) {
+        assertEquals(bookingResponseDto.getStatus(), Status.WAITING);
+        assertEquals(bookingResponseDto.getStart(), bookingRequestDto.getStart());
+        assertEquals(bookingResponseDto.getEnd(), bookingRequestDto.getEnd());
+        assertEquals(bookingResponseDto.getItem().getId(), itemDto.getId());
+        assertEquals(bookingResponseDto.getItem().getName(), itemDto.getName());
+        assertEquals(bookingResponseDto.getItem().getDescription(), itemDto.getDescription());
+        assertEquals(bookingResponseDto.getItem().getAvailable(), itemDto.getAvailable());
+        assertEquals(bookingResponseDto.getItem().getOwnerId(), itemDto.getOwnerId());
+        assertEquals(bookingResponseDto.getBooker().getId(), userDto.getId());
+        assertEquals(bookingResponseDto.getBooker().getName(), userDto.getName());
+        assertEquals(bookingResponseDto.getBooker().getEmail(), userDto.getEmail());
     }
 }
