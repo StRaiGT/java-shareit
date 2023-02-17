@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.enums.Status;
@@ -40,12 +41,11 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
 
     @Override
-    public List<ItemExtendedDto> getByOwnerId(Long userId) {
+    public List<ItemExtendedDto> getByOwnerId(Long userId, Pageable pageable) {
         log.info("Вывод всех вещей пользователя с id {}.", userId);
 
-        return itemRepository.getAllByOwnerIdOrderByIdAsc(userId).stream()
-                .map((item) -> itemMapper.toItemExtendedDto(item, getLastBooking(item),
-                        getNextBooking(item), getComments(item)))
+        return itemRepository.findByOwnerIdOrderByIdAsc(userId, pageable).stream()
+                .map((item) -> itemMapper.toItemExtendedDto(item, getLastBooking(item), getNextBooking(item)))
                 .collect(Collectors.toList());
     }
 
@@ -55,10 +55,9 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = getItemById(id);
         if (!Objects.equals(userId, item.getOwner().getId())) {
-            return itemMapper.toItemExtendedDto(item, null, null, getComments(item));
+            return itemMapper.toItemExtendedDto(item, null, null);
         } else {
-            return itemMapper.toItemExtendedDto(item, getLastBooking(item),
-                    getNextBooking(item), getComments(item));
+            return itemMapper.toItemExtendedDto(item, getLastBooking(item), getNextBooking(item));
         }
     }
 
@@ -77,17 +76,16 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto patch(Long userId, Long id, ItemDto itemDto) {
         log.info("Обновление вещи {} с id {} пользователем с id {}.", itemDto, id, userId);
 
-        Item repoItem = itemRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Вещи с таким id не существует."));
+        Item repoItem = getItemById(id);
 
         if (!Objects.equals(userId, repoItem.getOwner().getId())) {
             throw new ForbiddenException("Изменение вещи доступно только владельцу.");
         }
 
-        if (itemDto.getName() != null) {
+        if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
             repoItem.setName(itemDto.getName());
         }
-        if (itemDto.getDescription() != null) {
+        if (itemDto.getDescription() != null && !itemDto.getDescription().isBlank()) {
             repoItem.setDescription(itemDto.getDescription());
         }
         if (itemDto.getAvailable() != null) {
@@ -105,14 +103,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(String text) {
+    public List<ItemDto> search(String text, Pageable pageable) {
         log.info("Поиск вещей с подстрокой \"{}\".", text);
 
         if (text.isBlank() || text.isEmpty()) {
             return new ArrayList<>();
         }
 
-        return itemRepository.search(text)
+        return itemRepository.search(text, pageable)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -126,7 +124,7 @@ public class ItemServiceImpl implements ItemService {
         Comment comment = itemMapper.commentRequestDtoToComment(commentRequestDto,
                 LocalDateTime.now(),
                 userService.getUserById(userId),
-                getItemById(id));
+                id);
 
         if (bookingRepository.findByItemIdAndBookerIdAndEndIsBeforeAndStatusEquals(
                 id, userId, LocalDateTime.now(), Status.APPROVED).isEmpty()) {
@@ -164,11 +162,5 @@ public class ItemServiceImpl implements ItemService {
             Booking nextBooking = bookings.get(0);
             return itemMapper.bookingToBookingItemDto(nextBooking);
         }
-    }
-
-    private List<CommentDto> getComments(Item item) {
-        return commentRepository.findByItemId(item.getId()).stream()
-                .map(itemMapper::commentToCommentDto)
-                .collect(Collectors.toList());
     }
 }

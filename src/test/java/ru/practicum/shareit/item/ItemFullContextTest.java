@@ -1,4 +1,4 @@
-package ru.practicum.shareit.controller;
+package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Nested;
@@ -10,6 +10,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.model.BookingRequestDto;
 import ru.practicum.shareit.booking.model.BookingResponseDto;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.BookingException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -27,14 +28,16 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ItemControllerTest {
+public class ItemFullContextTest {
     private final UserController userController;
     private final ItemController itemController;
     private final BookingController bookingController;
+    private final BookingService bookingService;
 
     @Nested
     class Create {
@@ -53,22 +56,20 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
-            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(userDto.getId());
+            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(
+                    userDto.getId(),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 1);
 
             ItemExtendedDto itemFromController = itemsFromController.get(0);
 
-            assertEquals(itemFromController.getId(), itemDto.getId());
-            assertEquals(itemFromController.getName(), itemDto.getName());
-            assertEquals(itemFromController.getDescription(), itemDto.getDescription());
-            assertEquals(itemFromController.getAvailable(), itemDto.getAvailable());
-            assertEquals(itemFromController.getOwnerId(), itemDto.getOwnerId());
-            assertEquals(itemFromController.getRequest(), itemDto.getRequest());
+            checkItemExtendedDto(itemFromController, itemDto);
         }
 
         @Test
@@ -79,7 +80,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(10L)
-                    .request(null)
+                    .requestId(null)
                     .build();
             NotFoundException exception = assertThrows(NotFoundException.class, () -> itemController.create(10L, itemDto));
             assertEquals("Пользователя с таким id не существует.", exception.getMessage());
@@ -110,7 +111,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -120,7 +121,7 @@ public class ItemControllerTest {
                     .description("Test item description 2")
                     .available(true)
                     .ownerId(userDto2.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto2.getOwnerId(), itemDto2);
 
@@ -130,43 +131,33 @@ public class ItemControllerTest {
                     .description("Test item description 3")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto3.getOwnerId(), itemDto3);
 
-            List<ItemExtendedDto> itemsFromController1 = itemController.getByOwnerId(userDto1.getId());
+            List<ItemExtendedDto> itemsFromController1 = itemController.getByOwnerId(
+                    userDto1.getId(),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController1.size(), 2);
 
             ItemExtendedDto itemFromController1 = itemsFromController1.get(0);
             ItemExtendedDto itemFromController3 = itemsFromController1.get(1);
 
-            assertEquals(itemFromController1.getId(), itemDto1.getId());
-            assertEquals(itemFromController1.getName(), itemDto1.getName());
-            assertEquals(itemFromController1.getDescription(), itemDto1.getDescription());
-            assertEquals(itemFromController1.getAvailable(), itemDto1.getAvailable());
-            assertEquals(itemFromController1.getOwnerId(), itemDto1.getOwnerId());
-            assertEquals(itemFromController1.getRequest(), itemDto1.getRequest());
+            checkItemExtendedDto(itemFromController1, itemDto1);
+            checkItemExtendedDto(itemFromController3, itemDto3);
 
-            assertEquals(itemFromController3.getId(), itemDto3.getId());
-            assertEquals(itemFromController3.getName(), itemDto3.getName());
-            assertEquals(itemFromController3.getDescription(), itemDto3.getDescription());
-            assertEquals(itemFromController3.getAvailable(), itemDto3.getAvailable());
-            assertEquals(itemFromController3.getOwnerId(), itemDto3.getOwnerId());
-            assertEquals(itemFromController3.getRequest(), itemDto3.getRequest());
-
-            List<ItemExtendedDto> itemsFromController2 = itemController.getByOwnerId(userDto2.getId());
+            List<ItemExtendedDto> itemsFromController2 = itemController.getByOwnerId(
+                    userDto2.getId(),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController2.size(), 1);
 
             ItemExtendedDto itemFromController2 = itemsFromController2.get(0);
 
-            assertEquals(itemFromController2.getId(), itemDto2.getId());
-            assertEquals(itemFromController2.getName(), itemDto2.getName());
-            assertEquals(itemFromController2.getDescription(), itemDto2.getDescription());
-            assertEquals(itemFromController2.getAvailable(), itemDto2.getAvailable());
-            assertEquals(itemFromController2.getOwnerId(), itemDto2.getOwnerId());
-            assertEquals(itemFromController2.getRequest(), itemDto2.getRequest());
+            checkItemExtendedDto(itemFromController2, itemDto2);
         }
 
         @Test
@@ -178,9 +169,12 @@ public class ItemControllerTest {
                     .build();
             userController.create(userDto);
 
-            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(userDto.getId());
+            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(
+                    userDto.getId(),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
-            assertEquals(itemsFromController.size(), 0);
+            assertTrue(itemsFromController.isEmpty());
         }
 
         @Test
@@ -205,7 +199,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -215,7 +209,7 @@ public class ItemControllerTest {
                     .description("Test item description 2")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto2.getOwnerId(), itemDto2);
 
@@ -224,7 +218,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto1 = bookingController.create(userDto2.getId(), bookingRequestDto1);
+            BookingResponseDto bookingResponseDto1 = bookingService.create(userDto2.getId(), bookingRequestDto1);
             bookingController.patch(userDto1.getId(), bookingResponseDto1.getId(), true);
 
             BookingRequestDto bookingRequestDto2 = BookingRequestDto.builder()
@@ -232,13 +226,16 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 4, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto2 = bookingController.create(userDto2.getId(), bookingRequestDto2);
+            BookingResponseDto bookingResponseDto2 = bookingService.create(userDto2.getId(), bookingRequestDto2);
             bookingController.patch(userDto1.getId(), bookingResponseDto2.getId(), true);
 
             CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
             itemController.addComment(userDto2.getId(),itemDto1.getId(), commentRequestDto);
 
-            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(userDto1.getId());
+            List<ItemExtendedDto> itemsFromController = itemController.getByOwnerId(
+                    userDto1.getId(),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 2);
 
@@ -246,14 +243,7 @@ public class ItemControllerTest {
             ItemExtendedDto itemFromController2 = itemsFromController.get(1);
 
             assertEquals(itemFromController1.getId(), itemDto1.getId());
-            assertEquals(itemFromController1.getLastBooking().getId(), bookingResponseDto1.getId());
-            assertEquals(itemFromController1.getLastBooking().getBookerId(), bookingResponseDto1.getBooker().getId());
-            assertEquals(itemFromController1.getLastBooking().getStart(), bookingResponseDto1.getStart());
-            assertEquals(itemFromController1.getLastBooking().getEnd(), bookingResponseDto1.getEnd());
-            assertEquals(itemFromController1.getNextBooking().getId(), bookingResponseDto2.getId());
-            assertEquals(itemFromController1.getNextBooking().getBookerId(), bookingResponseDto2.getBooker().getId());
-            assertEquals(itemFromController1.getNextBooking().getStart(), bookingResponseDto2.getStart());
-            assertEquals(itemFromController1.getNextBooking().getEnd(), bookingResponseDto2.getEnd());
+            checkItemExtendedDtoBooking(itemFromController1, bookingResponseDto1, bookingResponseDto2);
 
             List<CommentDto> commentsItem1 = itemFromController1.getComments();
 
@@ -269,7 +259,7 @@ public class ItemControllerTest {
 
             List<CommentDto> commentsItem2 = itemFromController2.getComments();
 
-            assertEquals(commentsItem2.size(), 0);
+            assertTrue(commentsItem2.isEmpty());
         }
     }
 
@@ -290,18 +280,13 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
             ItemExtendedDto itemFromController = itemController.getById(userDto.getId(), itemDto.getId());
 
-            assertEquals(itemFromController.getId(), itemDto.getId());
-            assertEquals(itemFromController.getName(), itemDto.getName());
-            assertEquals(itemFromController.getDescription(), itemDto.getDescription());
-            assertEquals(itemFromController.getAvailable(), itemDto.getAvailable());
-            assertEquals(itemFromController.getOwnerId(), itemDto.getOwnerId());
-            assertEquals(itemFromController.getRequest(), itemDto.getRequest());
+            checkItemExtendedDto(itemFromController, itemDto);
         }
 
         @Test
@@ -339,7 +324,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -349,7 +334,7 @@ public class ItemControllerTest {
                     .description("Test item description 2")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto2.getOwnerId(), itemDto2);
 
@@ -358,7 +343,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto1 = bookingController.create(userDto2.getId(), bookingRequestDto1);
+            BookingResponseDto bookingResponseDto1 = bookingService.create(userDto2.getId(), bookingRequestDto1);
             bookingController.patch(userDto1.getId(), bookingResponseDto1.getId(), true);
 
             BookingRequestDto bookingRequestDto2 = BookingRequestDto.builder()
@@ -366,7 +351,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 4, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto2 = bookingController.create(userDto2.getId(), bookingRequestDto2);
+            BookingResponseDto bookingResponseDto2 = bookingService.create(userDto2.getId(), bookingRequestDto2);
             bookingController.patch(userDto1.getId(), bookingResponseDto2.getId(), true);
 
             CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
@@ -375,14 +360,7 @@ public class ItemControllerTest {
             ItemExtendedDto itemFromController1 = itemController.getById(userDto1.getId(), itemDto1.getId());
 
             assertEquals(itemFromController1.getId(), itemDto1.getId());
-            assertEquals(itemFromController1.getLastBooking().getId(), bookingResponseDto1.getId());
-            assertEquals(itemFromController1.getLastBooking().getBookerId(), bookingResponseDto1.getBooker().getId());
-            assertEquals(itemFromController1.getLastBooking().getStart(), bookingResponseDto1.getStart());
-            assertEquals(itemFromController1.getLastBooking().getEnd(), bookingResponseDto1.getEnd());
-            assertEquals(itemFromController1.getNextBooking().getId(), bookingResponseDto2.getId());
-            assertEquals(itemFromController1.getNextBooking().getBookerId(), bookingResponseDto2.getBooker().getId());
-            assertEquals(itemFromController1.getNextBooking().getStart(), bookingResponseDto2.getStart());
-            assertEquals(itemFromController1.getNextBooking().getEnd(), bookingResponseDto2.getEnd());
+            checkItemExtendedDtoBooking(itemFromController1, bookingResponseDto1, bookingResponseDto2);
 
             List<CommentDto> commentsItem1 = itemFromController1.getComments();
 
@@ -400,7 +378,7 @@ public class ItemControllerTest {
 
             List<CommentDto> commentsItem2 = itemFromController2.getComments();
 
-            assertEquals(commentsItem2.size(), 0);
+            assertTrue(commentsItem2.isEmpty());
         }
 
         @Test
@@ -425,7 +403,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -435,7 +413,7 @@ public class ItemControllerTest {
                     .description("Test item description 2")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto2.getOwnerId(), itemDto2);
 
@@ -444,7 +422,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto1 = bookingController.create(userDto2.getId(), bookingRequestDto1);
+            BookingResponseDto bookingResponseDto1 = bookingService.create(userDto2.getId(), bookingRequestDto1);
             bookingController.patch(userDto1.getId(), bookingResponseDto1.getId(), true);
 
             BookingRequestDto bookingRequestDto2 = BookingRequestDto.builder()
@@ -452,7 +430,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 4, 30, 11, 0, 0))
                     .itemId(itemDto1.getId())
                     .build();
-            BookingResponseDto bookingResponseDto2 = bookingController.create(userDto2.getId(), bookingRequestDto2);
+            BookingResponseDto bookingResponseDto2 = bookingService.create(userDto2.getId(), bookingRequestDto2);
             bookingController.patch(userDto1.getId(), bookingResponseDto2.getId(), true);
 
             CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
@@ -480,7 +458,7 @@ public class ItemControllerTest {
 
             List<CommentDto> commentsItem2 = itemFromController2.getComments();
 
-            assertEquals(commentsItem2.size(), 0);
+            assertTrue(commentsItem2.isEmpty());
         }
     }
 
@@ -501,7 +479,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -511,7 +489,7 @@ public class ItemControllerTest {
                     .description("Patch test item description 1")
                     .available(false)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.patch(itemDto2.getOwnerId(), itemDto1.getId(), itemDto2);
 
@@ -522,7 +500,7 @@ public class ItemControllerTest {
             assertEquals(itemFromController.getDescription(), itemDto2.getDescription());
             assertEquals(itemFromController.getAvailable(), itemDto2.getAvailable());
             assertEquals(itemFromController.getOwnerId(), itemDto2.getOwnerId());
-            assertEquals(itemFromController.getRequest(), itemDto2.getRequest());
+            assertEquals(itemFromController.getRequestId(), itemDto2.getRequestId());
         }
 
         @Test
@@ -547,7 +525,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -557,7 +535,7 @@ public class ItemControllerTest {
                     .description("Patch test item description 1")
                     .available(false)
                     .ownerId(userDto2.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
 
             ForbiddenException exception = assertThrows(ForbiddenException.class, () -> itemController.patch(itemDto2.getOwnerId(), itemDto1.getId(), itemDto2));
@@ -565,12 +543,7 @@ public class ItemControllerTest {
 
             ItemExtendedDto itemFromController = itemController.getById(userDto1.getId(), itemDto1.getId());
 
-            assertEquals(itemFromController.getId(), itemDto1.getId());
-            assertEquals(itemFromController.getName(), itemDto1.getName());
-            assertEquals(itemFromController.getDescription(), itemDto1.getDescription());
-            assertEquals(itemFromController.getAvailable(), itemDto1.getAvailable());
-            assertEquals(itemFromController.getOwnerId(), itemDto1.getOwnerId());
-            assertEquals(itemFromController.getRequest(), itemDto1.getRequest());
+            checkItemExtendedDto(itemFromController, itemDto1);
         }
     }
 
@@ -591,13 +564,16 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(userDto.getId(), itemDto);
 
             itemController.delete(itemDto.getId());
 
-            assertEquals(itemController.getByOwnerId(userDto.getId()).size(), 0);
+            assertTrue(itemController.getByOwnerId(userDto.getId(),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE))
+                    .isEmpty());
         }
 
         @Test
@@ -640,7 +616,7 @@ public class ItemControllerTest {
                     .description("Test item description 1")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto1.getOwnerId(), itemDto1);
 
@@ -650,7 +626,7 @@ public class ItemControllerTest {
                     .description("Test item description 2 SeCREt")
                     .available(false)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto2.getOwnerId(), itemDto2);
 
@@ -660,7 +636,7 @@ public class ItemControllerTest {
                     .description("Test item description 3 SeCREt")
                     .available(true)
                     .ownerId(userDto2.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto3.getOwnerId(), itemDto3);
 
@@ -670,30 +646,22 @@ public class ItemControllerTest {
                     .description("Test item description 4")
                     .available(true)
                     .ownerId(userDto2.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto4.getOwnerId(), itemDto4);
 
-            List<ItemDto> itemsFromController = itemController.search("sEcrEt");
+            List<ItemDto> itemsFromController = itemController.search(
+                    "sEcrEt",
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
             assertEquals(itemsFromController.size(), 2);
 
             ItemDto itemFromController1 = itemsFromController.get(0);
             ItemDto itemFromController2 = itemsFromController.get(1);
 
-            assertEquals(itemFromController1.getId(), itemDto1.getId());
-            assertEquals(itemFromController1.getName(), itemDto1.getName());
-            assertEquals(itemFromController1.getDescription(), itemDto1.getDescription());
-            assertEquals(itemFromController1.getAvailable(), itemDto1.getAvailable());
-            assertEquals(itemFromController1.getOwnerId(), itemDto1.getOwnerId());
-            assertEquals(itemFromController1.getRequest(), itemDto1.getRequest());
-
-            assertEquals(itemFromController2.getId(), itemDto3.getId());
-            assertEquals(itemFromController2.getName(), itemDto3.getName());
-            assertEquals(itemFromController2.getDescription(), itemDto3.getDescription());
-            assertEquals(itemFromController2.getAvailable(), itemDto3.getAvailable());
-            assertEquals(itemFromController2.getOwnerId(), itemDto3.getOwnerId());
-            assertEquals(itemFromController2.getRequest(), itemDto3.getRequest());
+            checkItemDto(itemFromController1, itemDto1);
+            checkItemDto(itemFromController2, itemDto3);
         }
 
         @Test
@@ -711,13 +679,16 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
-            List<ItemDto> itemsFromController = itemController.search(" ");
+            List<ItemDto> itemsFromController = itemController.search(
+                    " ",
+                    Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
+                    Integer.parseInt(UserController.PAGE_DEFAULT_SIZE));
 
-            assertEquals(itemsFromController.size(), 0);
+            assertTrue(itemsFromController.isEmpty());
         }
     }
 
@@ -738,7 +709,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -754,7 +725,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            BookingResponseDto bookingResponseDto = bookingController.create(userDto2.getId(), bookingRequestDto);
+            BookingResponseDto bookingResponseDto = bookingService.create(userDto2.getId(), bookingRequestDto);
             bookingController.patch(userDto1.getId(), bookingResponseDto.getId(), true);
 
             CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
@@ -786,7 +757,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -819,7 +790,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -832,10 +803,10 @@ public class ItemControllerTest {
 
             BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
                     .start(LocalDateTime.of(2023, 1, 30, 10, 0, 0))
-                    .end(LocalDateTime.of(2023, 3, 30, 11, 0, 0))
+                    .end(LocalDateTime.of(2050, 3, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            BookingResponseDto bookingResponseDto = bookingController.create(userDto2.getId(), bookingRequestDto);
+            BookingResponseDto bookingResponseDto = bookingService.create(userDto2.getId(), bookingRequestDto);
             bookingController.patch(userDto1.getId(), bookingResponseDto.getId(), true);
 
             CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
@@ -860,7 +831,7 @@ public class ItemControllerTest {
                     .description("Test item description")
                     .available(true)
                     .ownerId(userDto1.getId())
-                    .request(null)
+                    .requestId(null)
                     .build();
             itemController.create(itemDto.getOwnerId(), itemDto);
 
@@ -876,7 +847,7 @@ public class ItemControllerTest {
                     .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
                     .itemId(itemDto.getId())
                     .build();
-            bookingController.create(userDto2.getId(), bookingRequestDto);
+            bookingService.create(userDto2.getId(), bookingRequestDto);
 
             CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
 
@@ -884,5 +855,37 @@ public class ItemControllerTest {
                     () -> itemController.addComment(userDto2.getId(),itemDto.getId(), commentRequestDto));
             assertEquals("Пользователь не брал данную вещь в аренду.", exception.getMessage());
         }
+    }
+
+    private void checkItemExtendedDto(ItemExtendedDto itemFromController, ItemDto itemDto) {
+        assertEquals(itemFromController.getId(), itemDto.getId());
+        assertEquals(itemFromController.getName(), itemDto.getName());
+        assertEquals(itemFromController.getDescription(), itemDto.getDescription());
+        assertEquals(itemFromController.getAvailable(), itemDto.getAvailable());
+        assertEquals(itemFromController.getOwnerId(), itemDto.getOwnerId());
+        assertEquals(itemFromController.getRequestId(), itemDto.getRequestId());
+    }
+
+    private void checkItemExtendedDtoBooking(ItemExtendedDto itemFromController,
+                                             BookingResponseDto lastBookingResponseDto,
+                                             BookingResponseDto nextBookingResponseDto) {
+        assertEquals(itemFromController.getLastBooking().getId(), lastBookingResponseDto.getId());
+        assertEquals(itemFromController.getLastBooking().getBookerId(), lastBookingResponseDto.getBooker().getId());
+        assertEquals(itemFromController.getLastBooking().getStart(), lastBookingResponseDto.getStart());
+        assertEquals(itemFromController.getLastBooking().getEnd(), lastBookingResponseDto.getEnd());
+
+        assertEquals(itemFromController.getNextBooking().getId(), nextBookingResponseDto.getId());
+        assertEquals(itemFromController.getNextBooking().getBookerId(), nextBookingResponseDto.getBooker().getId());
+        assertEquals(itemFromController.getNextBooking().getStart(), nextBookingResponseDto.getStart());
+        assertEquals(itemFromController.getNextBooking().getEnd(), nextBookingResponseDto.getEnd());
+    }
+
+    private void checkItemDto(ItemDto itemDtoFromController, ItemDto itemDto) {
+        assertEquals(itemDtoFromController.getId(), itemDto.getId());
+        assertEquals(itemDtoFromController.getName(), itemDto.getName());
+        assertEquals(itemDtoFromController.getDescription(), itemDto.getDescription());
+        assertEquals(itemDtoFromController.getAvailable(), itemDto.getAvailable());
+        assertEquals(itemDtoFromController.getOwnerId(), itemDto.getOwnerId());
+        assertEquals(itemDtoFromController.getRequestId(), itemDto.getRequestId());
     }
 }

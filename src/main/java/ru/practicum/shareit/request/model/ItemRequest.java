@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.comment.model;
+package ru.practicum.shareit.request.model;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,6 +10,7 @@ import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.Column;
@@ -20,12 +21,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "COMMENTS", schema = "public")
+@Table(name = "REQUESTS", schema = "public")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
@@ -33,34 +36,35 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Comment {
+public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(nullable = false)
-    String text;
-
-    @Column(name = "CREATED_DATE", nullable = false)
-    LocalDateTime createdDate;
+    String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "AUTHOR_ID", referencedColumnName = "ID", nullable = false)
-    User author;
+    @JoinColumn(name = "REQUESTER_ID", referencedColumnName = "ID", nullable = false)
+    User requesterId;
 
-    @Column(name = "ITEM_ID")
-    Long itemId;
+    @Column(nullable = false)
+    LocalDateTime created;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "REQUEST_ID", referencedColumnName = "ID")
+    List<Item> items;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Comment)) return false;
-        return id != null && id.equals(((Comment) o).getId());
+        if (!(o instanceof ItemRequest)) return false;
+        return id != null && id.equals(((ItemRequest) o).getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, text, createdDate, author, itemId);
+        return Objects.hash(id, description, requesterId, created, items);
     }
 }

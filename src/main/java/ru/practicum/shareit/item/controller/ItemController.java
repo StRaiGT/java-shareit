@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,21 +19,26 @@ import ru.practicum.shareit.item.model.ItemDto;
 import ru.practicum.shareit.item.model.ItemExtendedDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.markers.Create;
-import ru.practicum.shareit.markers.Update;
 import ru.practicum.shareit.user.controller.UserController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
+@Validated
 public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemExtendedDto> getByOwnerId(@RequestHeader(UserController.headerUserId) Long userId) {
-        return itemService.getByOwnerId(userId);
+    public List<ItemExtendedDto> getByOwnerId(
+            @RequestHeader(UserController.headerUserId) Long userId,
+            @RequestParam(defaultValue = UserController.PAGE_DEFAULT_FROM, required = false) @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = UserController.PAGE_DEFAULT_SIZE, required = false) @Positive Integer size) {
+        return itemService.getByOwnerId(userId, PageRequest.of(from / size, size));
     }
 
     @GetMapping("/{id}")
@@ -50,7 +56,7 @@ public class ItemController {
     @PatchMapping("/{id}")
     public ItemDto patch(@RequestHeader(UserController.headerUserId) Long userId,
                          @PathVariable Long id,
-                         @Validated(Update.class) @RequestBody ItemDto itemDto) {
+                         @RequestBody ItemDto itemDto) {
         return itemService.patch(userId, id, itemDto);
     }
 
@@ -60,8 +66,11 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestParam String text) {
-        return itemService.search(text);
+    public List<ItemDto> search(
+            @RequestParam String text,
+            @RequestParam(defaultValue = UserController.PAGE_DEFAULT_FROM, required = false) @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = UserController.PAGE_DEFAULT_SIZE, required = false) @Positive Integer size) {
+        return itemService.search(text, PageRequest.of(from / size, size));
     }
 
     @PostMapping("{id}/comment")

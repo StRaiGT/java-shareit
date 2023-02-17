@@ -1,4 +1,4 @@
-package ru.practicum.shareit.controller;
+package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Nested;
@@ -17,11 +17,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class UserControllerTest {
+public class UserControllerFullContextTest {
     private final UserController userController;
 
     @Nested
@@ -41,9 +42,7 @@ public class UserControllerTest {
 
             UserDto userFromController = usersFromController.get(0);
 
-            assertEquals(userFromController.getId(), userDto.getId());
-            assertEquals(userFromController.getName(), userDto.getName());
-            assertEquals(userFromController.getEmail(), userDto.getEmail());
+            checkUserDto(userDto, userFromController);
         }
 
         @Test
@@ -66,9 +65,7 @@ public class UserControllerTest {
 
             UserDto userFromController = userController.getAll().get(0);
 
-            assertEquals(userFromController.getId(), userDto1.getId());
-            assertEquals(userFromController.getName(), userDto1.getName());
-            assertEquals(userFromController.getEmail(), userDto1.getEmail());
+            checkUserDto(userDto1, userFromController);
         }
     }
 
@@ -97,20 +94,15 @@ public class UserControllerTest {
             UserDto userFromController1 = usersFromController.get(0);
             UserDto userFromController2 = usersFromController.get(1);
 
-            assertEquals(userFromController1.getId(), userDto1.getId());
-            assertEquals(userFromController1.getName(), userDto1.getName());
-            assertEquals(userFromController1.getEmail(), userDto1.getEmail());
-
-            assertEquals(userFromController2.getId(), userDto2.getId());
-            assertEquals(userFromController2.getName(), userDto2.getName());
-            assertEquals(userFromController2.getEmail(), userDto2.getEmail());
+            checkUserDto(userDto1, userFromController1);
+            checkUserDto(userDto2, userFromController2);
         }
 
         @Test
         public void shouldGetIfEmpty() {
             List<UserDto> usersFromController = userController.getAll();
 
-            assertEquals(usersFromController.size(), 0);
+            assertTrue(usersFromController.isEmpty());
         }
     }
 
@@ -127,16 +119,14 @@ public class UserControllerTest {
 
             UserDto usersFromController = userController.getById(1L);
 
-            assertEquals(usersFromController.getId(), userDto1.getId());
-            assertEquals(usersFromController.getName(), userDto1.getName());
-            assertEquals(usersFromController.getEmail(), userDto1.getEmail());
+            checkUserDto(userDto1, usersFromController);
         }
 
         @Test
         public void shouldThrowExceptionIfUserIdNotFound() {
             NotFoundException exception = assertThrows(NotFoundException.class, () -> userController.getById(10L));
             assertEquals("Пользователя с таким id не существует.", exception.getMessage());
-            assertEquals(userController.getAll().size(), 0);
+            assertTrue(userController.getAll().isEmpty());
         }
     }
 
@@ -200,13 +190,8 @@ public class UserControllerTest {
             UserDto userFromController1 = usersFromController.get(0);
             UserDto userFromController2 = usersFromController.get(1);
 
-            assertEquals(userFromController1.getId(), userDto1.getId());
-            assertEquals(userFromController1.getName(), userDto1.getName());
-            assertEquals(userFromController1.getEmail(), userDto1.getEmail());
-
-            assertEquals(userFromController2.getId(), userDto2.getId());
-            assertEquals(userFromController2.getName(), userDto2.getName());
-            assertEquals(userFromController2.getEmail(), userDto2.getEmail());
+            checkUserDto(userDto1, userFromController1);
+            checkUserDto(userDto2, userFromController2);
         }
     }
 
@@ -227,20 +212,24 @@ public class UserControllerTest {
 
             UserDto userFromController = usersFromController.get(0);
 
-            assertEquals(userFromController.getId(), userDto1.getId());
-            assertEquals(userFromController.getName(), userDto1.getName());
-            assertEquals(userFromController.getEmail(), userDto1.getEmail());
+            checkUserDto(userDto1, userFromController);
 
             userController.delete(userDto1.getId());
 
-            assertEquals(userController.getAll().size(), 0);
+            assertTrue(userController.getAll().isEmpty());
         }
 
         @Test
         public void shouldDeleteIfUserIdNotFound() {
             assertThrows(EmptyResultDataAccessException.class, () -> userController.delete(10L));
 
-            assertEquals(userController.getAll().size(), 0);
+            assertTrue(userController.getAll().isEmpty());
         }
+    }
+
+    private void checkUserDto(UserDto userDto, UserDto userDtoFromController) {
+        assertEquals(userDto.getId(), userDtoFromController.getId());
+        assertEquals(userDto.getName(), userDtoFromController.getName());
+        assertEquals(userDto.getEmail(), userDtoFromController.getEmail());
     }
 }

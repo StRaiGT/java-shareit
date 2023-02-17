@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.comment.model;
+package ru.practicum.shareit.request.model;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CommentRequestDto {
+public class ItemRequestCreateDto {
     @NotBlank
-    String text;
+    String description;
 }
