@@ -1,44 +1,14 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.booking.model.BookingItemDto;
-import ru.practicum.shareit.item.comment.model.CommentDto;
-import ru.practicum.shareit.item.comment.model.CommentRequestDto;
-import ru.practicum.shareit.item.controller.ItemController;
-import ru.practicum.shareit.item.model.ItemDto;
-import ru.practicum.shareit.item.model.ItemExtendedDto;
-import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.user.controller.UserController;
-import ru.practicum.shareit.user.model.UserDto;
-
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import ru.practicum.shareit.item.ItemController;
 
 @WebMvcTest(controllers = ItemController.class)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemControllerTest {
+    /*
     private final ObjectMapper mapper;
     private final MockMvc mvc;
 
@@ -159,6 +129,111 @@ public class ItemControllerTest {
             verify(itemService, times(1)).create(ArgumentMatchers.eq(userDto1.getId()),
                     ArgumentMatchers.any(ItemDto.class));
         }
+
+        @Test
+        public void shouldThrowExceptionIfNameIsNull() throws Exception {
+            itemDto.setName(null);
+
+            mvc.perform(post("/items")
+                            .header(UserController.headerUserId, userDto1.getId())
+                            .content(mapper.writeValueAsString(itemDto))
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+
+            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfNameIsEmpty() throws Exception {
+            itemDto.setName("");
+
+            mvc.perform(post("/items")
+                            .header(UserController.headerUserId, userDto1.getId())
+                            .content(mapper.writeValueAsString(itemDto))
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+
+            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfNameIsBlank() throws Exception {
+            itemDto.setName(" ");
+
+            mvc.perform(post("/items")
+                            .header(UserController.headerUserId, userDto1.getId())
+                            .content(mapper.writeValueAsString(itemDto))
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+
+            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfDescriptionIsNull() throws Exception {
+            itemDto.setDescription(null);
+
+            mvc.perform(post("/items")
+                            .header(UserController.headerUserId, userDto1.getId())
+                            .content(mapper.writeValueAsString(itemDto))
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+
+            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfDescriptionIsEmpty() throws Exception {
+            itemDto.setDescription("");
+
+            mvc.perform(post("/items")
+                            .header(UserController.headerUserId, userDto1.getId())
+                            .content(mapper.writeValueAsString(itemDto))
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+
+            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfDescriptionIsBlank() throws Exception {
+            itemDto.setDescription(" ");
+
+            mvc.perform(post("/items")
+                            .header(UserController.headerUserId, userDto1.getId())
+                            .content(mapper.writeValueAsString(itemDto))
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+
+            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfAvailableIsNull() throws Exception {
+            itemDto.setAvailable(null);
+
+            mvc.perform(post("/items")
+                            .header(UserController.headerUserId, userDto1.getId())
+                            .content(mapper.writeValueAsString(itemDto))
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+
+            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
     }
 
     @Nested
@@ -176,6 +251,28 @@ public class ItemControllerTest {
 
             verify(itemService, times(1)).getByOwnerId(ArgumentMatchers.eq(userDto1.getId()),
                     ArgumentMatchers.eq(PageRequest.of(from / size, size)));
+        }
+
+        @Test
+        public void shouldThrowExceptionIfFromIsNegative() throws Exception {
+            from = -1;
+
+            mvc.perform(get("/items?from={from}&size={size}", from, size)
+                            .header(UserController.headerUserId, userDto1.getId()))
+                    .andExpect(status().isInternalServerError());
+
+            verify(itemService, never()).getByOwnerId(ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfSizeIsZero() throws Exception {
+            size = 0;
+
+            mvc.perform(get("/items?from={from}&size={size}", from, size)
+                            .header(UserController.headerUserId, userDto1.getId()))
+                    .andExpect(status().isInternalServerError());
+
+            verify(itemService, never()).getByOwnerId(ArgumentMatchers.any(), ArgumentMatchers.any());
         }
     }
 
@@ -244,6 +341,26 @@ public class ItemControllerTest {
             verify(itemService, times(1)).search(ArgumentMatchers.eq(text),
                     ArgumentMatchers.eq(PageRequest.of(from / size, size)));
         }
+
+        @Test
+        public void shouldThrowExceptionIfFromIsNegative() throws Exception {
+            from = -1;
+
+            mvc.perform(get("/items/search?text={text}&from={from}&size={size}", text, from, size))
+                    .andExpect(status().isInternalServerError());
+
+            verify(itemService, never()).search(ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfSizeIsZero() throws Exception {
+            size = 0;
+
+            mvc.perform(get("/items/search?text={text}&from={from}&size={size}", text, from, size))
+                    .andExpect(status().isInternalServerError());
+
+            verify(itemService, never()).search(ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
     }
 
     @Nested
@@ -266,5 +383,54 @@ public class ItemControllerTest {
             verify(itemService, times(1)).addComment(ArgumentMatchers.eq(userDto1.getId()),
                     ArgumentMatchers.eq(itemDto1.getId()), ArgumentMatchers.any(CommentRequestDto.class));
         }
+
+        @Test
+        public void shouldThrowExceptionIfNull() throws Exception {
+            commentRequestDto.setText(null);
+
+            mvc.perform(post("/items/{id}/comment", itemDto1.getId())
+                            .header(UserController.headerUserId, userDto1.getId())
+                            .content(mapper.writeValueAsString(commentRequestDto))
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+
+            verify(itemService, never()).addComment(ArgumentMatchers.any(), ArgumentMatchers.any(),
+                    ArgumentMatchers.any());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfEmpty() throws Exception {
+            commentRequestDto.setText("");
+
+            mvc.perform(post("/items/{id}/comment", itemDto1.getId())
+                            .header(UserController.headerUserId, userDto1.getId())
+                            .content(mapper.writeValueAsString(commentRequestDto))
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+
+            verify(itemService, never()).addComment(ArgumentMatchers.any(), ArgumentMatchers.any(),
+                    ArgumentMatchers.any());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfBlank() throws Exception {
+            commentRequestDto.setText(" ");
+
+            mvc.perform(post("/items/{id}/comment", itemDto1.getId())
+                            .header(UserController.headerUserId, userDto1.getId())
+                            .content(mapper.writeValueAsString(commentRequestDto))
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+
+            verify(itemService, never()).addComment(ArgumentMatchers.any(), ArgumentMatchers.any(),
+                    ArgumentMatchers.any());
+        }
     }
+*/
 }

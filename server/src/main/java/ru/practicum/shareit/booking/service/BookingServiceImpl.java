@@ -14,8 +14,8 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingRequestDto;
 import ru.practicum.shareit.booking.model.BookingResponseDto;
 import ru.practicum.shareit.booking.storage.BookingRepository;
-import ru.practicum.shareit.exception.BookingException;
-import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.booking.storage.exception.BookingException;
+import ru.practicum.shareit.booking.storage.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
@@ -80,10 +80,6 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingResponseDto create(Long userId, BookingRequestDto bookingRequestDto) {
         log.info("Создание бронирования {} пользователем с id {}.", bookingRequestDto, userId);
-
-        if (bookingRequestDto.getEnd().isBefore(bookingRequestDto.getStart())) {
-            throw new BookingException("Недопустимое время брони.");
-        }
 
         Item item = itemService.getItemById(bookingRequestDto.getItemId());
 

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.exception;
+package ru.practicum.shareit.booking.storage.exception;
 
 public class ForbiddenException extends RuntimeException {
     public ForbiddenException(String message) {

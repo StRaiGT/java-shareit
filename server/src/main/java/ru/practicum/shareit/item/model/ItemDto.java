@@ -5,10 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.markers.Create;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
@@ -16,14 +12,8 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class ItemDto {
     Long id;
-
-    @NotBlank(groups = Create.class)
     String name;
-
-    @NotBlank(groups = Create.class)
     String description;
-
-    @NotNull(groups = Create.class)
     Boolean available;
     Long ownerId;
     Long requestId;

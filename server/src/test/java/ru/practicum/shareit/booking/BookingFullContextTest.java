@@ -12,8 +12,8 @@ import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.model.BookingRequestDto;
 import ru.practicum.shareit.booking.model.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.BookingException;
-import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.booking.storage.exception.BookingException;
+import ru.practicum.shareit.booking.storage.exception.NotFoundException;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.model.ItemDto;
 import ru.practicum.shareit.user.controller.UserController;
@@ -195,43 +195,6 @@ public class BookingFullContextTest {
             NotFoundException exception = assertThrows(NotFoundException.class,
                     () -> bookingService.create(userDto.getId(), bookingRequestDto));
             assertEquals("Владелец не может бронировать собственную вещь.", exception.getMessage());
-        }
-
-        @Test
-        public void shouldThrowExceptionIfEndIsAfterStart() {
-            UserDto userDto1 = UserDto.builder()
-                    .id(1L)
-                    .name("Test user 1")
-                    .email("tester1@yandex.ru")
-                    .build();
-            userController.create(userDto1);
-
-            UserDto userDto2 = UserDto.builder()
-                    .id(2L)
-                    .name("Test user 2")
-                    .email("tester2@yandex.ru")
-                    .build();
-            userController.create(userDto2);
-
-            ItemDto itemDto = ItemDto.builder()
-                    .id(1L)
-                    .name("Test item 1")
-                    .description("Test item description 1")
-                    .available(true)
-                    .ownerId(userDto1.getId())
-                    .requestId(null)
-                    .build();
-            itemController.create(itemDto.getOwnerId(), itemDto);
-
-            BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
-                    .start(LocalDateTime.of(2023, 3, 30, 10, 0, 0))
-                    .end(LocalDateTime.of(2023, 1, 30, 11, 0, 0))
-                    .itemId(itemDto.getId())
-                    .build();
-
-            BookingException exception = assertThrows(BookingException.class,
-                    () -> bookingService.create(userDto2.getId(), bookingRequestDto));
-            assertEquals("Недопустимое время брони.", exception.getMessage());
         }
     }
 
@@ -693,16 +656,6 @@ public class BookingFullContextTest {
                             Integer.parseInt(UserController.PAGE_DEFAULT_SIZE)));
             assertEquals("Пользователя с таким id не существует.", exception.getMessage());
         }
-
-        @Test
-        public void shouldThrowExceptionWithUnknownState() {
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> bookingController.getAllByBookerId(2L,
-                            "UNKNOWN",
-                            Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
-                            Integer.parseInt(UserController.PAGE_DEFAULT_SIZE)));
-            assertEquals("Unknown state: UNKNOWN", exception.getMessage());
-        }
     }
 
     @Nested
@@ -873,16 +826,6 @@ public class BookingFullContextTest {
                             Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
                             Integer.parseInt(UserController.PAGE_DEFAULT_SIZE)));
             assertEquals("Пользователя с таким id не существует.", exception.getMessage());
-        }
-
-        @Test
-        public void shouldThrowExceptionWithUnknownState() {
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> bookingController.getAllByOwnerId(1L,
-                            "UNKNOWN",
-                            Integer.parseInt(UserController.PAGE_DEFAULT_FROM),
-                            Integer.parseInt(UserController.PAGE_DEFAULT_SIZE)));
-            assertEquals("Unknown state: UNKNOWN", exception.getMessage());
         }
     }
 

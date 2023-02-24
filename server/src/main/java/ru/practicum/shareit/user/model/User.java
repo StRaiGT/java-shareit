@@ -16,7 +16,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.Email;
 import java.util.Objects;
 
 @Entity
@@ -36,7 +35,6 @@ public class User {
     @Column
     String name;
 
-    @Email
     @Column(nullable = false)
     String email;
 

@@ -11,6 +11,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.booking.model.BookingRequestDto;
 import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.client.BaseClient;
+import ru.practicum.shareit.exception.BookingException;
 
 import java.util.Map;
 
@@ -57,6 +58,10 @@ public class BookingClient extends BaseClient {
 
     public ResponseEntity<Object> create(Long userId, BookingRequestDto bookingRequestDto) {
         log.info("Создание бронирования {} пользователем с id {}.", bookingRequestDto, userId);
+
+        if (bookingRequestDto.getEnd().isBefore(bookingRequestDto.getStart())) {
+            throw new BookingException("Недопустимое время брони.");
+        }
         return post("", userId, bookingRequestDto);
     }
 

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.exception;
+package ru.practicum.shareit.booking.storage.exception;
 
 import lombok.Getter;
 

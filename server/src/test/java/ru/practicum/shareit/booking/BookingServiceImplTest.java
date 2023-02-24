@@ -20,8 +20,8 @@ import ru.practicum.shareit.booking.model.BookingRequestDto;
 import ru.practicum.shareit.booking.model.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.booking.storage.BookingRepository;
-import ru.practicum.shareit.exception.BookingException;
-import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.booking.storage.exception.BookingException;
+import ru.practicum.shareit.booking.storage.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
@@ -624,14 +624,6 @@ public class BookingServiceImplTest {
             assertEquals(booking.getStart(), savedBooking.getStart());
             assertEquals(booking.getEnd(), savedBooking.getEnd());
             assertEquals(booking.getBooker().getId(), savedBooking.getBooker().getId());
-        }
-
-        @Test
-        public void shouldThrowExceptionIfEndIsBeforeStart() {
-            BookingException exception = assertThrows(BookingException.class,
-                    () -> bookingService.create(user2.getId(), bookingRequestDtoWrongDate));
-            assertEquals("Недопустимое время брони.", exception.getMessage());
-            verify(bookingRepository, never()).save(any());
         }
 
         @Test
