@@ -1,29 +1,51 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.item.ItemClient;
 import ru.practicum.shareit.item.ItemController;
+import ru.practicum.shareit.item.model.CommentRequestDto;
+import ru.practicum.shareit.item.model.ItemDto;
+import ru.practicum.shareit.user.UserController;
+import ru.practicum.shareit.user.model.UserDto;
+
+import java.nio.charset.StandardCharsets;
+
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ItemController.class)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemControllerTest {
-    /*
+
     private final ObjectMapper mapper;
     private final MockMvc mvc;
 
     @MockBean
-    private ItemService itemService;
+    private ItemClient itemClient;
 
     private final UserDto userDto1 = UserDto.builder()
             .id(1L)
             .name("Test user")
             .email("tester@yandex.ru")
-            .build();
-    private final UserDto userDto2 = UserDto.builder()
-            .id(2L)
-            .name("Test user 2")
-            .email("tester2@yandex.ru")
             .build();
     private final ItemDto itemDto1 = ItemDto.builder()
             .id(1L)
@@ -32,60 +54,6 @@ public class ItemControllerTest {
             .available(true)
             .ownerId(userDto1.getId())
             .requestId(null)
-            .build();
-    private final ItemDto itemDto2 = ItemDto.builder()
-            .id(2L)
-            .name("Test item 2")
-            .description("Test item description 2")
-            .available(true)
-            .ownerId(userDto2.getId())
-            .requestId(null)
-            .build();
-    private final BookingItemDto bookingItemDto1 = BookingItemDto.builder()
-            .id(1L)
-            .bookerId(userDto2.getId())
-            .start(LocalDateTime.now().minusMinutes(10))
-            .end(LocalDateTime.now().minusMinutes(5))
-            .build();
-    private final BookingItemDto bookingItemDto2 = BookingItemDto.builder()
-            .id(2L)
-            .bookerId(userDto2.getId())
-            .start(LocalDateTime.now().plusMinutes(5))
-            .end(LocalDateTime.now().plusMinutes(10))
-            .build();
-    private final CommentDto commentDto1 = CommentDto.builder()
-            .id(1L)
-            .text("comment 1")
-            .createdDate(LocalDateTime.now().minusMinutes(10))
-            .authorName(userDto2.getName())
-            .build();
-    private final CommentDto commentDto2 = CommentDto.builder()
-            .id(2L)
-            .text("comment 2")
-            .createdDate(LocalDateTime.now().minusMinutes(5))
-            .authorName(userDto2.getName())
-            .build();
-    private final ItemExtendedDto itemExtendedDto1 = ItemExtendedDto.builder()
-            .id(itemDto1.getId())
-            .name(itemDto1.getName())
-            .description(itemDto1.getDescription())
-            .available(itemDto1.getAvailable())
-            .ownerId(itemDto1.getOwnerId())
-            .requestId(null)
-            .lastBooking(bookingItemDto1)
-            .nextBooking(bookingItemDto2)
-            .comments(List.of(commentDto1, commentDto2))
-            .build();
-    private final ItemExtendedDto itemExtendedDto2 = ItemExtendedDto.builder()
-            .id(itemDto2.getId())
-            .name(itemDto2.getName())
-            .description(itemDto2.getDescription())
-            .available(itemDto2.getAvailable())
-            .ownerId(itemDto2.getOwnerId())
-            .requestId(null)
-            .lastBooking(null)
-            .nextBooking(null)
-            .comments(List.of())
             .build();
     private final String text = "text for search";
     private ItemDto itemDto;
@@ -114,8 +82,8 @@ public class ItemControllerTest {
     class Create {
         @Test
         public void shouldCreate() throws Exception {
-            when(itemService.create(ArgumentMatchers.eq(userDto1.getId()), ArgumentMatchers.any(ItemDto.class)))
-                    .thenReturn(itemDto);
+            when(itemClient.create(ArgumentMatchers.eq(userDto1.getId()), ArgumentMatchers.any(ItemDto.class)))
+                    .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
             mvc.perform(post("/items")
                             .header(UserController.headerUserId, userDto1.getId())
@@ -123,10 +91,9 @@ public class ItemControllerTest {
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(content().json(mapper.writeValueAsString(itemDto)));
+                    .andExpect(status().isOk());
 
-            verify(itemService, times(1)).create(ArgumentMatchers.eq(userDto1.getId()),
+            verify(itemClient, times(1)).create(ArgumentMatchers.eq(userDto1.getId()),
                     ArgumentMatchers.any(ItemDto.class));
         }
 
@@ -142,7 +109,7 @@ public class ItemControllerTest {
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
-            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+            verify(itemClient, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
         }
 
         @Test
@@ -157,7 +124,7 @@ public class ItemControllerTest {
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
-            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+            verify(itemClient, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
         }
 
         @Test
@@ -172,7 +139,7 @@ public class ItemControllerTest {
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
-            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+            verify(itemClient, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
         }
 
         @Test
@@ -187,7 +154,7 @@ public class ItemControllerTest {
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
-            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+            verify(itemClient, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
         }
 
         @Test
@@ -202,7 +169,7 @@ public class ItemControllerTest {
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
-            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+            verify(itemClient, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
         }
 
         @Test
@@ -217,7 +184,7 @@ public class ItemControllerTest {
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
-            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+            verify(itemClient, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
         }
 
         @Test
@@ -232,7 +199,7 @@ public class ItemControllerTest {
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
-            verify(itemService, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
+            verify(itemClient, never()).create(ArgumentMatchers.any(), ArgumentMatchers.any());
         }
     }
 
@@ -240,17 +207,15 @@ public class ItemControllerTest {
     class GetByOwner {
         @Test
         public void shouldGet() throws Exception {
-            when(itemService.getByOwnerId(ArgumentMatchers.eq(userDto1.getId()),
-                    ArgumentMatchers.eq(PageRequest.of(from / size, size))))
-                    .thenReturn(List.of(itemExtendedDto1, itemExtendedDto2));
+            when(itemClient.getByOwnerId(ArgumentMatchers.eq(userDto1.getId()), ArgumentMatchers.eq(from),
+                    ArgumentMatchers.eq(size))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
             mvc.perform(get("/items?from={from}&size={size}", from, size)
                             .header(UserController.headerUserId, userDto1.getId()))
-                    .andExpect(status().isOk())
-                    .andExpect(content().json(mapper.writeValueAsString(List.of(itemExtendedDto1, itemExtendedDto2))));
+                    .andExpect(status().isOk());
 
-            verify(itemService, times(1)).getByOwnerId(ArgumentMatchers.eq(userDto1.getId()),
-                    ArgumentMatchers.eq(PageRequest.of(from / size, size)));
+            verify(itemClient, times(1)).getByOwnerId(ArgumentMatchers.eq(userDto1.getId()),
+                    ArgumentMatchers.eq(from), ArgumentMatchers.eq(size));
         }
 
         @Test
@@ -261,7 +226,7 @@ public class ItemControllerTest {
                             .header(UserController.headerUserId, userDto1.getId()))
                     .andExpect(status().isInternalServerError());
 
-            verify(itemService, never()).getByOwnerId(ArgumentMatchers.any(), ArgumentMatchers.any());
+            verify(itemClient, never()).getByOwnerId(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
         }
 
         @Test
@@ -272,7 +237,18 @@ public class ItemControllerTest {
                             .header(UserController.headerUserId, userDto1.getId()))
                     .andExpect(status().isInternalServerError());
 
-            verify(itemService, never()).getByOwnerId(ArgumentMatchers.any(), ArgumentMatchers.any());
+            verify(itemClient, never()).getByOwnerId(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfSizeIsNegative() throws Exception {
+            size = -1;
+
+            mvc.perform(get("/items?from={from}&size={size}", from, size)
+                            .header(UserController.headerUserId, userDto1.getId()))
+                    .andExpect(status().isInternalServerError());
+
+            verify(itemClient, never()).getByOwnerId(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
         }
     }
 
@@ -280,15 +256,14 @@ public class ItemControllerTest {
     class GetById {
         @Test
         public void shouldGet() throws Exception {
-            when(itemService.getById(ArgumentMatchers.eq(userDto1.getId()), ArgumentMatchers.eq(itemDto1.getId())))
-                    .thenReturn(itemExtendedDto1);
+            when(itemClient.getById(ArgumentMatchers.eq(userDto1.getId()), ArgumentMatchers.eq(itemDto1.getId())))
+                    .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
             mvc.perform(get("/items/{id}", itemDto1.getId())
                             .header(UserController.headerUserId, userDto1.getId()))
-                    .andExpect(status().isOk())
-                    .andExpect(content().json(mapper.writeValueAsString(itemExtendedDto1)));
+                    .andExpect(status().isOk());
 
-            verify(itemService, times(1)).getById(ArgumentMatchers.eq(userDto1.getId()),
+            verify(itemClient, times(1)).getById(ArgumentMatchers.eq(userDto1.getId()),
                     ArgumentMatchers.eq(itemDto1.getId()));
         }
     }
@@ -297,9 +272,9 @@ public class ItemControllerTest {
     class Patch {
         @Test
         public void shouldPatch() throws Exception {
-            when(itemService.patch(ArgumentMatchers.eq(userDto1.getId()), ArgumentMatchers.eq(itemDto1.getId()),
+            when(itemClient.patch(ArgumentMatchers.eq(userDto1.getId()), ArgumentMatchers.eq(itemDto1.getId()),
                     ArgumentMatchers.any(ItemDto.class)))
-                    .thenReturn(itemDto1);
+                    .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
             mvc.perform(patch("/items/{id}", itemDto1.getId())
                             .header(UserController.headerUserId, userDto1.getId())
@@ -307,10 +282,9 @@ public class ItemControllerTest {
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(content().json(mapper.writeValueAsString(itemDto1)));
+                    .andExpect(status().isOk());
 
-            verify(itemService, times(1)).patch(ArgumentMatchers.eq(userDto1.getId()),
+            verify(itemClient, times(1)).patch(ArgumentMatchers.eq(userDto1.getId()),
                     ArgumentMatchers.eq(itemDto1.getId()), ArgumentMatchers.any(ItemDto.class));
         }
     }
@@ -322,7 +296,7 @@ public class ItemControllerTest {
             mvc.perform(delete("/items/{id}", itemDto1.getId()))
                     .andExpect(status().isOk());
 
-            verify(itemService, times(1)).delete(ArgumentMatchers.eq(itemDto1.getId()));
+            verify(itemClient, times(1)).delete(ArgumentMatchers.eq(itemDto1.getId()));
         }
     }
 
@@ -330,16 +304,14 @@ public class ItemControllerTest {
     class Search {
         @Test
         public void shouldSearch() throws Exception {
-            when(itemService.search(ArgumentMatchers.eq(text),
-                    ArgumentMatchers.eq(PageRequest.of(from / size, size))))
-                    .thenReturn(List.of(itemDto1, itemDto2));
+            when(itemClient.search(ArgumentMatchers.eq(text), ArgumentMatchers.eq(from),
+                    ArgumentMatchers.eq(size))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
             mvc.perform(get("/items/search?text={text}&from={from}&size={size}", text, from, size))
-                    .andExpect(status().isOk())
-                    .andExpect(content().json(mapper.writeValueAsString(List.of(itemDto1, itemDto2))));
+                    .andExpect(status().isOk());
 
-            verify(itemService, times(1)).search(ArgumentMatchers.eq(text),
-                    ArgumentMatchers.eq(PageRequest.of(from / size, size)));
+            verify(itemClient, times(1)).search(ArgumentMatchers.eq(text),
+                    ArgumentMatchers.eq(from), ArgumentMatchers.eq(size));
         }
 
         @Test
@@ -349,7 +321,7 @@ public class ItemControllerTest {
             mvc.perform(get("/items/search?text={text}&from={from}&size={size}", text, from, size))
                     .andExpect(status().isInternalServerError());
 
-            verify(itemService, never()).search(ArgumentMatchers.any(), ArgumentMatchers.any());
+            verify(itemClient, never()).search(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
         }
 
         @Test
@@ -359,7 +331,17 @@ public class ItemControllerTest {
             mvc.perform(get("/items/search?text={text}&from={from}&size={size}", text, from, size))
                     .andExpect(status().isInternalServerError());
 
-            verify(itemService, never()).search(ArgumentMatchers.any(), ArgumentMatchers.any());
+            verify(itemClient, never()).search(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
+        }
+
+        @Test
+        public void shouldThrowExceptionIfSizeIsNegative() throws Exception {
+            size = -1;
+
+            mvc.perform(get("/items/search?text={text}&from={from}&size={size}", text, from, size))
+                    .andExpect(status().isInternalServerError());
+
+            verify(itemClient, never()).search(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
         }
     }
 
@@ -367,9 +349,8 @@ public class ItemControllerTest {
     class AddComment {
         @Test
         public void shouldAdd() throws Exception {
-            when(itemService.addComment(ArgumentMatchers.eq(userDto1.getId()), ArgumentMatchers.eq(itemDto1.getId()),
-                    ArgumentMatchers.any(CommentRequestDto.class)))
-                    .thenReturn(commentDto1);
+            when(itemClient.addComment(ArgumentMatchers.eq(userDto1.getId()), ArgumentMatchers.eq(itemDto1.getId()),
+                    ArgumentMatchers.any(CommentRequestDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
             mvc.perform(post("/items/{id}/comment", itemDto1.getId())
                             .header(UserController.headerUserId, userDto1.getId())
@@ -377,10 +358,9 @@ public class ItemControllerTest {
                             .characterEncoding(StandardCharsets.UTF_8)
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(content().json(mapper.writeValueAsString(commentDto1)));
+                    .andExpect(status().isOk());
 
-            verify(itemService, times(1)).addComment(ArgumentMatchers.eq(userDto1.getId()),
+            verify(itemClient, times(1)).addComment(ArgumentMatchers.eq(userDto1.getId()),
                     ArgumentMatchers.eq(itemDto1.getId()), ArgumentMatchers.any(CommentRequestDto.class));
         }
 
@@ -396,8 +376,7 @@ public class ItemControllerTest {
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
-            verify(itemService, never()).addComment(ArgumentMatchers.any(), ArgumentMatchers.any(),
-                    ArgumentMatchers.any());
+            verify(itemClient, never()).addComment(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
         }
 
         @Test
@@ -412,8 +391,7 @@ public class ItemControllerTest {
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
-            verify(itemService, never()).addComment(ArgumentMatchers.any(), ArgumentMatchers.any(),
-                    ArgumentMatchers.any());
+            verify(itemClient, never()).addComment(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
         }
 
         @Test
@@ -428,9 +406,7 @@ public class ItemControllerTest {
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
 
-            verify(itemService, never()).addComment(ArgumentMatchers.any(), ArgumentMatchers.any(),
-                    ArgumentMatchers.any());
+            verify(itemClient, never()).addComment(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
         }
     }
-*/
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.model.BookingRequestDto;
 import ru.practicum.shareit.booking.model.State;
+import ru.practicum.shareit.exception.BookingException;
 import ru.practicum.shareit.user.UserController;
 
 import javax.validation.Valid;
@@ -58,6 +59,9 @@ public class BookingController {
 	@PostMapping
 	public ResponseEntity<Object> create(@RequestHeader(UserController.headerUserId) Long userId,
 									 @Valid @RequestBody BookingRequestDto bookingRequestDto) {
+		if (bookingRequestDto.getEnd().isBefore(bookingRequestDto.getStart())) {
+			throw new BookingException("Недопустимое время брони.");
+		}
 		return bookingClient.create(userId, bookingRequestDto);
 	}
 

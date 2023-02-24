@@ -117,9 +117,11 @@ public class ItemControllerTest {
             .nextBooking(null)
             .comments(List.of())
             .build();
+    private final CommentRequestDto commentRequestDto = CommentRequestDto.builder()
+            .text("comment 1")
+            .build();
     private final String text = "text for search";
     private ItemDto itemDto;
-    private CommentRequestDto commentRequestDto;
     private int from;
     private int size;
 
@@ -132,9 +134,6 @@ public class ItemControllerTest {
                 .available(true)
                 .ownerId(userDto1.getId())
                 .requestId(null)
-                .build();
-        commentRequestDto = CommentRequestDto.builder()
-                .text("comment 1")
                 .build();
         from = Integer.parseInt(UserController.PAGE_DEFAULT_FROM);
         size = Integer.parseInt(UserController.PAGE_DEFAULT_SIZE);

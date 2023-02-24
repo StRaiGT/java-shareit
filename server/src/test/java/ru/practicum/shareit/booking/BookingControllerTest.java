@@ -84,18 +84,17 @@ public class BookingControllerTest {
             .booker(userDto2)
             .status(Status.WAITING)
             .build();
-    private BookingRequestDto bookingRequestDto;
+    private final BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
+            .start(LocalDateTime.now().plusMinutes(5))
+            .end(LocalDateTime.now().plusMinutes(10))
+            .itemId(1L)
+            .build();
     private BookingResponseDto bookingResponseDto;
     private int from;
     private int size;
 
     @BeforeEach
     public void beforeEach() {
-        bookingRequestDto = BookingRequestDto.builder()
-                .start(LocalDateTime.now().plusMinutes(5))
-                .end(LocalDateTime.now().plusMinutes(10))
-                .itemId(1L)
-                .build();
         bookingResponseDto = BookingResponseDto.builder()
                 .id(1L)
                 .start(LocalDateTime.now().plusMinutes(5))
