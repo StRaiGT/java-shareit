@@ -142,7 +142,9 @@ public class ItemServiceImpl implements ItemService {
 
     private BookingItemDto getLastBooking(Item item) {
         List<Booking> bookings = bookingRepository.findByItemIdAndStartBeforeAndStatusEqualsOrderByStartDesc(
-                item.getId(), LocalDateTime.now(), Status.APPROVED);
+                item.getId(),
+                LocalDateTime.now(),
+                Status.APPROVED);
 
         if (bookings.isEmpty()) {
             return null;
